@@ -1,0 +1,3 @@
+[submodule "MathFeature-WebServer"]
+	path = MathFeature-WebServer
+	url = https://github.com/Bonidia/MathFeature-WebServer.git
