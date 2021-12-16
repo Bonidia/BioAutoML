@@ -4,7 +4,7 @@
 ![Status](https://img.shields.io/badge/status-up-brightgreen)
 
 <h1 align="center">
-  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/BioAutoML.pdf" alt="BioAutoML" width="350">
+  <img src="https://github.com/Bonidia/BioAutoML/blob/master/img/BioAutoML.png" alt="BioAutoML" width="350">
 </h1>
 
 <h4 align="center">BioAutoML: Automated Feature Engineering for Classification of Biological Sequences</h4>
