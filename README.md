@@ -4,10 +4,10 @@
 ![Status](https://img.shields.io/badge/status-up-brightgreen)
 
 <h1 align="center">
-  <img src="https://github.com/Bonidia/MathFeature/blob/master/img/MathFeature.png" alt="MathFeature" width="350">
+  <img src="img/BioAutoML.pdf" alt="MathFeature" width="350">
 </h1>
 
-<h4 align="center">Feature Extraction Package for Biological Sequences Based on Mathematical Descriptors</h4>
+<h4 align="center">BioAutoML: Automated Feature Engineering for Classification of Biological Sequences</h4>
 
 <p align="center">
   <a href="https://github.com/Bonidia/MathFeature">Home</a> •
@@ -22,19 +22,17 @@
 
 <h1 align="center"></h1>
 
-## Update news!!!
-
-**MathFeature** - Now available on Web Server - Access on http://mathfeature.icmc.usp.br/ - 2021-09-30
-
-**Web Server** - To work on your machine or network - Access on https://github.com/Bonidia/MathFeature-WebServer - 2021-11-05
-
 ## Abstract
 
-One of the main challenges in the application of Machine Learning (ML) algorithms to biological sequence data is how to numerically represent a sequence in a numeric input vector. Feature extraction techniques capable of extracting numerical information from biological sequences have been reported in the literature. However, many of these techniques are not available in existing packages, such as mathematical descriptors. This paper presents a new package, MathFeature, which implements mathematical descriptors able to extract relevant numerical information from biological sequences, i.e., DNA, RNA, and Proteins (prediction of structural features along the primary sequence of amino acids). MathFeature makes available 20 numerical feature extraction descriptors based on approaches found in the literature, e.g., multiple numeric mappings, genomic signal processing, chaos game theory, entropy, and complex networks. MathFeature also allows the extraction of alternative features, complementing the existing packages. To ensure that our descriptors are robust and to assess their relevance, experimental results are presented in nine case studies. According to these results, the features extracted by MathFeature shown high performance (0.6350-0.9897, accuracy), both applying only mathematical descriptors, but also hybridization with well-known descriptors in the literature. Finally, through MathFeature, we overcome several studies in eight benchmark datasets, exemplifying the robustness and viability of the proposed package. MathFeature advances in the area by bringing descriptors not available in other packages, as well as allowing non-experts to use feature extraction techniques.
+Recent technological advances allowed an exponential expansion of biological sequence data, and the extraction of meaningful information through Machine Learning (ML) algorithms. This knowledge improved the understanding of the mechanisms related to several fatal diseases, e.g., Cancer and COVID-19, helping to develop innovative solutions, such as CRISPR-based gene editing, coronavirus vaccine, and precision medicine. These advances benefit our society and economy, directly impacting people’s lives in various areas, such as health care, drug
+discovery, forensic analysis, and food analysis. Nevertheless, ML approaches applied to biological data require representative, quantitative, and informative features. Necessarily, as many ML algorithms can handle only numerical
+data, sequences need to be translated into a feature vector. This process is known as feature extraction, a fundamental step for the elaboration of high-quality ML-based models in bioinformatics, especially in the stage of feature
+engineering. This process often requires extensive domain knowledge, performed manually by a human expert, making feature engineering a decisive and time-consuming step in the ML pipeline. Thus, we propose to develop a new
+package, BioAutoML, able to extract relevant numerical information from biological sequences. BioAutoML will use Automated ML (AutoML) to recommend the best feature vector to be extracted from a biological dataset. Fundamentally, this project is divided into two stages: (1) Implement feature extraction descriptors for biological sequences, and (2) automate efficient and robust feature extraction pipelines. The first experimental results, assessing the relevance of the implemented descriptors, indicate robust results for different problem domains, such as SARS-CoV-2, anticancer peptides, HIV sequences, and non-coding RNAs. According to our systematic review, our proposal is innovative compared to available studies in the literature, being the first study to propose automated feature engineering for biological sequences, allowing non-experts to use relevant feature extraction techniques.
 
 ## Authors
 
-* Robson Parmezan Bonidia, Douglas S. Domingues, Danilo Sipoli Sanches, and André Carlos Ponce de Leon Ferreira de Carvalho.
+* Robson Parmezan Bonidia, Danilo Sipoli Sanches, and André Carlos Ponce de Leon Ferreira de Carvalho.
 
 * **Correspondence:** rpbonidia@gmail.com or bonidia@usp.br
 
@@ -59,12 +57,16 @@ Robson P Bonidia, Douglas S Domingues, Danilo S Sanches, André C P L F de Carva
 
 ## Conda - Terminal
 
-Another way to install MathFeature is by using miniconda, e.g.:
+Installing BioAutoML using miniconda, e.g.:
 
 ```sh
-$ git clone https://github.com/Bonidia/MathFeature.git MathFeature
+$ git clone https://github.com/Bonidia/BioAutoML.git BioAutoML
 
-$ cd MathFeature
+$ cd BioAutoML
+
+$ git submodule init
+
+$ git submodule update
 ```
 
 **1 - Install Miniconda:** 
@@ -87,7 +89,7 @@ $ export PATH=~/miniconda3/bin:$PATH
 
 ```sh
 
-conda env create -f mathfeature-terminal.yml -n mathfeature-terminal
+conda env create -f BioAutoML-env.yml -n bioautoml
 
 ```
 
@@ -95,7 +97,7 @@ conda env create -f mathfeature-terminal.yml -n mathfeature-terminal
 
 ```sh
 
-conda activate mathfeature-terminal
+conda activate bioautoml
 
 ```
 
@@ -107,8 +109,6 @@ conda deactivate
 
 ```
 ## How to use
-
-We proposed an open-source Python package called MathFeature, that implements feature extraction approaches using mathematical features, including 20 descriptors organized into five categories. To our best knowledge, MathFeature is the first package that computes biological sequence features based on various mathematical descriptors. In this section, 5 feature extraction groups are available: **(1)** numerical mapping techniques, **(2)** numerical mapping techniques with Fourier transform, **(3)** techniques with game chaos, **(4)** techniques with Entropy, **(5)** techniques with complex networks. Moreover, we provide some additional scripts for feature extraction and preprocessing.
 
 See our [documentation](https://bonidia.github.io/MathFeature).
 
