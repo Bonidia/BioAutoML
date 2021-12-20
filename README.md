@@ -13,7 +13,6 @@
   <a href="https://github.com/Bonidia/MathFeature">Home</a> •
   <a href="https://bonidia.github.io/MathFeature/">Documentation</a> •
   <a href="http://mathfeature.icmc.usp.br/">Web Server</a> •
-  <a href="https://github.com/Bonidia/MathFeature-WebServer">Web Server - LocalHost</a> •
   <a href="#list-of-files">List of files</a> •
   <a href="#installing-dependencies-and-package">Installing</a> •
   <a href="#how-to-use">How To Use</a> •
