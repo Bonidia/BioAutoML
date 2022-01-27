@@ -13,7 +13,8 @@ import joblib
 #  import xgboost as xgb
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
-#  from sklearn.metrics import multilabel_confusion_matrix
+from sklearn.metrics import classification_report
+from sklearn.metrics import multilabel_confusion_matrix
 #  from sklearn.model_selection import KFold
 from catboost import CatBoostClassifier
 from sklearn.metrics import balanced_accuracy_score
@@ -46,7 +47,8 @@ def header(output_header):
 	"""Header Function: Header of the evaluate_model_cross Function"""
 
 	file = open(output_header, 'a')
-	file.write('ACC,std_ACC,MCC,std_MCC,F1,std_F1,balanced_ACC,std_balanced_ACC,kappa,std_kappa,gmean,std_gmean')
+	file.write('ACC,std_ACC,MCC,std_MCC,F1_micro,std_F1_micro,'
+			   'F1_macro,std_F1_macro,F1_w,std_F1_w,kappa,std_kappa')
 	file.write('\n')
 	return
 
@@ -59,10 +61,10 @@ def save_measures(output_measures, scores):
 	file = open(output_measures, 'a')
 	file.write('%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f' % (scores['test_ACC'].mean(),
 				+ scores['test_ACC'].std(), scores['test_MCC'].mean(), scores['test_MCC'].std(),
-				+ scores['test_f1'].mean(), scores['test_f1'].std(),
-				+ scores['test_ACC_B'].mean(), scores['test_ACC_B'].std(),
-				+ scores['test_kappa'].mean(), scores['test_kappa'].std(),
-				+ scores['test_gmean'].mean(), scores['test_gmean'].std()))
+				+ scores['test_f1_mi'].mean(), scores['test_f1_mi'].std(),
+				+ scores['test_f1_ma'].mean(), scores['test_f1_ma'].std(),
+				+ scores['test_f1_w'].mean(), scores['test_f1_w'].std(),
+				+ scores['test_kappa'].mean(),scores['test_kappa'].std()))
 	file.write('\n')
 	return
 
@@ -71,8 +73,12 @@ def evaluate_model_cross(X, y, model, output_cross, matrix_output):
 
 	"""Evaluation Function: Using Cross-Validation"""
 
-	scoring = {'ACC': 'accuracy', 'MCC': make_scorer(matthews_corrcoef), 'f1': 'f1',
-			   'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
+	scoring = {'ACC': make_scorer(accuracy_score),
+			   'MCC': make_scorer(matthews_corrcoef),
+			   'f1_mi': make_scorer(f1_score, average='micro'),
+			   'f1_ma': make_scorer(f1_score, average='macro'),
+			   'f1_w': make_scorer(f1_score, average='weighted'),
+			   'kappa': make_scorer(cohen_kappa_score)}
 	kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
 	scores = cross_validate(model, X, y, cv=kfold, scoring=scoring)
 	save_measures(output_cross, scores)
@@ -80,30 +86,6 @@ def evaluate_model_cross(X, y, model, output_cross, matrix_output):
 	conf_mat = (pd.crosstab(y, y_pred, rownames=['REAL'], colnames=['PREDITO'], margins=True))
 	conf_mat.to_csv(matrix_output)
 	return
-
-
-def tuning_rf_ga():
-
-	"""Tuning of classifier using Genetic Algorithm: Random Forest"""
-
-	n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=50)]
-	max_features = ['auto', 'sqrt', 'log2', None]
-	criterion = ['gini', 'entropy']
-	max_depth = [int(x) for x in np.linspace(10, 300, num=50)]
-	min_samples_split = [int(x) for x in np.linspace(2, 10, num=8)]
-	min_samples_leaf = [int(x) for x in np.linspace(1, 10, num=9)]
-	bootstrap = [True, False]
-
-	rf_parameters = {'n_estimators': n_estimators, 'criterion': criterion, 'max_depth': max_depth,
-					 'min_samples_split': min_samples_split, 'min_samples_leaf': min_samples_leaf,
-					 'max_features': max_features, 'bootstrap': bootstrap}
-
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-	tpot_tuning = TPOTClassifier(generations=20, population_size=10, offspring_size=4,
-									 early_stop=12, config_dict={'sklearn.ensemble.RandomForestClassifier': rf_parameters},
-									 cv=kfold, scoring=make_scorer(balanced_accuracy_score), n_jobs=n_cpu)
-	tpot_tuning.fit(train, train_labels)
-	return tpot_tuning
 
 
 def objective_rf(space):
@@ -121,14 +103,14 @@ def objective_rf(space):
 								   n_jobs=n_cpu)
 
 	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-	balanced_accuracy = cross_val_score(model,
+	metric = cross_val_score(model,
 										train,
 										train_labels,
 										cv=kfold,
-										scoring=make_scorer(balanced_accuracy_score),
+										scoring=make_scorer(f1_score, average='weighted'),
 										n_jobs=n_cpu).mean()
 
-	return {'loss': -balanced_accuracy, 'status': STATUS_OK}
+	return {'loss': -metric, 'status': STATUS_OK}
 
 
 def tuning_rf_bayesian():
@@ -173,14 +155,14 @@ def objective_cb(space):
 							   thread_count=n_cpu, nan_mode='Max', logging_level='Silent')
 
 	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-	balanced_accuracy = cross_val_score(model,
+	metric = cross_val_score(model,
 										train,
 										train_labels,
 										cv=kfold,
-										scoring=make_scorer(balanced_accuracy_score),
+										scoring=make_scorer(f1_score, average='weighted'),
 										n_jobs=n_cpu).mean()
 
-	return {'loss': -balanced_accuracy, 'status': STATUS_OK}
+	return {'loss': -metric, 'status': STATUS_OK}
 
 
 def tuning_catboost_bayesian():
@@ -225,14 +207,14 @@ def objective_lightgbm(space):
 							   n_jobs=n_cpu)
 
 	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-	balanced_accuracy = cross_val_score(model,
+	metric = cross_val_score(model,
 										train,
 										train_labels,
 										cv=kfold,
-										scoring=make_scorer(balanced_accuracy_score),
+										scoring=make_scorer(f1_score, average='weighted'),
 										n_jobs=n_cpu).mean()
 
-	return {'loss': -balanced_accuracy, 'status': STATUS_OK}
+	return {'loss': -metric, 'status': STATUS_OK}
 
 
 def tuning_lightgbm_bayesian():
@@ -272,14 +254,14 @@ def objective_feature_selection(space):
 	fs.fit(train, train_labels)
 	fs_train = fs.transform(train)
 	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-	bacc = cross_val_score(clf,
+	f1 = cross_val_score(clf,
 						   fs_train,
 						   train_labels,
 						   cv=kfold,
-						   scoring=make_scorer(balanced_accuracy_score),
+						   scoring=make_scorer(f1_score, average='weighted'),
 						   n_jobs=n_cpu).mean()
 
-	return {'loss': -bacc, 'status': STATUS_OK}
+	return {'loss': -f1, 'status': STATUS_OK}
 
 
 def feature_importance_fs_bayesian(model, train, train_labels):
@@ -297,7 +279,7 @@ def feature_importance_fs_bayesian(model, train, train_labels):
 	best_threshold = fmin(fn=objective_feature_selection,
 					   space=space,
 					   algo=tpe.suggest,
-					   max_evals=300,
+					   max_evals=100,
 					   trials=trials)
 
 	return best_threshold['threshold']
@@ -326,7 +308,7 @@ def feature_importance_fs(model, train, train_labels, column_train):
 								   fs_train,
 								   train_labels,
 								   cv=kfold,
-								   scoring=make_scorer(balanced_accuracy_score),
+								   scoring=make_scorer(f1_score, average='weighted'),
 								   n_jobs=n_cpu).mean()
 			if bacc > best_baac:
 				best_baac = bacc
@@ -363,13 +345,13 @@ def imbalanced_techniques(model, tech, train, train_labels):
 	pipe = Pipeline([('tech', sm), ('classifier', model)])
 	#  train_new, train_labels_new = sm.fit_sample(train, train_labels)
 	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-	mcc = cross_val_score(pipe,
+	f1 = cross_val_score(pipe,
 						  train,
 						  train_labels,
 						  cv=kfold,
-						  scoring=make_scorer(matthews_corrcoef),
+						  scoring=make_scorer(f1_score, average='weighted'),
 						  n_jobs=n_cpu).mean()
-	return mcc
+	return f1
 
 
 def imbalanced_function(clf, train, train_labels):
@@ -414,7 +396,7 @@ def save_prediction(prediction, nameseqs, pred_output):
 	return
 
 
-def binary_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, output):
+def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, output):
 
 	global clf, train, train_labels
 
@@ -431,9 +413,16 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, o
 
 	print('Number of samples (train): ' + str(len(train)))
 
+	"""Number of labels"""
+
+	print('Number of Labels (train):')
+	print(str(pd.DataFrame(train_labels).value_counts()))
+
 	if os.path.exists(ftest) is True:
 		column_test = test.columns
 		print('Number of samples (test): ' + str(len(test)))
+		print('Number of Labels (test):')
+		print(str(pd.DataFrame(test_labels).value_counts()))
 
 	print('Number of features (train): ' + str(len(column_train)))
 
@@ -475,48 +464,40 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, o
 			print('Tuning: ' + str(tuning))
 			print('Classifier: CatBoost')
 			clf = CatBoostClassifier(n_estimators=500, thread_count=n_cpu, nan_mode='Max', logging_level='Silent')
-			train, train_labels = imbalanced_function(clf, train, train_labels)
+			# train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_catboost_bayesian()
 			print('Finished Tuning')
 		else:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: CatBoost')
 			clf = CatBoostClassifier(n_estimators=500, thread_count=n_cpu, nan_mode='Max', logging_level='Silent')
-			train, train_labels = imbalanced_function(clf, train, train_labels)
+			# train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 1:
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: Random Forest')
 			clf = RandomForestClassifier(n_estimators=200, n_jobs=n_cpu, random_state=63)
-			train, train_labels = imbalanced_function(clf, train, train_labels)
+			# train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_rf_bayesian()
 			print('Finished Tuning')
 		else:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: Random Forest')
 			clf = RandomForestClassifier(n_estimators=200, n_jobs=n_cpu, random_state=63)
-			train, train_labels = imbalanced_function(clf, train, train_labels)
+			# train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 2:
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: LightGBM')
 			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
-			train, train_labels = imbalanced_function(clf, train, train_labels)
+			# train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_lightgbm_bayesian()
 			print('Finished Tuning')
 		else:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: LightGBM')
 			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
-			train, train_labels = imbalanced_function(clf, train, train_labels)
-	elif classifier == 3:
-		if tuning is True:
-			print('Classifier: - There are no tuning functions available')
-			sys.exit()
-		else:
-			print('Tuning: ' + str(tuning))
-			print('Classifier: -')
-			sys.exit()
+			# train, train_labels = imbalanced_function(clf, train, train_labels)
 	else:
 		sys.exit('This classifier option does not exist - Try again')
 
@@ -576,37 +557,13 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, o
 		save_prediction(preds, test_nameseq, pred_output)
 		if os.path.exists(ftest_labels) is True:
 			print('Generating Metrics - Test set...')
-			accu = accuracy_score(test_labels, preds)
-			recall = recall_score(test_labels, preds)
-			precision = precision_score(test_labels, preds)
-			f1 = f1_score(test_labels, preds)
-			auc = roc_auc_score(test_labels, clf.predict_proba(test)[:, 1])
-			balanced = balanced_accuracy_score(test_labels, preds)
-			gmean = geometric_mean_score(test_labels, preds)
-			mcc = matthews_corrcoef(test_labels, preds)
+			report = classification_report(test_labels, preds, output_dict=True)
 			matrix_test = (pd.crosstab(test_labels, preds, rownames=["REAL"], colnames=["PREDITO"], margins=True))
 
 			metrics_output = output + 'metrics_test.csv'
 			print('Saving Metrics - Test set: ' + metrics_output + '...')
-			file = open(metrics_output, 'a')
-			file.write('Metrics: Test Set')
-			file.write('\n')
-			file.write('Accuracy: %s' % accu)
-			file.write('\n')
-			file.write('Recall: %s' % recall)
-			file.write('\n')
-			file.write('Precision: %s' % precision)
-			file.write('\n')
-			file.write('F1: %s' % f1)
-			file.write('\n')
-			file.write('AUC: %s' % auc)
-			file.write('\n')
-			file.write('balanced ACC: %s' % balanced)
-			file.write('\n')
-			file.write('gmean: %s' % gmean)
-			file.write('\n')
-			file.write('MCC: %s' % mcc)
-			file.write('\n')
+			metr_report = pd.DataFrame(report).transpose()
+			metr_report.to_csv(metrics_output)
 
 			matrix_output_test = output + 'test_confusion_matrix.csv'
 			matrix_test.to_csv(matrix_output_test)
@@ -632,7 +589,7 @@ if __name__ == '__main__':
 	print('\n')
 	print('###################################################################################')
 	print('###################################################################################')
-	print('#####################               BioAutoML               #######################')
+	print('#####################        BioAutoML - MultiClass         #######################')
 	print('##########              Author: Robson Parmezan Bonidia                 ###########')
 	print('##########         WebPage: https://bonidia.github.io/website/          ###########')
 	print('###################################################################################')
@@ -648,8 +605,8 @@ if __name__ == '__main__':
 						help='Normalization - Features (default = False)')
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
 	parser.add_argument('-classifier', '--classifier', default=0,
-						help='Classifier - 0: CatBoost, 1: Random Forest'
-							 '2: LightGBM, 3: All classifiers - choose the best')
+						help='Classifier - 0: CatBoost, 1: Random Forest '
+							 '2: LightGBM')
 	parser.add_argument('-tuning', '--tuning_classifier', type=bool, default=False,
 						help='Tuning Classifier - True = Yes, False = No, default = False')
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
@@ -707,7 +664,7 @@ if __name__ == '__main__':
 			print('Test_nameseq - %s: File not exists' % nameseq_test)
 			sys.exit()
 
-	binary_pipeline(test_read, test_labels_read, test_nameseq_read, norm, classifier, tuning, foutput)
+	multiclass_pipeline(test_read, test_labels_read, test_nameseq_read, norm, classifier, tuning, foutput)
 	cost = (time.time() - start_time)/60
 	print('Computation time - Pipeline: %s minutes' % cost)
 ##########################################################################

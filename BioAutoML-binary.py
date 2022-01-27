@@ -297,7 +297,7 @@ def feature_importance_fs_bayesian(model, train, train_labels):
 	best_threshold = fmin(fn=objective_feature_selection,
 					   space=space,
 					   algo=tpe.suggest,
-					   max_evals=300,
+					   max_evals=100,
 					   trials=trials)
 
 	return best_threshold['threshold']
@@ -632,7 +632,7 @@ if __name__ == '__main__':
 	print('\n')
 	print('###################################################################################')
 	print('###################################################################################')
-	print('#####################               BioAutoML               #######################')
+	print('#####################        BioAutoML - Binary             #######################')
 	print('##########              Author: Robson Parmezan Bonidia                 ###########')
 	print('##########         WebPage: https://bonidia.github.io/website/          ###########')
 	print('###################################################################################')
