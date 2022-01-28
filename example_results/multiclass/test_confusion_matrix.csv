@@ -1,0 +1,5 @@
+REAL,insertion,integron,transposon,All
+insertion,17,0,1,18
+integron,0,2,6,8
+transposon,1,2,50,53
+All,18,4,57,79
