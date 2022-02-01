@@ -64,7 +64,7 @@ def save_measures(output_measures, scores):
 				+ scores['test_f1_mi'].mean(), scores['test_f1_mi'].std(),
 				+ scores['test_f1_ma'].mean(), scores['test_f1_ma'].std(),
 				+ scores['test_f1_w'].mean(), scores['test_f1_w'].std(),
-				+ scores['test_kappa'].mean(),scores['test_kappa'].std()))
+				+ scores['test_kappa'].mean(), scores['test_kappa'].std()))
 	file.write('\n')
 	return
 
