@@ -45,27 +45,40 @@ def objective_rf(space):
 
 	"""Automated Feature Engineering - Objective Function - Bayesian Optimization"""
 
-	int(space['n_estimators'])
+	index = list()
+	descriptors = {'NAC': list(range(0, 4)), 'DNC': list(range(4, 20)),
+				   'TNC': list(range(20, 84)), 'kGap_di': list(range(84, 148)),
+				   'kGap_tri': list(range(148, 404)), 'ORF': list(range(404, 414)),
+				   'Fickett': list(range(414, 416)), 'Shannon': list(range(416, 421)),
+				   'FourierBinary': list(range(421, 440)), 'FourierComplex': list(range(440, 459)),
+				   'Tsallis': list(range(459, 464)), 'Chaos': list(range(464, len(train.columns)))}
 
-	nac, dna, tnc = list(range(0, 4)), list(range(4, 20)), list(range(20, 84))
-	kgap_di, kgap_tri = list(range(84, 148)), list(range(148, 404))
-	orf, fickett, shannon = list(range(404, 414)), list(range(414, 416)), list(range(416, 421)),
-	fourier_binary, fourier_complex = list(range(421, 440)), list(range(440, 459))
-	tsallis, chaos = list(range(459, 464)), list(range(464, 20))
+	for descriptor, ind in descriptors.items():
+		if int(space[descriptor]) == 1:
+			index = index + ind
 
-	# df = df.iloc[:, index]
-	# clf = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
-	# clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
+	train = train.iloc[:, index]
+	test = test.df.iloc[:, index]
 
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-	balanced_accuracy = cross_val_score(model,
-										train,
-										train_labels,
-										cv=kfold,
-										scoring=make_scorer(balanced_accuracy_score),
-										n_jobs=n_cpu).mean()
+	if int(space['Classifier']) == 0:
+		model = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
+	else:
+		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
 
-	return {'loss': -balanced_accuracy, 'status': STATUS_OK}
+	if len(ftrain_labels) > 2:
+		score = make_scorer(balanced_accuracy_score)
+	else:
+		score = make_scorer(balanced_accuracy_score)
+
+	kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+	metric = cross_val_score(model,
+							 train,
+							 train_labels,
+							 cv=kfold,
+							 scoring=score,
+							 n_jobs=n_cpu).mean()
+
+	return {'loss': -metric, 'status': STATUS_OK}
 
 
 def feature_engineering():
@@ -84,15 +97,15 @@ def feature_engineering():
 			 'DNC': hp.choice('DNC', [0, 1]),
 			 'TNC': hp.choice('TNC', [0, 1]),
 			 'kGap_di': hp.choice('kGap_di', [0, 1]),
-			 'kGap_tri': hp.choice('kGap_tri',[0,1]),
+			 'kGap_tri': hp.choice('kGap_tri', [0, 1]),
 			 'ORF': hp.choice('ORF', [0, 1]),
 			 'Fickett': hp.choice('Fickett', [0, 1]),
 			 'Shannon': hp.choice('Shannon', [0, 1]),
-			 'FourierBinary': hp.choice('FourierBinary',[0,1]),
-			 'FourierComplex': hp.choice('FourierComplex',[0,1]),
-			 'Tsallis': hp.choice('Tsallis',[0,1]),
-			 'Chaos': hp.choice('Chaos',[0,1]),
-			 'Classifier': hp.choice('Classifier',[0,1])}
+			 'FourierBinary': hp.choice('FourierBinary', [0, 1]),
+			 'FourierComplex': hp.choice('FourierComplex', [0, 1]),
+			 'Tsallis': hp.choice('Tsallis', [0, 1]),
+			 'Chaos': hp.choice('Chaos', [0, 1]),
+			 'Classifier': hp.choice('Classifier', [0, 1])}
 
 	trials = Trials()
 	best_tuning = fmin(fn=objective_rf,
@@ -101,16 +114,23 @@ def feature_engineering():
 				max_evals=250,
 				trials=trials)
 
-	best_rf = RandomForestClassifier(n_estimators=int(best_tuning['n_estimators']),
-									 criterion=param['criterion'][best_tuning['criterion']],
-									 max_depth=int(best_tuning['max_depth']),
-									 max_features=param['max_features'][best_tuning['max_features']],
-									 min_samples_leaf=int(best_tuning['min_samples_leaf']),
-									 min_samples_split=int(best_tuning['min_samples_split']),
-									 random_state=63,
-									 bootstrap=param['bootstrap'][best_tuning['bootstrap']],
-									 n_jobs=n_cpu)
-	return best_tuning, best_rf
+	index = list()
+	descriptors = {'NAC': list(range(0, 4)), 'DNC': list(range(4, 20)),
+				   'TNC': list(range(20, 84)), 'kGap_di': list(range(84, 148)),
+				   'kGap_tri': list(range(148, 404)), 'ORF': list(range(404, 414)),
+				   'Fickett': list(range(414, 416)), 'Shannon': list(range(416, 421)),
+				   'FourierBinary': list(range(421, 440)), 'FourierComplex': list(range(440, 459)),
+				   'Tsallis': list(range(459, 464)), 'Chaos': list(range(464, len(train.columns)))}
+
+	for descriptor, ind in descriptors.items():
+		result = param[descriptor][best_tuning[descriptor]]
+		if result == 1:
+			index = index + ind
+
+	best_train = train.iloc[:, index]
+	best_test = test.df.iloc[:, index]
+
+	return best_train, best_test
 
 
 def feature_extraction():
