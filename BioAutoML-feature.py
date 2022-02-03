@@ -41,45 +41,76 @@ from ChaosGameTheory import *
 from MappingClass import *
 
 
-def objective_feature_selection(space):
+def objective_rf(space):
 
-	"""Feature Importance-based Feature selection: Objective Function - Bayesian Optimization"""
+	"""Automated Feature Engineering - Objective Function - Bayesian Optimization"""
 
-	t = space['threshold']
+	int(space['n_estimators'])
 
-	fs = SelectFromModel(clf, threshold=t)
-	fs.fit(train, train_labels)
-	fs_train = fs.transform(train)
+	nac, dna, tnc = list(range(0, 4)), list(range(4, 20)), list(range(20, 84))
+	kgap_di, kgap_tri = list(range(84, 148)), list(range(148, 404))
+	orf, fickett, shannon = list(range(404, 414)), list(range(414, 416)), list(range(416, 421)),
+	fourier_binary, fourier_complex = list(range(421, 440)), list(range(440, 459))
+	tsallis, chaos = list(range(459, 464)), list(range(464, 20))
+
+	# df = df.iloc[:, index]
+	# clf = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
+	# clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
+
 	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-	bacc = cross_val_score(clf,
-						   fs_train,
-						   train_labels,
-						   cv=kfold,
-						   scoring=make_scorer(balanced_accuracy_score),
-						   n_jobs=n_cpu).mean()
+	balanced_accuracy = cross_val_score(model,
+										train,
+										train_labels,
+										cv=kfold,
+										scoring=make_scorer(balanced_accuracy_score),
+										n_jobs=n_cpu).mean()
 
-	return {'loss': -bacc, 'status': STATUS_OK}
+	return {'loss': -balanced_accuracy, 'status': STATUS_OK}
 
 
-def feature_importance_fs_bayesian(model, train, train_labels):
+def feature_engineering():
 
-	"""Feature Importance-based Feature selection using Bayesian Optimization"""
+	"""Automated Feature Engineering - Bayesian Optimization"""
 
-	model.fit(train, train_labels)
-	importances = set(model.feature_importances_)
-	importances.remove(max(importances))
-	importances.remove(max(importances))
+	param = {'NAC': [0, 1], 'DNC': [0, 1],
+			 'TNC': [0, 1], 'kGap_di': [0, 1], 'kGap_tri': [0, 1],
+			 'ORF': [0, 1], 'Fickett': [0, 1],
+			 'Shannon': [0, 1], 'FourierBinary': [0, 1],
+			 'FourierComplex': [0, 1], 'Tsallis': [0, 1],
+			 'Chaos': [0, 1],
+			 'Classifier': [0, 1]}
 
-	space = {'threshold': hp.uniform('threshold', min(importances), max(importances))}
+	space = {'NAC': hp.choice('NAC', [0, 1]),
+			 'DNC': hp.choice('DNC', [0, 1]),
+			 'TNC': hp.choice('TNC', [0, 1]),
+			 'kGap_di': hp.choice('kGap_di', [0, 1]),
+			 'kGap_tri': hp.choice('kGap_tri',[0,1]),
+			 'ORF': hp.choice('ORF', [0, 1]),
+			 'Fickett': hp.choice('Fickett', [0, 1]),
+			 'Shannon': hp.choice('Shannon', [0, 1]),
+			 'FourierBinary': hp.choice('FourierBinary',[0,1]),
+			 'FourierComplex': hp.choice('FourierComplex',[0,1]),
+			 'Tsallis': hp.choice('Tsallis',[0,1]),
+			 'Chaos': hp.choice('Chaos',[0,1]),
+			 'Classifier': hp.choice('Classifier',[0,1])}
 
 	trials = Trials()
-	best_threshold = fmin(fn=objective_feature_selection,
-					   space=space,
-					   algo=tpe.suggest,
-					   max_evals=300,
-					   trials=trials)
+	best_tuning = fmin(fn=objective_rf,
+				space=space,
+				algo=tpe.suggest,
+				max_evals=250,
+				trials=trials)
 
-	return best_threshold['threshold']
+	best_rf = RandomForestClassifier(n_estimators=int(best_tuning['n_estimators']),
+									 criterion=param['criterion'][best_tuning['criterion']],
+									 max_depth=int(best_tuning['max_depth']),
+									 max_features=param['max_features'][best_tuning['max_features']],
+									 min_samples_leaf=int(best_tuning['min_samples_leaf']),
+									 min_samples_split=int(best_tuning['min_samples_split']),
+									 random_state=63,
+									 bootstrap=param['bootstrap'][best_tuning['bootstrap']],
+									 n_jobs=n_cpu)
+	return best_tuning, best_rf
 
 
 def feature_extraction():
@@ -135,13 +166,22 @@ def feature_extraction():
 			datasets.append(dataset)
 
 		if 4 in features:
-			dataset = path + '/kGap.csv'
+			dataset_di = path + '/kGap_di.csv'
+			dataset_tri = path + '/kGap_tri.csv'
+
 			subprocess.call(['python', 'MathFeature/methods/Kgap.py', '-i',
-							 preprocessed_fasta, '-o', dataset, '-l',
+							 preprocessed_fasta, '-o', dataset_di, '-l',
 							 fasta_label[i], '-k', '1', '-bef', '1',
 							 '-aft', '2', '-seq', '1'],
 							stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+
+			subprocess.call(['python', 'MathFeature/methods/Kgap.py', '-i',
+							 preprocessed_fasta, '-o', dataset_tri, '-l',
+							 fasta_label[i], '-k', '1', '-bef', '1',
+							 '-aft', '3', '-seq', '1'],
+							stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+			datasets.append(dataset_di)
+			datasets.append(dataset_tri)
 
 		if 5 in features:
 			dataset = path + '/ORF.csv'
@@ -187,11 +227,6 @@ def feature_extraction():
 			datasets.append(dataset)
 
 		if 11 in features:
-			dataset = path + '/EIIP.csv'
-			eiip_mapping(preprocessed_fasta, fasta_label[i], 'Yes', dataset)
-			datasets.append(dataset)
-
-		if 12 in features:
 			dataset = path + '/Chaos.csv'
 			classifical_chaos(preprocessed_fasta, fasta_label[i], 'Yes', dataset)
 			datasets.append(dataset)
