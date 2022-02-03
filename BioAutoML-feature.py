@@ -5,30 +5,40 @@ import pandas as pd
 import numpy as np
 import random
 import argparse
+import subprocess
+import shutil
 import sys
 import os.path
 import time
 import lightgbm as lgb
 import joblib
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
 from catboost import CatBoostClassifier
 from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_validate
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
 from sklearn.metrics import matthews_corrcoef
+from sklearn.feature_selection import SelectFromModel
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import cohen_kappa_score, make_scorer
 from imblearn.metrics import geometric_mean_score
 from imblearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
 from sklearn.model_selection import cross_val_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
-
-
-def save_files():
-
-	"""In constrution"""
+from sklearn.preprocessing import LabelEncoder
+path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(path + '/other-methods/')
+from ChaosGameTheory import *
+from MappingClass import *
 
 
 def objective_feature_selection(space):
@@ -76,7 +86,7 @@ def feature_extraction():
 
 	"""Extracts the features from the sequences in the fasta files."""
 
-	path = 'feat_extraction'
+	path = foutput
 	path_results = 'feat_extraction_results'
 
 	print('Extracting features with MathFeature...')
@@ -169,6 +179,23 @@ def feature_extraction():
 							 '-r', '6'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 			datasets.append(dataset)
 
+		if 10 in features:
+			dataset = path + '/Tsallis.csv'
+			subprocess.call(['python', 'MathFeature/methods/TsallisEntropy.py', '-i',
+							 preprocessed_fasta, '-o', dataset, '-l', fasta_label[i],
+							 '-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+			datasets.append(dataset)
+
+		if 11 in features:
+			dataset = path + '/EIIP.csv'
+			eiip_mapping(preprocessed_fasta, fasta_label[i], 'Yes', dataset)
+			datasets.append(dataset)
+
+		if 12 in features:
+			dataset = path + '/Chaos.csv'
+			classifical_chaos(preprocessed_fasta, fasta_label[i], 'Yes', dataset)
+			datasets.append(dataset)
+
 	"""Concatenating all the extracted features"""
 
 	if datasets:
@@ -192,82 +219,48 @@ if __name__ == '__main__':
 	print('###################################################################################')
 	print('\n')
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-fasta_train','--fasta_train',nargs='+',
-						help='fasta format file, e.g., example_fasta/Ecoli_K12.fasta')
-	parser.add_argument('-fasta_label_train','--fasta_label_train',nargs='+',
-						help='labels for fasta files, e.g., sRNA circRNA lncRNA')
-	parser.add_argument('-fasta_test', '--fasta', nargs='+',
-						help='fasta format file, e.g., example_fasta/Ecoli_K12.fasta')
-	parser.add_argument('-fasta_label_test', '--fasta_test', nargs='+',
-						help='labels for fasta files, e.g., sRNA circRNA lncRNA')
-	parser.add_argument('-nf', '--normalization', type=bool, default=False,
-						help='Normalization - Features (default = False)')
+	parser.add_argument('-fasta_train', '--fasta_train', nargs='+',
+						help='fasta format file, e.g., fasta/ncRNA.fasta'
+							 'fasta/lncRNA.fasta fasta/circRNA.fasta')
+	parser.add_argument('-fasta_label_train', '--fasta_label_train', nargs='+',
+						help='labels for fasta files, e.g., ncRNA lncRNA circRNA')
+	parser.add_argument('-fasta_test', '--fasta_test', nargs='+',
+						help='fasta format file, e.g., fasta/ncRNA fasta/lncRNA fasta/circRNA')
+	parser.add_argument('-fasta_label_test', '--fasta_label_test', nargs='+',
+						help='labels for fasta files, e.g., ncRNA lncRNA circRNA')
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
-	parser.add_argument('-classifier', '--classifier', default=0,
-						help='Classifier - 0: CatBoost, 1: Random Forest'
-							 '2: LightGBM, 3: All classifiers - choose the best')
-	parser.add_argument('-sampling', '--sampling', default='False',
-						help='Apply oversampling or undersampling techniques - True = Yes,'
-							 'False = No, default = False')
-	parser.add_argument('-tuning', '--tuning_classifier', type=bool, default=False,
-						help='Tuning Classifier - True = Yes, False = No, default = False')
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
 
 	args = parser.parse_args()
-	ftrain = str(args.train)
-	ftrain_labels = str(args.train_label)
-	ftest = str(args.test)
-	ftest_labels = str(args.test_label)
-	nameseq_test = str(args.test_nameseq)
-	norm = args.normalization
+	ftrain = str(args.fasta_train)
+	ftrain_labels = str(args.fasta_label_train)
+	ftest = str(args.fasta_test)
+	ftest_labels = str(fasta_label_test)
 	n_cpu = int(args.n_cpu)
-	classifier = int(args.classifier)
-	tuning = args.tuning_classifier
 	foutput = str(args.output)
+
+	for fasta in ftrain:
+		if os.path.exists(fasta) is True:
+			print('Train - %s: Found File' % fasta)
+		else:
+			print('Train - %s: File not exists' % fasta)
+			sys.exit()
+
+	for fasta in ftest:
+		if os.path.exists(fasta) is True:
+			print('Test - %s: Found File' % fasta)
+		else:
+			print('Test - %s: File not exists' % fasta)
+			sys.exit()
+
 	start_time = time.time()
 
-	if os.path.exists(ftrain) is True:
-		train_read = pd.read_csv(ftrain)
-		print('Train - %s: Found File' % ftrain)
-	else:
-		print('Train - %s: File not exists' % ftrain)
-		sys.exit()
+	if os.path.exists(foutput):
+		os.remove(foutput)
 
-	if os.path.exists(ftrain_labels) is True:
-		train_labels_read = pd.read_csv(ftrain_labels).values.ravel()
-		print('Train_labels - %s: Found File' % ftrain_labels)
-	else:
-		print('Train_labels - %s: File not exists' % ftrain_labels)
-		sys.exit()
+	# nameseq_test, ftrain, ftest, \
+ 	# ftrain_labels,ftest_labels = feature_extraction(fasta, fasta_label, features)
 
-	test_read = ''
-	if ftest != '':
-		if os.path.exists(ftest) is True:
-			test_read = pd.read_csv(ftest)
-			print('Test - %s: Found File' % ftest)
-		else:
-			print('Test - %s: File not exists' % ftest)
-			sys.exit()
-
-	test_labels_read = ''
-	if ftest_labels != '':
-		if os.path.exists(ftest_labels) is True:
-			test_labels_read = pd.read_csv(ftest_labels).values.ravel()
-			print('Test_labels - %s: Found File' % ftest_labels)
-		else:
-			print('Test_labels - %s: File not exists' % ftest_labels)
-			sys.exit()
-
-	test_nameseq_read = ''
-	if nameseq_test != '':
-		if os.path.exists(nameseq_test) is True:
-			test_nameseq_read = pd.read_csv(nameseq_test).values.ravel()
-			print('Test_nameseq - %s: Found File' % nameseq_test)
-		else:
-			print('Test_nameseq - %s: File not exists' % nameseq_test)
-			sys.exit()
-
-	binary_pipeline(test_read, test_labels_read, test_nameseq_read, norm, classifier, tuning, foutput)
 	cost = (time.time() - start_time)/60
 	print('Computation time - Pipeline: %s minutes' % cost)
 ##########################################################################
