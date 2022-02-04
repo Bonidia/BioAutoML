@@ -313,6 +313,9 @@ if __name__ == '__main__':
 	if os.path.exists(foutput):
 		os.remove(foutput)
 
+	features = [1, 2, 3, 4, 5, 6,
+				7, 8, 9, 10, 11]
+
 	# nameseq_test, ftrain, ftest, \
  	# ftrain_labels,ftest_labels = feature_extraction(fasta, fasta_label, features)
 
