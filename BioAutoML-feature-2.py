@@ -9,18 +9,22 @@ import sys
 import os.path
 import time
 import lightgbm as lgb
-from catboost import CatBoostClassifier
+# from sklearn.model_selection import cross_val_predict
+# from catboost import CatBoostClassifier
 from sklearn.metrics import balanced_accuracy_score
+# from sklearn.metrics import accuracy_score
+# from sklearn.model_selection import cross_validate
 # from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
+# from sklearn.metrics import f1_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_val_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
 path_methods = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(path_methods + '/other-methods/')
-# from ChaosGameTheory import *
-# from MappingClass import *
+from ChaosGameTheory import *
+from MappingClass import *
 
 # Testing
 # python BioAutoML-feature.py
@@ -45,18 +49,16 @@ def objective_rf(space):
 				   'kGap_tri': list(range(148, 404)), 'ORF': list(range(404, 414)),
 				   'Fickett': list(range(414, 416)), 'Shannon': list(range(416, 421)),
 				   'FourierBinary': list(range(421, 440)), 'FourierComplex': list(range(440, 459)),
-				   'Tsallis': list(range(459, 464))}
+				   'Tsallis': list(range(459, 464)), 'Chaos': list(range(464, len(index.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		if int(space[descriptor]) == 1:
 			index = index + ind
 
-	x = df_x.iloc[:, index]
+	# train = train.iloc[:, index]
+	# test = test.df.iloc[:, index]
 
 	if int(space['Classifier']) == 0:
-		model = CatBoostClassifier(n_estimators=500,
-								   thread_count=n_cpu, nan_mode='Max', logging_level='Silent')
-	elif int(space['Classifier']) == 1:
 		model = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 	else:
 		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
@@ -68,8 +70,8 @@ def objective_rf(space):
 
 	kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
 	metric = cross_val_score(model,
-							 x,
-							 labels_y,
+							 # train,
+							 # train_labels,
 							 cv=kfold,
 							 scoring=score,
 							 n_jobs=n_cpu).mean()
@@ -77,19 +79,9 @@ def objective_rf(space):
 	return {'loss': -metric, 'status': STATUS_OK}
 
 
-def feature_engineering(train, train_labels, test, foutput):
+def feature_engineering(foutput):
 
 	"""Automated Feature Engineering - Bayesian Optimization"""
-
-	global df_x, labels_y
-
-	print('Automated Feature Engineering - Bayesian Optimization')
-
-	df_x = pd.read_csv(train)
-	labels_y = pd.read_csv(train_labels)
-
-	if test != '':
-		df_test = pd.read_csv(test)
 
 	path_bio = foutput + '/best_descriptors'
 	if not os.path.exists(path_bio):
@@ -100,7 +92,8 @@ def feature_engineering(train, train_labels, test, foutput):
 			 'ORF': [0, 1], 'Fickett': [0, 1],
 			 'Shannon': [0, 1], 'FourierBinary': [0, 1],
 			 'FourierComplex': [0, 1], 'Tsallis': [0, 1],
-			 'Classifier': [0, 1, 2]}
+			 'Chaos': [0, 1],
+			 'Classifier': [0, 1]}
 
 	space = {'NAC': hp.choice('NAC', [0, 1]),
 			 'DNC': hp.choice('DNC', [0, 1]),
@@ -113,13 +106,14 @@ def feature_engineering(train, train_labels, test, foutput):
 			 'FourierBinary': hp.choice('FourierBinary', [0, 1]),
 			 'FourierComplex': hp.choice('FourierComplex', [0, 1]),
 			 'Tsallis': hp.choice('Tsallis', [0, 1]),
-			 'Classifier': hp.choice('Classifier', [0, 1, 2])}
+			 'Chaos': hp.choice('Chaos', [0, 1]),
+			 'Classifier': hp.choice('Classifier', [0, 1])}
 
 	trials = Trials()
 	best_tuning = fmin(fn=objective_rf,
 				space=space,
 				algo=tpe.suggest,
-				max_evals=50,
+				max_evals=100,
 				trials=trials)
 
 	index = list()
@@ -128,25 +122,17 @@ def feature_engineering(train, train_labels, test, foutput):
 				   'kGap_tri': list(range(148, 404)), 'ORF': list(range(404, 414)),
 				   'Fickett': list(range(414, 416)), 'Shannon': list(range(416, 421)),
 				   'FourierBinary': list(range(421, 440)), 'FourierComplex': list(range(440, 459)),
-				   'Tsallis': list(range(459, 464))}
+				   'Tsallis': list(range(459, 464)), 'Chaos': list(range(464, len(index.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		result = param[descriptor][best_tuning[descriptor]]
 		if result == 1:
 			index = index + ind
 
-	btrain = df_x.iloc[:, index]
-	path_btrain = path_bio + '/best_train.csv'
-	btrain.to_csv(path_btrain, index=False, header=True)
+	# best_train = train.iloc[:, index]
+	# best_test = test.df.iloc[:, index]
 
-	if test != '':
-		btest = df_test.iloc[:, index]
-		path_btest = path_bio + '/best_test.csv'
-		btest.to_csv(path_btest, index=False, header=True)
-	else:
-		btest, path_btest = '', ''
-
-	return path_btrain, path_btest, btrain, btest
+	# return best_train, best_test
 
 
 def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, foutput):
@@ -196,7 +182,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 				subprocess.call(['python', 'MathFeature/preprocessing/preprocessing.py',
 								'-i', fasta[i][j], '-o', preprocessed_fasta],
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-
+			
 			fasta_list.append(preprocessed_fasta)
 
 			if 1 in features:
@@ -271,14 +257,14 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 			if 9 in features:
 				dataset = path + '/FourierComplex.csv'
-				subprocess.call(['python', 'other-methods/FourierClass.py', '-i',
+				subprocess.call(['python', 'MathFeature/methods/FourierClass.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-r', '6'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 			if 10 in features:
 				dataset = path + '/Tsallis.csv'
-				subprocess.call(['python', 'other-methods/TsallisEntropy.py', '-i',
+				subprocess.call(['python', 'MathFeature/methods/TsallisEntropy.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
@@ -398,21 +384,18 @@ if __name__ == '__main__':
 		ftest, ftest_labels = feature_extraction(fasta_train, fasta_label_train,
 												 fasta_test, fasta_label_test, features, foutput)
 
-	path_train, path_test, train_best, test_best = \
-		feature_engineering(ftrain, ftrain_labels, ftest, foutput)
-
 	cost = (time.time() - start_time) / 60
 	print('Computation time - Pipeline - Automated Feature Engineering: %s minutes' % cost)
 
 	if len(fasta_label_train) > 2:
-		subprocess.call(['python', 'BioAutoML-multiclass.py', '-train', path_train,
-						 '-train_label', ftrain_labels, '-test', path_test,
+		subprocess.call(['python', 'BioAutoML-multiclass.py', '-train', ftrain,
+						 '-train_label', ftrain_labels, '-test', ftest,
 						 '-test_label', ftest_labels, '-test_nameseq',
 						 fnameseqtest, '-nf', 'True', '-classifier', '2',
 						 '-n_cpu', str(n_cpu), '-output', foutput])
 	else:
-		subprocess.call(['python', 'BioAutoML-binary.py', '-train', path_train,
-						 '-train_label', ftrain_labels, '-test', path_test, '-test_label',
+		subprocess.call(['python', 'BioAutoML-binary.py', '-train', ftrain,
+						 '-train_label', ftrain_labels, '-test', ftest, '-test_label',
 						 ftest_labels, '-test_nameseq', fnameseqtest,
 						 '-nf', 'True', '-classifier', '2', '-n_cpu', str(n_cpu),
 						 '-output', foutput])
