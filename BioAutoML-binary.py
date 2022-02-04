@@ -38,6 +38,7 @@ from imblearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import cross_val_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
+from sklearn.preprocessing import LabelEncoder
 from tpot import TPOTClassifier
 
 
@@ -74,7 +75,7 @@ def evaluate_model_cross(X, y, model, output_cross, matrix_output):
 	scoring = {'ACC': 'accuracy', 'MCC': make_scorer(matthews_corrcoef), 'f1': 'f1',
 			   'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
 	kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
-	scores = cross_validate(model, X, y, cv=kfold, scoring=scoring)
+	scores = cross_validate(model, X, LabelEncoder().fit_transform(y), cv=kfold, scoring=scoring)
 	save_measures(output_cross, scores)
 	y_pred = cross_val_predict(model, X, y, cv=kfold)
 	conf_mat = (pd.crosstab(y, y_pred, rownames=['REAL'], colnames=['PREDITO'], margins=True))
@@ -574,10 +575,11 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, o
 		save_prediction(preds, test_nameseq, pred_output)
 		if os.path.exists(ftest_labels) is True:
 			print('Generating Metrics - Test set...')
+			labels = np.unique(test_labels)
 			accu = accuracy_score(test_labels, preds)
-			recall = recall_score(test_labels, preds)
-			precision = precision_score(test_labels, preds)
-			f1 = f1_score(test_labels, preds)
+			recall = recall_score(test_labels, preds, pos_label = labels[0])
+			precision = precision_score(test_labels, preds, pos_label = labels[0])
+			f1 = f1_score(test_labels, preds, pos_label = labels[0])
 			auc = roc_auc_score(test_labels, clf.predict_proba(test)[:, 1])
 			balanced = balanced_accuracy_score(test_labels, preds)
 			gmean = geometric_mean_score(test_labels, preds)

@@ -41,7 +41,7 @@ from ChaosGameTheory import *
 from MappingClass import *
 
 # Testing
-# python BioAutoML-feature.py -fasta_train Case\ Studies/CS-II/train/miRNA.fasta Case\ Studies/CS-II/train/pre_miRNA.fasta -fasta_label_train miRNA pre_miRNA -fasta_test Case\ Studies/CS-II/test/miRNA.fasta Case\ Studies/CS-II/test/pre_miRNA.fasta -fasta_label_test miRNA pre_miRNA -output results/
+# python BioAutoML-feature.py -fasta_train Case\ Studies/CS-II/train/miRNA.fasta Case\ Studies/CS-II/train/pre_miRNA.fasta Case\ Studies/CS-II/train/tRNA.fasta -fasta_label_train miRNA pre_miRNA tRNA -fasta_test Case\ Studies/CS-II/test/miRNA.fasta Case\ Studies/CS-II/test/pre_miRNA.fasta Case\ Studies/CS-II/test/tRNA.fasta -fasta_label_test miRNA pre_miRNA tRNA -output results/
 
 def objective_rf(space):
 
@@ -139,31 +139,35 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	"""Extracts the features from the sequences in the fasta files."""
 
-	path = foutput + 'feat_extraction'
+	path = 'feat_extraction'
 	path_results = foutput
+
+	print('Extracting features with MathFeature...')
+	start_time = time.time()
 
 	try:
 		shutil.rmtree(path)
 		shutil.rmtree(path_results)
 	except OSError as e:
 		print("Error: %s - %s." % (e.filename, e.strerror))
-		print('Creating Directory...')
 
 	if not os.path.exists(path) or not os.path.exists(path_results):
-		os.mkdir(path_results)
 		os.mkdir(path)
 		os.mkdir(path + '/train')
 		os.mkdir(path + '/test')
+		os.mkdir(path_results)
 
-	labels = [ftrain_labels, ftest_labels]
-	fasta = [ftrain, ftest]
+	labels = [ftrain_labels]
+	fasta = [ftrain]
 	train_size = 0
+
+	if fasta_test:
+		labels.append(ftest_labels)
+		fasta.append(ftest)
 
 	datasets = []
 
-	print('Extracting features with MathFeature...')
-
-	for i in range(2):
+	for i in range(len(labels)):
 		for j in range(len(labels[i])):
 			file = fasta[i][j].split('/')[-1]
 			if i == 0: # Train
@@ -281,28 +285,30 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		dataframes = dataframes[~dataframes.nameseq.str.contains("nameseq")]
 
 	X_train = dataframes.iloc[:train_size,:]
-	X_test = dataframes.iloc[train_size:,:]
-
+	X_train.pop('nameseq')
 	y_train = X_train.pop('label')
-	y_test = X_test.pop('label')
-
-	nameseq_train = X_train.pop('nameseq')
-	nameseq_test = X_test.pop('nameseq')
-
-	fnameseqtrain = path + '/fnameseqtrain.csv'
-	nameseq_train.to_csv(fnameseqtrain, index = False, header = True)
-	fnameseqtest = path + '/fnameseqtest.csv'
-	nameseq_test.to_csv(fnameseqtest, index = False, header = True)
 	ftrain = path + '/ftrain.csv'
 	X_train.to_csv(ftrain, index=False)
-	ftest = path + '/ftest.csv'
-	X_test.to_csv(ftest, index=False)
 	flabeltrain = path + '/flabeltrain.csv'
 	y_train.to_csv(flabeltrain, index = False, header = True)
-	flabeltest = path + '/flabeltest.csv'
-	y_test.to_csv(flabeltest, index = False, header = True)
+	
+	fnameseqtest, ftest, flabeltest = '', '', ''
 
-	return fnameseqtest, ftrain, ftest, flabeltrain, flabeltest
+	if fasta_test:
+		X_test = dataframes.iloc[train_size:,:]
+		y_test = X_test.pop('label')
+		nameseq_test = X_test.pop('nameseq')
+		fnameseqtest = path + '/fnameseqtest.csv'
+		nameseq_test.to_csv(fnameseqtest, index = False, header = True)
+		ftest = path + '/ftest.csv'
+		X_test.to_csv(ftest, index=False)
+		flabeltest = path + '/flabeltest.csv'
+		y_test.to_csv(flabeltest, index = False, header = True)
+
+	cost = (time.time() - start_time)/60
+	print('Computation time - MathFeature: %s minutes' % cost)
+
+	return fnameseqtest, ftrain, flabeltrain, ftest, flabeltest
 
 ##########################################################################
 ##########################################################################
@@ -330,36 +336,37 @@ if __name__ == '__main__':
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
 
 	args = parser.parse_args()
-	ftrain = args.fasta_train
-	ftrain_labels = args.fasta_label_train
-	ftest = args.fasta_test
-	ftest_labels = args.fasta_label_test
+	fasta_train = args.fasta_train
+	fasta_label_train = args.fasta_label_train
+	fasta_test = args.fasta_test
+	fasta_label_test = args.fasta_label_test
 	n_cpu = int(args.n_cpu)
 	foutput = str(args.output)
 
-	for fasta in ftrain:
+	for fasta in fasta_train:
 		if os.path.exists(fasta) is True:
 			print('Train - %s: Found File' % fasta)
 		else:
 			print('Train - %s: File not exists' % fasta)
 			sys.exit()
 
-	for fasta in ftest:
-		if os.path.exists(fasta) is True:
-			print('Test - %s: Found File' % fasta)
-		else:
-			print('Test - %s: File not exists' % fasta)
-			sys.exit()
+	if fasta_test:
+		for fasta in fasta_test:
+			if os.path.exists(fasta) is True:
+				print('Test - %s: Found File' % fasta)
+			else:
+				print('Test - %s: File not exists' % fasta)
+				sys.exit()
 
-	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+	features = [1]
 
-	start_time = time.time()
+	fnameseqtest, ftrain, ftrain_labels, \
+		ftest, ftest_labels = feature_extraction(fasta_train, fasta_label_train, fasta_test, fasta_label_test, features, foutput)
 
-	nameseq_test, ftrain, ftest, \
-		ftrain_labels,ftest_labels = feature_extraction(ftrain, ftrain_labels, ftest,
-														ftest_labels, features, foutput)
+	if(len(fasta_label_train) > 2):
+		subprocess.call(['python', 'BioAutoML-multiclass.py', '-train', ftrain, '-train_label', ftrain_labels, '-test', ftest, '-test_label', ftest_labels, '-test_nameseq', fnameseqtest, '-nf', 'True', '-classifier', '2', '-n_cpu', str(n_cpu), '-output', foutput])
+	else:
+		subprocess.call(['python', 'BioAutoML-binary.py', '-train', ftrain, '-train_label', ftrain_labels, '-test', ftest, '-test_label', ftest_labels, '-test_nameseq', fnameseqtest, '-nf', 'True', '-classifier', '2', '-n_cpu', str(n_cpu), '-output', foutput])
 
-	cost = (time.time() - start_time)/60
-	print('Computation time - Pipeline - Automated Feature Engineering: %s minutes' % cost)
 ##########################################################################
 ##########################################################################
