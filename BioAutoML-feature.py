@@ -2,8 +2,6 @@ import warnings
 warnings.filterwarnings(action='ignore', category=FutureWarning)
 warnings.filterwarnings('ignore')
 import pandas as pd
-import numpy as np
-import random
 import argparse
 import subprocess
 import shutil
@@ -11,37 +9,35 @@ import sys
 import os.path
 import time
 import lightgbm as lgb
-import joblib
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import cross_val_predict
-from catboost import CatBoostClassifier
+# from sklearn.model_selection import cross_val_predict
+# from catboost import CatBoostClassifier
 from sklearn.metrics import balanced_accuracy_score
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import cross_validate
-from sklearn.preprocessing import StandardScaler
+# from sklearn.metrics import accuracy_score
+# from sklearn.model_selection import cross_validate
+# from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import matthews_corrcoef
-from sklearn.feature_selection import SelectFromModel
-from imblearn.over_sampling import SMOTE
-from imblearn.under_sampling import RandomUnderSampler
+# from sklearn.metrics import f1_score
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import cohen_kappa_score, make_scorer
-from imblearn.metrics import geometric_mean_score
-from imblearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
+from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_val_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
-from sklearn.preprocessing import LabelEncoder
-path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(path + '/other-methods/')
+path_methods = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(path_methods + '/other-methods/')
 from ChaosGameTheory import *
 from MappingClass import *
 
 # Testing
-# python BioAutoML-feature.py -fasta_train Case\ Studies/CS-II/train/miRNA.fasta Case\ Studies/CS-II/train/pre_miRNA.fasta Case\ Studies/CS-II/train/tRNA.fasta -fasta_label_train miRNA pre_miRNA tRNA -fasta_test Case\ Studies/CS-II/test/miRNA.fasta Case\ Studies/CS-II/test/pre_miRNA.fasta Case\ Studies/CS-II/test/tRNA.fasta -fasta_label_test miRNA pre_miRNA tRNA -output results/
+# python BioAutoML-feature.py
+# -fasta_train Case\ Studies/CS-II/train/miRNA.fasta
+# Case\ Studies/CS-II/train/pre_miRNA.fasta
+# Case\ Studies/CS-II/train/tRNA.fasta
+# -fasta_label_train miRNA pre_miRNA tRNA
+# -fasta_test Case\ Studies/CS-II/test/miRNA.fasta
+# Case\ Studies/CS-II/test/pre_miRNA.fasta
+# Case\ Studies/CS-II/test/tRNA.fasta
+# -fasta_label_test miRNA pre_miRNA tRNA
+# -output results/
+
 
 def objective_rf(space):
 
@@ -53,14 +49,14 @@ def objective_rf(space):
 				   'kGap_tri': list(range(148, 404)), 'ORF': list(range(404, 414)),
 				   'Fickett': list(range(414, 416)), 'Shannon': list(range(416, 421)),
 				   'FourierBinary': list(range(421, 440)), 'FourierComplex': list(range(440, 459)),
-				   'Tsallis': list(range(459, 464)), 'Chaos': list(range(464, len(train.columns)))}
+				   'Tsallis': list(range(459, 464)), 'Chaos': list(range(464, len(index.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		if int(space[descriptor]) == 1:
 			index = index + ind
 
-	train = train.iloc[:, index]
-	test = test.df.iloc[:, index]
+	# train = train.iloc[:, index]
+	# test = test.df.iloc[:, index]
 
 	if int(space['Classifier']) == 0:
 		model = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
@@ -74,8 +70,8 @@ def objective_rf(space):
 
 	kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
 	metric = cross_val_score(model,
-							 train,
-							 train_labels,
+							 # train,
+							 # train_labels,
 							 cv=kfold,
 							 scoring=score,
 							 n_jobs=n_cpu).mean()
@@ -83,9 +79,13 @@ def objective_rf(space):
 	return {'loss': -metric, 'status': STATUS_OK}
 
 
-def feature_engineering():
+def feature_engineering(foutput):
 
 	"""Automated Feature Engineering - Bayesian Optimization"""
+
+	path_bio = foutput + '/best_descriptors'
+	if not os.path.exists(path_bio):
+		os.mkdir(path_bio)
 
 	param = {'NAC': [0, 1], 'DNC': [0, 1],
 			 'TNC': [0, 1], 'kGap_di': [0, 1], 'kGap_tri': [0, 1],
@@ -113,7 +113,7 @@ def feature_engineering():
 	best_tuning = fmin(fn=objective_rf,
 				space=space,
 				algo=tpe.suggest,
-				max_evals=250,
+				max_evals=100,
 				trials=trials)
 
 	index = list()
@@ -122,40 +122,38 @@ def feature_engineering():
 				   'kGap_tri': list(range(148, 404)), 'ORF': list(range(404, 414)),
 				   'Fickett': list(range(414, 416)), 'Shannon': list(range(416, 421)),
 				   'FourierBinary': list(range(421, 440)), 'FourierComplex': list(range(440, 459)),
-				   'Tsallis': list(range(459, 464)), 'Chaos': list(range(464, len(train.columns)))}
+				   'Tsallis': list(range(459, 464)), 'Chaos': list(range(464, len(index.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		result = param[descriptor][best_tuning[descriptor]]
 		if result == 1:
 			index = index + ind
 
-	best_train = train.iloc[:, index]
-	best_test = test.df.iloc[:, index]
+	# best_train = train.iloc[:, index]
+	# best_test = test.df.iloc[:, index]
 
-	return best_train, best_test
+	# return best_train, best_test
 
 
 def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, foutput):
 
 	"""Extracts the features from the sequences in the fasta files."""
 
-	path = 'feat_extraction'
+	path = foutput + '/feat_extraction'
 	path_results = foutput
-
-	print('Extracting features with MathFeature...')
-	start_time = time.time()
 
 	try:
 		shutil.rmtree(path)
 		shutil.rmtree(path_results)
 	except OSError as e:
 		print("Error: %s - %s." % (e.filename, e.strerror))
+		print('Creating Directory...')
 
 	if not os.path.exists(path) or not os.path.exists(path_results):
+		os.mkdir(path_results)
 		os.mkdir(path)
 		os.mkdir(path + '/train')
 		os.mkdir(path + '/test')
-		os.mkdir(path_results)
 
 	labels = [ftrain_labels]
 	fasta = [ftrain]
@@ -167,16 +165,18 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	datasets = []
 
+	print('Extracting features with MathFeature...')
+
 	for i in range(len(labels)):
 		for j in range(len(labels[i])):
 			file = fasta[i][j].split('/')[-1]
-			if i == 0: # Train
+			if i == 0:  # Train
 				preprocessed_fasta = path + '/train/pre_' + file
 				subprocess.call(['python', 'MathFeature/preprocessing/preprocessing.py',
 								'-i', fasta[i][j], '-o', preprocessed_fasta],
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				train_size += len([1 for line in open(preprocessed_fasta) if line.startswith(">")])
-			else: # Test
+			else:  # Test
 				preprocessed_fasta = path + '/test/pre_' + file
 				subprocess.call(['python', 'MathFeature/preprocessing/preprocessing.py',
 								'-i', fasta[i][j], '-o', preprocessed_fasta],
@@ -284,34 +284,33 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		dataframes = dataframes.loc[:, ~dataframes.columns.duplicated()]
 		dataframes = dataframes[~dataframes.nameseq.str.contains("nameseq")]
 
-	X_train = dataframes.iloc[:train_size,:]
+	X_train = dataframes.iloc[:train_size, :]
 	X_train.pop('nameseq')
 	y_train = X_train.pop('label')
 	ftrain = path + '/ftrain.csv'
 	X_train.to_csv(ftrain, index=False)
 	flabeltrain = path + '/flabeltrain.csv'
-	y_train.to_csv(flabeltrain, index = False, header = True)
+	y_train.to_csv(flabeltrain, index=False, header=True)
 	
 	fnameseqtest, ftest, flabeltest = '', '', ''
 
 	if fasta_test:
-		X_test = dataframes.iloc[train_size:,:]
+		X_test = dataframes.iloc[train_size:, :]
 		y_test = X_test.pop('label')
 		nameseq_test = X_test.pop('nameseq')
 		fnameseqtest = path + '/fnameseqtest.csv'
-		nameseq_test.to_csv(fnameseqtest, index = False, header = True)
+		nameseq_test.to_csv(fnameseqtest, index=False, header=True)
 		ftest = path + '/ftest.csv'
 		X_test.to_csv(ftest, index=False)
 		flabeltest = path + '/flabeltest.csv'
-		y_test.to_csv(flabeltest, index = False, header = True)
-
-	cost = (time.time() - start_time)/60
-	print('Computation time - MathFeature: %s minutes' % cost)
+		y_test.to_csv(flabeltest, index=False, header=True)
 
 	return fnameseqtest, ftrain, flabeltrain, ftest, flabeltest
 
 ##########################################################################
 ##########################################################################
+
+
 if __name__ == '__main__':
 	print('\n')
 	print('###################################################################################')
@@ -358,15 +357,29 @@ if __name__ == '__main__':
 				print('Test - %s: File not exists' % fasta)
 				sys.exit()
 
-	features = [1]
+	start_time = time.time()
+
+	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 	fnameseqtest, ftrain, ftrain_labels, \
-		ftest, ftest_labels = feature_extraction(fasta_train, fasta_label_train, fasta_test, fasta_label_test, features, foutput)
+		ftest, ftest_labels = feature_extraction(fasta_train, fasta_label_train,
+												 fasta_test, fasta_label_test, features, foutput)
 
-	if(len(fasta_label_train) > 2):
-		subprocess.call(['python', 'BioAutoML-multiclass.py', '-train', ftrain, '-train_label', ftrain_labels, '-test', ftest, '-test_label', ftest_labels, '-test_nameseq', fnameseqtest, '-nf', 'True', '-classifier', '2', '-n_cpu', str(n_cpu), '-output', foutput])
+	cost = (time.time() - start_time) / 60
+	print('Computation time - Pipeline - Automated Feature Engineering: %s minutes' % cost)
+
+	if len(fasta_label_train) > 2:
+		subprocess.call(['python', 'BioAutoML-multiclass.py', '-train', ftrain,
+						 '-train_label', ftrain_labels, '-test', ftest,
+						 '-test_label', ftest_labels, '-test_nameseq',
+						 fnameseqtest, '-nf', 'True', '-classifier', '2',
+						 '-n_cpu', str(n_cpu), '-output', foutput])
 	else:
-		subprocess.call(['python', 'BioAutoML-binary.py', '-train', ftrain, '-train_label', ftrain_labels, '-test', ftest, '-test_label', ftest_labels, '-test_nameseq', fnameseqtest, '-nf', 'True', '-classifier', '2', '-n_cpu', str(n_cpu), '-output', foutput])
+		subprocess.call(['python', 'BioAutoML-binary.py', '-train', ftrain,
+						 '-train_label', ftrain_labels, '-test', ftest, '-test_label',
+						 ftest_labels, '-test_nameseq', fnameseqtest,
+						 '-nf', 'True', '-classifier', '2', '-n_cpu', str(n_cpu),
+						 '-output', foutput])
 
 ##########################################################################
 ##########################################################################
