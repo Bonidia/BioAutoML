@@ -139,29 +139,29 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	"""Extracts the features from the sequences in the fasta files."""
 
-	path = 'feat_extraction'
+	path = foutput + 'feat_extraction'
 	path_results = foutput
-
-	print('Extracting features with MathFeature...')
-	start_time = time.time()
 
 	try:
 		shutil.rmtree(path)
 		shutil.rmtree(path_results)
 	except OSError as e:
 		print("Error: %s - %s." % (e.filename, e.strerror))
+		print('Creating Directory...')
 
 	if not os.path.exists(path) or not os.path.exists(path_results):
+		os.mkdir(path_results)
 		os.mkdir(path)
 		os.mkdir(path + '/train')
 		os.mkdir(path + '/test')
-		os.mkdir(path_results)
 
 	labels = [ftrain_labels, ftest_labels]
 	fasta = [ftrain, ftest]
 	train_size = 0
 
 	datasets = []
+
+	print('Extracting features with MathFeature...')
 
 	for i in range(2):
 		for j in range(len(labels[i])):
@@ -302,9 +302,6 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 	flabeltest = path + '/flabeltest.csv'
 	y_test.to_csv(flabeltest, index = False, header = True)
 
-	cost = (time.time() - start_time)/60
-	print('Computation time - MathFeature: %s minutes' % cost)
-
 	return fnameseqtest, ftrain, ftest, flabeltrain, flabeltest
 
 ##########################################################################
@@ -356,12 +353,13 @@ if __name__ == '__main__':
 
 	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-	nameseq_test, ftrain, ftest, \
-		ftrain_labels,ftest_labels = feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, foutput)
-
 	start_time = time.time()
 
+	nameseq_test, ftrain, ftest, \
+		ftrain_labels,ftest_labels = feature_extraction(ftrain, ftrain_labels, ftest,
+														ftest_labels, features, foutput)
+
 	cost = (time.time() - start_time)/60
-	print('Computation time - Pipeline: %s minutes' % cost)
+	print('Computation time - Pipeline - Automated Feature Engineering: %s minutes' % cost)
 ##########################################################################
 ##########################################################################
