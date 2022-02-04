@@ -38,15 +38,17 @@ def file_record(foutput, name_seq, mapping, label_dataset):
     return
 
 
-def binary_mapping(finput, label_dataset, padd):
+def binary_mapping(finput, label_dataset, padd, foutput):
 
     var = (datetime.now() + timedelta(hours=9)).strftime('%H%M%S')
     foutput = 'tmp/file-' + var + '.csv'
+    
     if os.path.exists(foutput):
         os.remove(foutput)
 
     max_length = sequence_length(finput)
-    for seq_record in SeqIO.parse(io.StringIO(finput), "fasta"):
+    for seq_record in SeqIO.parse(finput, "fasta"):
+        print('aaa')
         seq = seq_record.seq
         seq = seq.upper()
         name_seq = seq_record.name

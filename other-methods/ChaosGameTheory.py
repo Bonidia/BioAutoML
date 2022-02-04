@@ -34,7 +34,7 @@ def sequence_length(finput):
 def file_record(foutput, name_seq, mapping, label_dataset):
     dataset = open(foutput, 'a')
     dataset.write("nameseq,")
-    for head in range(mapping):
+    for head in mapping:
         dataset.write("%s," % head)
 
     dataset.write("label")

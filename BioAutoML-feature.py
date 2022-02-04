@@ -40,6 +40,8 @@ sys.path.append(path + '/other-methods/')
 from ChaosGameTheory import *
 from MappingClass import *
 
+# Testing
+# python BioAutoML-feature.py -fasta_train Case\ Studies/CS-II/train/miRNA.fasta Case\ Studies/CS-II/train/pre_miRNA.fasta -fasta_label_train miRNA pre_miRNA -fasta_test Case\ Studies/CS-II/test/miRNA.fasta Case\ Studies/CS-II/test/pre_miRNA.fasta -fasta_label_test miRNA pre_miRNA -output results/
 
 def objective_rf(space):
 
@@ -133,14 +135,15 @@ def feature_engineering():
 	return best_train, best_test
 
 
-def feature_extraction():
+def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, foutput):
 
 	"""Extracts the features from the sequences in the fasta files."""
 
-	path = foutput
-	path_results = 'feat_extraction_results'
+	path = 'feat_extraction'
+	path_results = foutput
 
 	print('Extracting features with MathFeature...')
+	start_time = time.time()
 
 	try:
 		shutil.rmtree(path)
@@ -148,118 +151,161 @@ def feature_extraction():
 	except OSError as e:
 		print("Error: %s - %s." % (e.filename, e.strerror))
 
-	if not os.path.exists(path) and not os.path.exists(path_results):
+	if not os.path.exists(path) or not os.path.exists(path_results):
 		os.mkdir(path)
+		os.mkdir(path + '/train')
+		os.mkdir(path + '/test')
 		os.mkdir(path_results)
+
+	labels = [ftrain_labels, ftest_labels]
+	fasta = [ftrain, ftest]
+	train_size = 0
 
 	datasets = []
 
-	for i in range(len(fasta_label)):
+	for i in range(2):
+		for j in range(len(labels[i])):
+			file = fasta[i][j].split('/')[-1]
+			if i == 0: # Train
+				preprocessed_fasta = path + '/train/pre_' + file
+				subprocess.call(['python', 'MathFeature/preprocessing/preprocessing.py',
+								'-i', fasta[i][j], '-o', preprocessed_fasta],
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				train_size += len([1 for line in open(preprocessed_fasta) if line.startswith(">")])
+			else: # Test
+				preprocessed_fasta = path + '/test/pre_' + file
+				subprocess.call(['python', 'MathFeature/preprocessing/preprocessing.py',
+								'-i', fasta[i][j], '-o', preprocessed_fasta],
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
-		file = fasta[i].split('/')[-1]
-		preprocessed_fasta = path + '/pre_' + file
-		subprocess.call(['python', 'MathFeature/preprocessing/preprocessing.py',
-						 '-i', fasta[i], '-o', preprocessed_fasta],
-						stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+			if 1 in features:
+				dataset = path + '/NAC.csv'
+				subprocess.call(['python', 'MathFeature/methods/ExtractionTechniques.py',
+								'-i', preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-t', 'NAC', '-seq', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
-		if 1 in features:
-			dataset = path + '/NAC.csv'
-			subprocess.call(['python', 'MathFeature/methods/ExtractionTechniques.py',
-							 '-i', preprocessed_fasta, '-o', dataset, '-l', fasta_label[i],
-							 '-t', 'NAC', '-seq', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+			if 2 in features:
+				dataset = path + '/DNC.csv'
+				subprocess.call(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-t', 'DNC', '-seq', '1'], stdout=subprocess.DEVNULL,
+								stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
-		if 2 in features:
-			dataset = path + '/DNC.csv'
-			subprocess.call(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
-							 preprocessed_fasta, '-o', dataset, '-l', fasta_label[i],
-							 '-t', 'DNC', '-seq', '1'], stdout=subprocess.DEVNULL,
-							stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+			if 3 in features:
+				dataset = path + '/TNC.csv'
+				subprocess.call(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-t', 'TNC', '-seq', '1'], stdout=subprocess.DEVNULL,
+								stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
-		if 3 in features:
-			dataset = path + '/TNC.csv'
-			subprocess.call(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
-							 preprocessed_fasta, '-o', dataset, '-l', fasta_label[i],
-							 '-t', 'TNC', '-seq', '1'], stdout=subprocess.DEVNULL,
-							stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+			if 4 in features:
+				dataset_di = path + '/kGap_di.csv'
+				dataset_tri = path + '/kGap_tri.csv'
 
-		if 4 in features:
-			dataset_di = path + '/kGap_di.csv'
-			dataset_tri = path + '/kGap_tri.csv'
+				subprocess.call(['python', 'MathFeature/methods/Kgap.py', '-i',
+								preprocessed_fasta, '-o', dataset_di, '-l',
+								labels[i][j], '-k', '1', '-bef', '1',
+								'-aft', '2', '-seq', '1'],
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
-			subprocess.call(['python', 'MathFeature/methods/Kgap.py', '-i',
-							 preprocessed_fasta, '-o', dataset_di, '-l',
-							 fasta_label[i], '-k', '1', '-bef', '1',
-							 '-aft', '2', '-seq', '1'],
-							stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				subprocess.call(['python', 'MathFeature/methods/Kgap.py', '-i',
+								preprocessed_fasta, '-o', dataset_tri, '-l',
+								labels[i][j], '-k', '1', '-bef', '1',
+								'-aft', '3', '-seq', '1'],
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset_di)
+				datasets.append(dataset_tri)
 
-			subprocess.call(['python', 'MathFeature/methods/Kgap.py', '-i',
-							 preprocessed_fasta, '-o', dataset_tri, '-l',
-							 fasta_label[i], '-k', '1', '-bef', '1',
-							 '-aft', '3', '-seq', '1'],
-							stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			datasets.append(dataset_di)
-			datasets.append(dataset_tri)
+			if 5 in features:
+				dataset = path + '/ORF.csv'
+				subprocess.call(['python', 'MathFeature/methods/CodingClass.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j]],
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
-		if 5 in features:
-			dataset = path + '/ORF.csv'
-			subprocess.call(['python', 'MathFeature/methods/CodingClass.py', '-i',
-							 preprocessed_fasta, '-o', dataset, '-l', fasta_label[i]],
-							stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+			if 6 in features:
+				dataset = path + '/Fickett.csv'
+				subprocess.call(['python', 'MathFeature/methods/FickettScore.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-seq', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
-		if 6 in features:
-			dataset = path + '/Fickett.csv'
-			subprocess.call(['python', 'MathFeature/methods/FickettScore.py', '-i',
-							 preprocessed_fasta, '-o', dataset, '-l', fasta_label[i],
-							 '-seq', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+			if 7 in features:
+				dataset = path + '/Shannon.csv'
+				subprocess.call(['python', 'MathFeature/methods/EntropyClass.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-k', '5', '-e', 'Shannon'],
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
-		if 7 in features:
-			dataset = path + '/Shannon.csv'
-			subprocess.call(['python', 'MathFeature/methods/EntropyClass.py', '-i',
-							 preprocessed_fasta, '-o', dataset, '-l', fasta_label[i],
-							 '-k', '5', '-e', 'Shannon'],
-							stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+			if 8 in features:
+				dataset = path + '/FourierBinary.csv'
+				subprocess.call(['python', 'MathFeature/methods/FourierClass.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-r', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
-		if 8 in features:
-			dataset = path + '/FourierBinary.csv'
-			subprocess.call(['python', 'MathFeature/methods/FourierClass.py', '-i',
-							 preprocessed_fasta, '-o', dataset, '-l', fasta_label[i],
-							 '-r', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+			if 9 in features:
+				dataset = path + '/FourierComplex.csv'
+				subprocess.call(['python', 'MathFeature/methods/FourierClass.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-r', '6'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
-		if 9 in features:
-			dataset = path + '/FourierComplex.csv'
-			subprocess.call(['python', 'MathFeature/methods/FourierClass.py', '-i',
-							 preprocessed_fasta, '-o', dataset, '-l', fasta_label[i],
-							 '-r', '6'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+			if 10 in features:
+				dataset = path + '/Tsallis.csv'
+				subprocess.call(['python', 'MathFeature/methods/TsallisEntropy.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
-		if 10 in features:
-			dataset = path + '/Tsallis.csv'
-			subprocess.call(['python', 'MathFeature/methods/TsallisEntropy.py', '-i',
-							 preprocessed_fasta, '-o', dataset, '-l', fasta_label[i],
-							 '-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			datasets.append(dataset)
+			if 11 in features:
+				dataset = path + '/Chaos.csv'
+				classifical_chaos(preprocessed_fasta, labels[i][j], 'Yes', dataset)
+				datasets.append(dataset)
 
-		if 11 in features:
-			dataset = path + '/Chaos.csv'
-			classifical_chaos(preprocessed_fasta, fasta_label[i], 'Yes', dataset)
-			datasets.append(dataset)
+			if 12 in features:
+				dataset = path + '/BinaryMapping.csv'
+				binary_mapping(preprocessed_fasta, labels[i][j], 'Yes', dataset)
+				datasets.append(dataset)
 
 	"""Concatenating all the extracted features"""
 
 	if datasets:
+		datasets = list(dict.fromkeys(datasets))
 		dataframes = pd.concat([pd.read_csv(f) for f in datasets], axis=1)
 		dataframes = dataframes.loc[:, ~dataframes.columns.duplicated()]
 		dataframes = dataframes[~dataframes.nameseq.str.contains("nameseq")]
 
-	return fnameseqtest, ftrain, ftest, flabeltrain, flabeltest
+	X_train = dataframes.iloc[:train_size,:]
+	X_test = dataframes.iloc[train_size:,:]
 
+	y_train = X_train.pop('label')
+	y_test = X_test.pop('label')
+
+	nameseq_train = X_train.pop('nameseq')
+	nameseq_test = X_test.pop('nameseq')
+
+	fnameseqtrain = path + '/fnameseqtrain.csv'
+	nameseq_train.to_csv(fnameseqtrain, index = False, header = True)
+	fnameseqtest = path + '/fnameseqtest.csv'
+	nameseq_test.to_csv(fnameseqtest, index = False, header = True)
+	ftrain = path + '/ftrain.csv'
+	X_train.to_csv(ftrain, index=False)
+	ftest = path + '/ftest.csv'
+	X_test.to_csv(ftest, index=False)
+	flabeltrain = path + '/flabeltrain.csv'
+	y_train.to_csv(flabeltrain, index = False, header = True)
+	flabeltest = path + '/flabeltest.csv'
+	y_test.to_csv(flabeltest, index = False, header = True)
+
+	cost = (time.time() - start_time)/60
+	print('Computation time - MathFeature: %s minutes' % cost)
+
+	return fnameseqtest, ftrain, ftest, flabeltrain, flabeltest
 
 ##########################################################################
 ##########################################################################
@@ -287,10 +333,10 @@ if __name__ == '__main__':
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
 
 	args = parser.parse_args()
-	ftrain = str(args.fasta_train)
-	ftrain_labels = str(args.fasta_label_train)
-	ftest = str(args.fasta_test)
-	ftest_labels = str(fasta_label_test)
+	ftrain = args.fasta_train
+	ftrain_labels = args.fasta_label_train
+	ftest = args.fasta_test
+	ftest_labels = args.fasta_label_test
 	n_cpu = int(args.n_cpu)
 	foutput = str(args.output)
 
@@ -308,16 +354,12 @@ if __name__ == '__main__':
 			print('Test - %s: File not exists' % fasta)
 			sys.exit()
 
+	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+	nameseq_test, ftrain, ftest, \
+		ftrain_labels,ftest_labels = feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, foutput)
+
 	start_time = time.time()
-
-	if os.path.exists(foutput):
-		os.remove(foutput)
-
-	features = [1, 2, 3, 4, 5, 6,
-				7, 8, 9, 10, 11]
-
-	# nameseq_test, ftrain, ftest, \
- 	# ftrain_labels,ftest_labels = feature_extraction(fasta, fasta_label, features)
 
 	cost = (time.time() - start_time)/60
 	print('Computation time - Pipeline: %s minutes' % cost)
