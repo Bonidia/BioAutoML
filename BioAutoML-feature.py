@@ -17,10 +17,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_val_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
-path_methods = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(path_methods + '/other-methods/')
-# from ChaosGameTheory import *
-# from MappingClass import *
 
 # Testing
 # python BioAutoML-feature.py
@@ -135,6 +131,8 @@ def feature_engineering(train, train_labels, test, foutput):
 		if result == 1:
 			index = index + ind
 
+	classifier = param[descriptor][best_tuning['Classifier']]
+
 	btrain = df_x.iloc[:, index]
 	path_btrain = path_bio + '/best_train.csv'
 	btrain.to_csv(path_btrain, index=False, header=True)
@@ -146,7 +144,7 @@ def feature_engineering(train, train_labels, test, foutput):
 	else:
 		btest, path_btest = '', ''
 
-	return path_btrain, path_btest, btrain, btest
+	return classifier, path_btrain, path_btest, btrain, btest
 
 
 def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, foutput):
@@ -285,7 +283,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	if 11 in features:
 		dataset = path + '/Chaos.csv'
-		classifical_chaos(preprocessed_fasta, labels[i][j], 'Yes', dataset)
+		# classifical_chaos(preprocessed_fasta, labels[i][j], 'Yes', dataset)
 		datasets.append(dataset)
 
 	if 12 in features:
@@ -296,7 +294,10 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		for i in range(len(fasta_list)):
 			text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
 
-		subprocess.run(['python', 'MathFeature/methods/MappingClass.py', '-n', str(len(fasta_list)), '-o', dataset, '-r', '1'], text = True, input = text_input, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+		subprocess.run(['python', 'MathFeature/methods/MappingClass.py',
+						'-n', str(len(fasta_list)), '-o',
+						dataset, '-r', '1'], text=True, input=text_input,
+					   stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
 		with open(dataset, 'r') as temp_f:
 			col_count = [len(l.split(",")) for l in temp_f.readlines()]
@@ -304,7 +305,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		colnames = ['BinaryMapping_' + str(i) for i in range(0, max(col_count))]
 
 		df = pd.read_csv(dataset, names=colnames, header=None)
-		df.rename(columns={ df.columns[0]: 'nameseq', df.columns[-1]: 'label'}, inplace = True)
+		df.rename(columns={df.columns[0]: 'nameseq', df.columns[-1]: 'label'}, inplace=True)
 		df.to_csv(dataset, index=False)
 		
 		datasets.append(dataset)
@@ -392,13 +393,13 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 
-	features = [12]
+	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 	fnameseqtest, ftrain, ftrain_labels, \
 		ftest, ftest_labels = feature_extraction(fasta_train, fasta_label_train,
 												 fasta_test, fasta_label_test, features, foutput)
 
-	path_train, path_test, train_best, test_best = \
+	classifier, path_train, path_test, train_best, test_best = \
 		feature_engineering(ftrain, ftrain_labels, ftest, foutput)
 
 	cost = (time.time() - start_time) / 60
@@ -408,13 +409,13 @@ if __name__ == '__main__':
 		subprocess.call(['python', 'BioAutoML-multiclass.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test,
 						 '-test_label', ftest_labels, '-test_nameseq',
-						 fnameseqtest, '-nf', 'True', '-classifier', '2',
+						 fnameseqtest, '-nf', 'True', '-classifier', classifier,
 						 '-n_cpu', str(n_cpu), '-output', foutput])
 	else:
 		subprocess.call(['python', 'BioAutoML-binary.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test, '-test_label',
 						 ftest_labels, '-test_nameseq', fnameseqtest,
-						 '-nf', 'True', '-classifier', '2', '-n_cpu', str(n_cpu),
+						 '-nf', 'True', '-classifier', classifier, '-n_cpu', str(n_cpu),
 						 '-output', foutput])
 
 ##########################################################################

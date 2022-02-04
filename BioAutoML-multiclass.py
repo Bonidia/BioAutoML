@@ -11,13 +11,13 @@ import time
 import lightgbm as lgb
 import joblib
 #  import xgboost as xgb
-from sklearn.metrics import roc_auc_score
+# from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
 from sklearn.metrics import classification_report
-from sklearn.metrics import multilabel_confusion_matrix
+# from sklearn.metrics import multilabel_confusion_matrix
 #  from sklearn.model_selection import KFold
 from catboost import CatBoostClassifier
-from sklearn.metrics import balanced_accuracy_score
+# from sklearn.metrics import balanced_accuracy_score
 #  from sklearn.pipeline import Pipeline
 #  from sklearn.preprocessing import MinMaxScaler
 #  from sklearn.model_selection import train_test_split
@@ -26,20 +26,20 @@ from sklearn.model_selection import cross_validate
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
+# from sklearn.metrics import precision_score
+# from sklearn.metrics import recall_score
 from sklearn.metrics import matthews_corrcoef
 from sklearn.feature_selection import SelectFromModel
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import cohen_kappa_score, make_scorer
-from imblearn.metrics import geometric_mean_score
+# from imblearn.metrics import geometric_mean_score
 from imblearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import cross_val_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
-from tpot import TPOTClassifier
+# from tpot import TPOTClassifier
 
 
 def header(output_header):
@@ -359,7 +359,8 @@ def imbalanced_function(clf, train, train_labels):
 	"""Preprocessing: Imbalanced datasets"""
 
 	print('Checking for imbalanced labels...')
-	n_labels = pd.DataFrame(train_labels).value_counts()
+	df = pd.DataFrame(train_labels)
+	n_labels = pd.value_counts(df.values.flatten())
 	if all(x == n_labels[0] for x in n_labels) is False:
 		print('There are imbalanced labels...')
 		print('Checking the best technique...')
@@ -416,13 +417,15 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 	"""Number of labels"""
 
 	print('Number of Labels (train):')
-	print(str(pd.DataFrame(train_labels).value_counts()))
+	df_label = pd.DataFrame(train_labels)
+	print(str(pd.value_counts(df_label.values.flatten())))
 
 	if os.path.exists(ftest) is True:
 		column_test = test.columns
 		print('Number of samples (test): ' + str(len(test)))
 		print('Number of Labels (test):')
-		print(str(pd.DataFrame(test_labels).value_counts()))
+		df_label = pd.DataFrame(test_labels)
+		print(str(pd.value_counts(df_label.values.flatten())))
 
 	print('Number of features (train): ' + str(len(column_train)))
 

@@ -378,7 +378,8 @@ def imbalanced_function(clf, train, train_labels):
 	"""Preprocessing: Imbalanced datasets"""
 
 	print('Checking for imbalanced labels...')
-	n_labels = pd.DataFrame(train_labels).value_counts()
+	df = pd.DataFrame(train_labels)
+	n_labels = pd.value_counts(df.values.flatten())
 	if all(x == n_labels[0] for x in n_labels) is False:
 		print('There are imbalanced labels...')
 		print('Checking the best technique...')
