@@ -1,0 +1,5 @@
+REAL,rRNA,sRNA,tRNA,All
+rRNA,8,0,0,8
+sRNA,1,32,0,33
+tRNA,0,0,10,10
+All,9,32,10,51

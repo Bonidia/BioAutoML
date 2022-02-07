@@ -405,6 +405,7 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 	train_labels = train_labels_read
 	column_train = train.columns
 	column_test = ''
+	output = output  + '/'
 
 	#  tmp = sys.stdout
 	#  log_file = open(output + 'task.log', 'a')

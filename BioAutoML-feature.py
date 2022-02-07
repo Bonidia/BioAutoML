@@ -16,6 +16,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_val_score
+from sklearn.metrics import f1_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
 
 # Testing
@@ -49,16 +50,21 @@ def objective_rf(space):
 
 	x = df_x.iloc[:, index]
 
+	# print(index)
+
 	if int(space['Classifier']) == 0:
 		model = CatBoostClassifier(n_estimators=500,
-								   thread_count=n_cpu, nan_mode='Max', logging_level='Silent')
+								   thread_count=n_cpu, nan_mode='Max',
+								   logging_level='Silent')
 	elif int(space['Classifier']) == 1:
 		model = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 	else:
 		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
 
-	if len(ftrain_labels) > 2:
-		score = make_scorer(balanced_accuracy_score)
+	# print(model)
+
+	if len(fasta_label_train) > 2:
+		score = make_scorer(f1_score, average='weighted')
 	else:
 		score = make_scorer(balanced_accuracy_score)
 
@@ -131,7 +137,7 @@ def feature_engineering(train, train_labels, test, foutput):
 		if result == 1:
 			index = index + ind
 
-	classifier = param[descriptor][best_tuning['Classifier']]
+	classifier = param['Classifier'][best_tuning['Classifier']]
 
 	btrain = df_x.iloc[:, index]
 	path_btrain = path_bio + '/best_train.csv'
@@ -409,13 +415,13 @@ if __name__ == '__main__':
 		subprocess.call(['python', 'BioAutoML-multiclass.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test,
 						 '-test_label', ftest_labels, '-test_nameseq',
-						 fnameseqtest, '-nf', 'True', '-classifier', classifier,
+						 fnameseqtest, '-nf', 'True', '-classifier', str(classifier),
 						 '-n_cpu', str(n_cpu), '-output', foutput])
 	else:
 		subprocess.call(['python', 'BioAutoML-binary.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test, '-test_label',
 						 ftest_labels, '-test_nameseq', fnameseqtest,
-						 '-nf', 'True', '-classifier', classifier, '-n_cpu', str(n_cpu),
+						 '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
 						 '-output', foutput])
 
 ##########################################################################
