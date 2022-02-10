@@ -1,0 +1,2 @@
+ACC,std_ACC,MCC,std_MCC,F1_micro,std_F1_micro,F1_macro,std_F1_macro,F1_w,std_F1_w,kappa,std_kappa
+0.8571,0.01,0.8250,0.01,0.8571,0.01,0.7869,0.02,0.8538,0.01,0.8242,0.01
