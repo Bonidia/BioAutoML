@@ -1,0 +1,16 @@
+file                                            format  type  num_seqs  sum_len  min_len  avg_len  max_len     Q1       Q2       Q3  sum_gap    N50  Q20(%)  Q30(%)
+Case Studies/CS-III/Acidobacteria/sRNA.fasta    FASTA   DNA         25    1,181       45     47.2       79     46       46       46        0     46       0       0
+Case Studies/CS-III/Bacteroidota/sRNA.fasta                          0        0        0        0        0      0        0        0        0      0       0       0
+Case Studies/CS-III/Cyanobacteria/sRNA.fasta    FASTA   DNA         11      876       51     79.6      291     52       56       67        0     65       0       0
+Case Studies/CS-III/Proteobacteria/sRNA.fasta   FASTA   DNA        284   33,873       42    119.3      811     76       84    144.5        0    135       0       0
+Case Studies/CS-III/Verrucomicrobia/sRNA.fasta  FASTA   DNA         29    1,581       45     54.5      136     46       46       46        0     46       0       0
+Case Studies/CS-III/Acidobacteria/tRNA.fasta    FASTA   DNA         97    7,397       71     76.3       94     73       74       80        0     74       0       0
+Case Studies/CS-III/Bacteroidota/tRNA.fasta     FASTA   DNA         87    6,592       71     75.8       97     73       74       75        0     74       0       0
+Case Studies/CS-III/Cyanobacteria/tRNA.fasta    FASTA   DNA        104    7,863       67     75.6       90     72     73.5     74.5        0     74       0       0
+Case Studies/CS-III/Proteobacteria/tRNA.fasta   FASTA   DNA        102    7,836       69     76.8      114     73       74       82        0     74       0       0
+Case Studies/CS-III/Verrucomicrobia/tRNA.fasta  FASTA   DNA         90    6,769       71     75.2       90     72       73       74        0     73       0       0
+Case Studies/CS-III/Acidobacteria/rRNA.fasta    FASTA   DNA         18   35,229      117  1,957.2    2,950  1,492  2,117.5    2,887        0  2,778       0       0
+Case Studies/CS-III/Bacteroidota/rRNA.fasta     FASTA   DNA         39   79,297      110  2,033.3    2,880  1,509    1,519  2,870.5        0  2,868       0       0
+Case Studies/CS-III/Cyanobacteria/rRNA.fasta    FASTA   DNA         26   52,185      117  2,007.1    2,891  1,481  1,490.5    2,876        0  2,744       0       0
+Case Studies/CS-III/Proteobacteria/rRNA.fasta   FASTA   DNA         79  164,726      116  2,085.1    3,091  1,535    1,543    2,904        0  2,836       0       0
+Case Studies/CS-III/Verrucomicrobia/rRNA.fasta  FASTA   DNA         21   38,997      116    1,857    2,826  1,514    1,534    2,823        0  2,660       0       0

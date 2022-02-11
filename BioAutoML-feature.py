@@ -191,13 +191,13 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 			file = fasta[i][j].split('/')[-1]
 			if i == 0:  # Train
 				preprocessed_fasta = path + '/train/pre_' + file
-				subprocess.call(['python', 'MathFeature/preprocessing/preprocessing.py',
+				subprocess.run(['python', 'MathFeature/preprocessing/preprocessing.py',
 								'-i', fasta[i][j], '-o', preprocessed_fasta],
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				train_size += len([1 for line in open(preprocessed_fasta) if line.startswith(">")])
 			else:  # Test
 				preprocessed_fasta = path + '/test/pre_' + file
-				subprocess.call(['python', 'MathFeature/preprocessing/preprocessing.py',
+				subprocess.run(['python', 'MathFeature/preprocessing/preprocessing.py',
 								'-i', fasta[i][j], '-o', preprocessed_fasta],
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
@@ -205,14 +205,14 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 			if 1 in features:
 				dataset = path + '/NAC.csv'
-				subprocess.call(['python', 'MathFeature/methods/ExtractionTechniques.py',
+				subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques.py',
 								'-i', preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-t', 'NAC', '-seq', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 			if 2 in features:
 				dataset = path + '/DNC.csv'
-				subprocess.call(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
+				subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-t', 'DNC', '-seq', '1'], stdout=subprocess.DEVNULL,
 								stderr=subprocess.STDOUT)
@@ -220,7 +220,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 			if 3 in features:
 				dataset = path + '/TNC.csv'
-				subprocess.call(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
+				subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-t', 'TNC', '-seq', '1'], stdout=subprocess.DEVNULL,
 								stderr=subprocess.STDOUT)
@@ -230,13 +230,13 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 				dataset_di = path + '/kGap_di.csv'
 				dataset_tri = path + '/kGap_tri.csv'
 
-				subprocess.call(['python', 'MathFeature/methods/Kgap.py', '-i',
+				subprocess.run(['python', 'MathFeature/methods/Kgap.py', '-i',
 								preprocessed_fasta, '-o', dataset_di, '-l',
 								labels[i][j], '-k', '1', '-bef', '1',
 								'-aft', '2', '-seq', '1'],
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
-				subprocess.call(['python', 'MathFeature/methods/Kgap.py', '-i',
+				subprocess.run(['python', 'MathFeature/methods/Kgap.py', '-i',
 								preprocessed_fasta, '-o', dataset_tri, '-l',
 								labels[i][j], '-k', '1', '-bef', '1',
 								'-aft', '3', '-seq', '1'],
@@ -246,21 +246,21 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 			if 5 in features:
 				dataset = path + '/ORF.csv'
-				subprocess.call(['python', 'MathFeature/methods/CodingClass.py', '-i',
+				subprocess.run(['python', 'MathFeature/methods/CodingClass.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j]],
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 			if 6 in features:
 				dataset = path + '/Fickett.csv'
-				subprocess.call(['python', 'MathFeature/methods/FickettScore.py', '-i',
+				subprocess.run(['python', 'MathFeature/methods/FickettScore.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-seq', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 			if 7 in features:
 				dataset = path + '/Shannon.csv'
-				subprocess.call(['python', 'MathFeature/methods/EntropyClass.py', '-i',
+				subprocess.run(['python', 'MathFeature/methods/EntropyClass.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-k', '5', '-e', 'Shannon'],
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -268,21 +268,21 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 			if 8 in features:
 				dataset = path + '/FourierBinary.csv'
-				subprocess.call(['python', 'MathFeature/methods/FourierClass.py', '-i',
+				subprocess.run(['python', 'MathFeature/methods/FourierClass.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-r', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 			if 9 in features:
 				dataset = path + '/FourierComplex.csv'
-				subprocess.call(['python', 'other-methods/FourierClass.py', '-i',
+				subprocess.run(['python', 'other-methods/FourierClass.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-r', '6'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 			if 10 in features:
 				dataset = path + '/Tsallis.csv'
-				subprocess.call(['python', 'other-methods/TsallisEntropy.py', '-i',
+				subprocess.run(['python', 'other-methods/TsallisEntropy.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
@@ -412,13 +412,13 @@ if __name__ == '__main__':
 	print('Computation time - Pipeline - Automated Feature Engineering: %s minutes' % cost)
 
 	if len(fasta_label_train) > 2:
-		subprocess.call(['python', 'BioAutoML-multiclass.py', '-train', path_train,
+		subprocess.run(['python', 'BioAutoML-multiclass.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test,
 						 '-test_label', ftest_labels, '-test_nameseq',
 						 fnameseqtest, '-nf', 'True', '-classifier', str(classifier),
 						 '-n_cpu', str(n_cpu), '-output', foutput])
 	else:
-		subprocess.call(['python', 'BioAutoML-binary.py', '-train', path_train,
+		subprocess.run(['python', 'BioAutoML-binary.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test, '-test_label',
 						 ftest_labels, '-test_nameseq', fnameseqtest,
 						 '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
