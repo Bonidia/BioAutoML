@@ -12,7 +12,6 @@
 <p align="center">
   <a href="https://github.com/Bonidia/MathFeature">Home</a> •
   <a href="https://bonidia.github.io/MathFeature/">Documentation</a> •
-  <a href="#list-of-files">List of files</a> •
   <a href="#installing-dependencies-and-package">Installing</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#citation">Citation</a> 
@@ -36,17 +35,6 @@ data, sequences need to be translated into a feature vector. This process is kno
 ## Publication
 
 Submitted
-
-## List of files
-
- - **case studies:** case studies used in our article;
- - **GUI:** GUI (Graphical User Interface)-based platform;
- - **examples:** Files of Example;
- - **files:** files used in some methods;
- - **methods:** Main Files - Feature Extraction Models, e.g., Fourier, Numerical Mapping, Entropy, Complex Networks;
- - **preprocessing:** Preprocessing Files;
- - **README:** Documentation;
- - **requirements:** Dependencies.
 
 
 ## Installing dependencies and package
