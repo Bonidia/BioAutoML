@@ -120,7 +120,7 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 	trials = Trials()
 	best_tuning = fmin(fn=objective_rf,
 				space=space,
-				algo=tpe.suggest,
+				algo=tpe.rand.suggest,
 				max_evals=estimations,
 				trials=trials)
 
