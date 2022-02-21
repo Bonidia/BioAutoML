@@ -12,8 +12,6 @@
 <p align="center">
   <a href="https://github.com/Bonidia/MathFeature">Home</a> •
   <a href="https://bonidia.github.io/MathFeature/">Documentation</a> •
-  <a href="http://mathfeature.icmc.usp.br/">Web Server</a> •
-  <a href="#list-of-files">List of files</a> •
   <a href="#installing-dependencies-and-package">Installing</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#citation">Citation</a> 
@@ -24,30 +22,19 @@
 ## Abstract
 
 Recent technological advances allowed an exponential expansion of biological sequence data, and the extraction of meaningful information through Machine Learning (ML) algorithms. This knowledge improved the understanding of the mechanisms related to several fatal diseases, e.g., Cancer and COVID-19, helping to develop innovative solutions, such as CRISPR-based gene editing, coronavirus vaccine, and precision medicine. These advances benefit our society and economy, directly impacting people’s lives in various areas, such as health care, drug discovery, forensic analysis, and food analysis. Nevertheless, ML approaches applied to biological data require representative, quantitative, and informative features. Necessarily, as many ML algorithms can handle only numerical
-data, sequences need to be translated into a feature vector. This process is known as feature extraction, a fundamental step for the elaboration of high-quality ML-based models in bioinformatics, especially in the stage of feature engineering. This process often requires extensive domain knowledge, performed manually by a human expert, making feature engineering a decisive and time-consuming step in the ML pipeline. Thus, we propose to develop a new
-package, BioAutoML, able to extract relevant numerical information from biological sequences. BioAutoML will use Automated ML (AutoML) to recommend the best feature vector to be extracted from a biological dataset. Fundamentally, this project is divided into two stages: (1) Implement feature extraction descriptors for biological sequences, and (2) automate efficient and robust feature extraction pipelines. The first experimental results, assessing the relevance of the implemented descriptors, indicate robust results for different problem domains, such as SARS-CoV-2, anticancer peptides, HIV sequences, and non-coding RNAs. According to our systematic review, our proposal is innovative compared to available studies in the literature, being the first study to propose automated feature engineering for biological sequences, allowing non-experts to use relevant feature extraction techniques.
+data, sequences need to be translated into a feature vector. This process is known as feature extraction, a fundamental step for the elaboration of high-quality ML-based models in bioinformatics, especially in the stage of feature engineering. This process often requires extensive domain knowledge, performed manually by a human expert, making feature engineering a decisive and time-consuming step in the ML pipeline. Thus, we developed a new package, BioAutoML, able to extract relevant numerical information from biological sequences. BioAutoML uses Automated ML (AutoML) to recommend the best feature vector to be extracted from a biological dataset, using combinations of descriptors implemented in the MathFeature package. BioAutoML is divided into three modules, such as (1) feature extraction, (2) automated feature engineering, and (3) creation of the ML model and performance. The first experimental results, assessing the relevance of the implemented descriptors, indicate robust results for different problem domains, such as SARS-CoV-2, anticancer peptides, HIV sequences, and non-coding RNAs. According to our systematic review, our proposal is innovative compared to available studies in the literature, being the first study to propose automated feature engineering for biological sequences. BioAutoML has high innovative potential as it can accelerate new studies, reducing the feature engineering time-consuming stage, allowing non-experts to build ML pipelines in bioinformatics.
+
 
 ## Authors
 
-* Robson Parmezan Bonidia, Danilo Sipoli Sanches, and André Carlos Ponce de Leon Ferreira de Carvalho.
+* Robson Parmezan Bonidia, Anderson Paulo Avila Santos, Breno Lívio Silva de Almeida, Peter F. Stadler, Ulisses Nunes da Rocha, Danilo Sipoli Sanches, and André Carlos Ponce de Leon Ferreira de Carvalho.
 
 * **Correspondence:** rpbonidia@gmail.com or bonidia@usp.br
 
 
 ## Publication
 
-Robson P Bonidia, Douglas S Domingues, Danilo S Sanches, André C P L F de Carvalho, MathFeature: feature extraction package for DNA, RNA and protein sequences based on mathematical descriptors, Briefings in Bioinformatics, 2021; bbab434, https://doi.org/10.1093/bib/bbab434.
-
-## List of files
-
- - **case studies:** case studies used in our article;
- - **GUI:** GUI (Graphical User Interface)-based platform;
- - **examples:** Files of Example;
- - **files:** files used in some methods;
- - **methods:** Main Files - Feature Extraction Models, e.g., Fourier, Numerical Mapping, Entropy, Complex Networks;
- - **preprocessing:** Preprocessing Files;
- - **README:** Documentation;
- - **requirements:** Dependencies.
+Submitted
 
 
 ## Installing dependencies and package
@@ -112,6 +99,8 @@ See our [documentation](https://bonidia.github.io/MathFeature).
 ## Citation
 
 If you use this code in a scientific publication, we would appreciate citations to the following paper:
+
+Submitted - For now, cite the following paper: 
 
 Robson P Bonidia, Douglas S Domingues, Danilo S Sanches, André C P L F de Carvalho, MathFeature: feature extraction package for DNA, RNA and protein sequences based on mathematical descriptors, Briefings in Bioinformatics, 2021; bbab434, https://doi.org/10.1093/bib/bbab434.
 
