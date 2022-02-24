@@ -26,6 +26,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
+from sklearn.ensemble import AdaBoostClassifier
 # from sklearn.metrics import precision_score
 # from sklearn.metrics import recall_score
 from sklearn.metrics import matthews_corrcoef
@@ -466,15 +467,13 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 	if classifier == 0:
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
-			print('Classifier: CatBoost')
-			clf = CatBoostClassifier(n_estimators=500, thread_count=n_cpu, nan_mode='Max', logging_level='Silent')
+			print('Classifier: AdaBoost')
+			clf = AdaBoostClassifier(n_estimators=500)
 			# train, train_labels = imbalanced_function(clf, train, train_labels)
-			best_tuning, clf = tuning_catboost_bayesian()
-			print('Finished Tuning')
 		else:
 			print('Tuning: ' + str(tuning))
-			print('Classifier: CatBoost')
-			clf = CatBoostClassifier(n_estimators=500, thread_count=n_cpu, nan_mode='Max', logging_level='Silent')
+			print('Classifier: AdaBoost')
+			clf = AdaBoostClassifier(n_estimators=500)
 			# train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 1:
 		if tuning is True:
@@ -609,7 +608,7 @@ if __name__ == '__main__':
 						help='Normalization - Features (default = False)')
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
 	parser.add_argument('-classifier', '--classifier', default=0,
-						help='Classifier - 0: CatBoost, 1: Random Forest '
+						help='Classifier - 0: AdaBoost, 1: Random Forest '
 							 '2: LightGBM')
 	parser.add_argument('-tuning', '--tuning_classifier', type=bool, default=False,
 						help='Tuning Classifier - True = Yes, False = No, default = False')
