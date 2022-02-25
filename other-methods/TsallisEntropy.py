@@ -16,7 +16,7 @@ def header(foutput, ksize):
     file = open(foutput, 'a')
     file.write("nameseq,")
     for i in range(1, ksize+1):
-        file.write("k-tsallis" + str(i) + ",")
+        file.write("k-tsallis" + str(i) + str(q) + ",")
     file.write("label")
     file.write("\n")
     return

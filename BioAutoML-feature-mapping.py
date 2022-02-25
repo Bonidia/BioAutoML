@@ -9,7 +9,7 @@ import sys
 import os.path
 import time
 import lightgbm as lgb
-from catboost import CatBoostClassifier
+# from catboost import CatBoostClassifier
 from sklearn.metrics import balanced_accuracy_score
 # from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
@@ -43,7 +43,14 @@ def objective_rf(space):
 				   'kGap_tri': list(range(148, 404)), 'ORF': list(range(404, 414)),
 				   'Fickett': list(range(414, 416)), 'Shannon': list(range(416, 421)),
 				   'FourierBinary': list(range(421, 440)), 'FourierComplex': list(range(440, 459)),
-				   'Tsallis': list(range(459, 464))}
+				   'Tsallis-2.3': list(range(459, 464)),
+				   'Tsallis-0.5': list(range(464, 469)),
+				   'Tsallis-4.0': list(range(469, 474)),
+				   'Tsallis-5.0': list(range(474, 479)),
+				   'Chaos': list(range(479, int((len(df_x.columns)/6) * 2))),
+				   'Binary': list(range(int((len(df_x.columns)/6) * 2) + 1, int((len(df_x.columns)/6) * 4)))}
+
+	print(space)
 
 	for descriptor, ind in descriptors.items():
 		if int(space[descriptor]) == 1:
@@ -100,8 +107,9 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 'TNC': [0, 1], 'kGap_di': [0, 1], 'kGap_tri': [0, 1],
 			 'ORF': [0, 1], 'Fickett': [0, 1],
 			 'Shannon': [0, 1], 'FourierBinary': [0, 1],
-			 'FourierComplex': [0, 1], 'Tsallis': [0, 1],
-			 'Classifier': [0, 1, 2]}
+			 'FourierComplex': [0, 1], 'Tsallis-2.3': [0, 1],
+			 'Tsallis-0.5': [0, 1], 'Tsallis-4.0': [0, 1], 'Tsallis-5.0': [0, 1],
+			 'Chaos': [0, 1], 'Binary': [0, 1], 'Classifier': [0, 1, 2]}
 
 	space = {'NAC': hp.choice('NAC', [0, 1]),
 			 'DNC': hp.choice('DNC', [0, 1]),
@@ -113,13 +121,18 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 'Shannon': hp.choice('Shannon', [0, 1]),
 			 'FourierBinary': hp.choice('FourierBinary', [0, 1]),
 			 'FourierComplex': hp.choice('FourierComplex', [0, 1]),
-			 'Tsallis': hp.choice('Tsallis', [0, 1]),
+			 'Tsallis-2.3': hp.choice('Tsallis-2.3', [0, 1]),
+			 'Tsallis-0.5': hp.choice('Tsallis-0.5', [0, 1]),
+			 'Tsallis-4.0': hp.choice('Tsallis-4.0', [0, 1]),
+			 'Tsallis-5.0': hp.choice('Tsallis-5.0', [0, 1]),
+			 'Chaos': hp.choice('Chaos', [0, 1]),
+			 'Binary': hp.choice('Binary', [0, 1]),
 			 'Classifier': hp.choice('Classifier', [0, 1, 2])}
 
 	trials = Trials()
 	best_tuning = fmin(fn=objective_rf,
 				space=space,
-				algo=tpe.rand.suggest,
+				algo=tpe.suggest,
 				max_evals=estimations,
 				trials=trials)
 
@@ -129,7 +142,9 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 				   'kGap_tri': list(range(148, 404)), 'ORF': list(range(404, 414)),
 				   'Fickett': list(range(414, 416)), 'Shannon': list(range(416, 421)),
 				   'FourierBinary': list(range(421, 440)), 'FourierComplex': list(range(440, 459)),
-				   'Tsallis': list(range(459, 464))}
+				   'Tsallis': list(range(459, 464)),
+				   'Chaos': list(range(479, int((len(df_x.columns) / 6) * 2))),
+				   'Binary': list(range(int((len(df_x.columns) / 6) * 2) + 1, int((len(df_x.columns) / 6) * 4)))}
 
 	for descriptor, ind in descriptors.items():
 		result = param[descriptor][best_tuning[descriptor]]
@@ -280,18 +295,60 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 				datasets.append(dataset)
 
 			if 10 in features:
-				dataset = path + '/Tsallis.csv'
+				dataset = path + '/Tsallis.csv-2.3'
 				subprocess.run(['python', 'other-methods/TsallisEntropy.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
-	if 11 in features:
-		dataset = path + '/Chaos.csv'
-		# classifical_chaos(preprocessed_fasta, labels[i][j], 'Yes', dataset)
-		datasets.append(dataset)
+				dataset = path + '/Tsallis.csv-0.5'
+				subprocess.run(['python', 'other-methods/TsallisEntropy.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-k', '5', '-q', '0.5'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
+
+				dataset = path + '/Tsallis.csv-4.0'
+				subprocess.run(['python', 'other-methods/TsallisEntropy.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-k', '5', '-q', '4.0'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
+
+				dataset = path + '/Tsallis.csv-5.0'
+				subprocess.run(['python', 'other-methods/TsallisEntropy.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-k', '5', '-q', '5.0'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
+
+			if 11 in features:
+				dataset = path + '/4-mer.csv'
+				subprocess.run(['python', 'MathFeature/methods/k-mers.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-k', '5', '-seq', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
 
 	if 12 in features:
+		dataset = path + '/Chaos.csv'
+		labels_list = ftrain_labels + ftest_labels
+		text_input = ''
+		for i in range(len(fasta_list)):
+			text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
+
+		subprocess.run(['python', 'MathFeature/methods/ChaosGameTheory.py',
+						'-n', str(len(fasta_list)), '-o',
+						dataset, '-r', '1'], text=True, input=text_input,
+					   stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+		with open(dataset, 'r') as temp_f:
+			col_count = [len(l.split(",")) for l in temp_f.readlines()]
+
+		colnames = ['ChaosMapping_' + str(i) for i in range(0, max(col_count))]
+
+		df = pd.read_csv(dataset, names=colnames, header=None)
+		df.rename(columns={df.columns[0]: 'nameseq', df.columns[-1]: 'label'}, inplace=True)
+		df.to_csv(dataset, index=False)
+		datasets.append(dataset)
+
+	if 13 in features:
 		dataset = path + '/BinaryMapping.csv'
 
 		labels_list = ftrain_labels + ftest_labels
@@ -312,7 +369,6 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		df = pd.read_csv(dataset, names=colnames, header=None)
 		df.rename(columns={df.columns[0]: 'nameseq', df.columns[-1]: 'label'}, inplace=True)
 		df.to_csv(dataset, index=False)
-		
 		datasets.append(dataset)
 
 	"""Concatenating all the extracted features"""
@@ -370,7 +426,8 @@ if __name__ == '__main__':
 						help='fasta format file, e.g., fasta/ncRNA fasta/lncRNA fasta/circRNA')
 	parser.add_argument('-fasta_label_test', '--fasta_label_test', nargs='+',
 						help='labels for fasta files, e.g., ncRNA lncRNA circRNA')
-	parser.add_argument('-estimations', '--estimations', default=50, help='number of estimations - BioAutoML - default = 50')
+	parser.add_argument('-estimations', '--estimations', default=50,
+						help='number of estimations - BioAutoML - default = 50')
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
 
@@ -400,7 +457,7 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 
-	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13]
 
 	fnameseqtest, ftrain, ftrain_labels, \
 		ftest, ftest_labels = feature_extraction(fasta_train, fasta_label_train,
@@ -417,12 +474,13 @@ if __name__ == '__main__':
 						 '-train_label', ftrain_labels, '-test', path_test,
 						 '-test_label', ftest_labels, '-test_nameseq',
 						 fnameseqtest, '-nf', 'True', '-classifier', str(classifier),
-						 '-n_cpu', str(n_cpu), '-output', foutput])
+						 '-tuning', 'True', '-n_cpu', str(n_cpu), '-output', foutput])
 	else:
 		subprocess.run(['python', 'BioAutoML-binary.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test, '-test_label',
 						 ftest_labels, '-test_nameseq', fnameseqtest,
-						 '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
+						 '-nf', 'True', '-classifier', str(classifier),
+						'-tuning', 'True', '-n_cpu', str(n_cpu),
 						 '-output', foutput])
 
 ##########################################################################
