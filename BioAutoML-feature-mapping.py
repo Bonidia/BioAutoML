@@ -50,7 +50,7 @@ def objective_rf(space):
 				   'Chaos': list(range(479, int((len(df_x.columns)/6) * 2))),
 				   'Binary': list(range(int((len(df_x.columns)/6) * 2) + 1, int((len(df_x.columns)/6) * 4)))}
 
-	print(space)
+	# print(space)
 
 	for descriptor, ind in descriptors.items():
 		if int(space[descriptor]) == 1:
@@ -142,7 +142,10 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 				   'kGap_tri': list(range(148, 404)), 'ORF': list(range(404, 414)),
 				   'Fickett': list(range(414, 416)), 'Shannon': list(range(416, 421)),
 				   'FourierBinary': list(range(421, 440)), 'FourierComplex': list(range(440, 459)),
-				   'Tsallis': list(range(459, 464)),
+				   'Tsallis-2.3': list(range(459, 464)),
+				   'Tsallis-0.5': list(range(464, 469)),
+				   'Tsallis-4.0': list(range(469, 474)),
+				   'Tsallis-5.0': list(range(474, 479)),
 				   'Chaos': list(range(479, int((len(df_x.columns) / 6) * 2))),
 				   'Binary': list(range(int((len(df_x.columns) / 6) * 2) + 1, int((len(df_x.columns) / 6) * 4)))}
 
