@@ -27,7 +27,7 @@ To run the code (Example): $ python BioAutoML-feature.py
 
 Where:
 
--fasta_train FASTA_TRAIN: fasta format file, e.g., fasta/ncRNA.fastafasta/lncRNA.fasta fasta/circRNA.fasta
+-fasta_train: fasta format file, e.g., fasta/ncRNA.fastafasta/lncRNA.fasta fasta/circRNA.fasta
  
 -fasta_label_train: labels for fasta files, e.g., ncRNA lncRNA circRNA
 
