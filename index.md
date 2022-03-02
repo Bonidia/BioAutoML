@@ -10,10 +10,9 @@
 <h4 align="center">BioAutoML: Automated Feature Engineering and Metalearning for Classification of Biological Sequences</h4>
 
 <p align="center">
-  <a href="https://github.com/Bonidia/MathFeature">Home</a> •
-  <a href="https://bonidia.github.io/MathFeature/">Documentation</a> •
-  <a href="#installing-dependencies-and-package">Installing</a> •
-  <a href="#how-to-use">How To Use</a> •
+  <a href="https://bonidia.github.io/BioAutoML/">Home</a> •
+  <a href="https://github.com/Bonidia/BioAutoML/">Repository</a> •
+  <a href="#documentation">Documentation</a> •
   <a href="#citation">Citation</a> 
 </p>
 
@@ -40,10 +39,9 @@ Recent technological advances allowed an exponential expansion of biological seq
 
 * **Correspondence:** rpbonidia@gmail.com or bonidia@usp.br
 
+## Documentation
 
-## Publication
-
-Submitted
+Documentation
 
 ## Citation
 
