@@ -4,7 +4,6 @@
 ![Status](https://img.shields.io/badge/status-up-brightgreen)
 
 <h1 align="center">
-  <img src="img/BioAutoML.png" alt="BioAutoML" width="400">
 </h1>
 
 <h4 align="center">BioAutoML: Automated Feature Engineering and Metalearning for Classification of Biological Sequences</h4>
@@ -18,56 +17,49 @@
 
 <h1 align="center"></h1>
 
-## Abstract
+## BioAutoML - Automated Feature Engineering and Metalearning - With Numerical Mapping - End-to-end Machine Learning Workflow
 
-Recent technological advances allowed an exponential expansion of biological sequence data and the extraction of meaningful information through Machine Learning (ML) algorithms. This knowledge improved the understanding of the mechanisms related to several fatal diseases, e.g., Cancer and COVID-19, helping to develop innovative solutions, such as CRISPR-based gene editing, coronavirus vaccine, and precision medicine. These advances benefit our society and economy, directly impacting people's lives in various areas, such as health care, drug discovery, forensic analysis, and food processing. Nevertheless, ML-based approaches to biological data require representative, quantitative, and informative features. Many ML algorithms can handle only numerical data, so sequences need to be translated into a numerical feature vector. This process, known as feature extraction, is a fundamental step for elaborating high-quality ML-based models in bioinformatics, by allowing the feature engineering stage, with the design and selection of suitable features. Feature engineering, ML algorithm selection, and hyperparameter tuning are often manual and time-consuming processes, requiring extensive domain knowledge. To deal with this problem, we present a new package, BioAutoML. BioAutoML automatically runs an end-to-end ML pipeline, extracting numerical and informative features from biological sequence databases, using the MathFeature package, and automating the feature selection, ML algorithm(s) recommendation and tuning of the selected algorithm(s) hyperparameters, using Automated ML (AutoML). BioAutoML has two components, divided into four modules, (1) automated feature engineering (feature extraction and selection modules) and (2) Metalearning (algorithm recommendation and hyper-parameter tuning modules). We experimentally evaluate BioAutoML in two different scenarios: (i) prediction of the three main classes of ncRNAs and (ii) prediction of the seven categories of ncRNAs in bacteria, including housekeeping and regulatory types. To assess BioAutoML predictive performance, it is experimentally compared with three other AutoML tools (RECIPE, Auto-Sklearn, and TPOT). According to the experimental results, BioAutoML can accelerate new studies, reducing the cost of feature engineering processing and either keeping or improving predictive performance.
+To use this model, follow the example below:
 
-* First study to propose an automated feature engineering and metalearning pipeline for ncRNA sequences in bacteria;
-    
-* BioAutoML can be applied in multi-class and binary problems;
-    
-* BioAutoML can be used in other DNA/RNA sequences scenarios;
-    
-* BioAutoML can accelerate new studies, reducing the feature engineering time-consuming stage and improving the design and performance of ML pipelines in bioinformatics;
-    
-* BioAutoML does not require specialist human assistance.
+```sh 
+To run the code (Example): $ python BioAutoML-binary.py -h
 
 
-## Authors
+Where:
 
-* Robson Parmezan Bonidia, Anderson Paulo Avila Santos, Breno Lívio Silva de Almeida, Peter F. Stadler, Ulisses Nunes da Rocha, Danilo Sipoli Sanches, and André Carlos Ponce de Leon Ferreira de Carvalho.
+-train: csv format file, e.g., train.csv
 
-* **Correspondence:** rpbonidia@gmail.com or bonidia@usp.br
+-train_label: csv format file with labels, e.g., labels_test.csv
 
-## Documentation
+-test: csv format file, e.g., test.csv
 
-- [Installing dependencies and package](install.md)
-- [BioAutoML - Automated Feature Engineering and Metalearning](bio.md)
-- [BioAutoML - Automated Feature Engineering and Metalearning - With Numerical Mapping](bio-mapping.md)
-- [BioAutoML - Metalearning - Binary Problems - Using features from other packages](binary.md)
-- [BioAutoML - Metalearning - Multiclass Problems - Using features from other packages](multi.md)
+-test_label: csv format file with labels, e.g., labels_test.csv
 
-## Citation
+-test_nameseq: csv with sequence names - test
 
-If you use this code in a scientific publication, we would appreciate citations to the following paper:
+-nf: Normalization - Features (default = False)
 
-Submitted - For now, cite the following paper: 
+-n_cpu: number of cpus - default = 1
+  
+-classifier: Classifier - 0: CatBoost, 1: Random Forest 2: LightGBM
+  
+-imbalance: To deal with the imbalanced dataset problem - True = Yes, False = No, default = False
 
-Robson P Bonidia, Douglas S Domingues, Danilo S Sanches, André C P L F de Carvalho, MathFeature: feature extraction package for DNA, RNA and protein sequences based on mathematical descriptors, Briefings in Bioinformatics, 2021; bbab434, https://doi.org/10.1093/bib/bbab434.
+-tuning: Tuning Classifier - True = Yes, False = No, default = False
+
+-output: results directory, e.g., result/
+```
+
+**Running:**
 
 ```sh
+$ python BioAutoML-binary.py -train example_csv/lncRNA/train-human.csv -train_label example_csv/lncRNA/train-human-labels.csv -test example_csv/lncRNA/test-human.csv -test_label example_csv/lncRNA/test-human-labels.csv -test_nameseq example_csv/lncRNA/test-human-sequences.csv -classifier 2 -output example_results/
 
-@article{10.1093/bib/bbab434,
-    author = {Bonidia, Robson P and Domingues, Douglas S and Sanches, Danilo S and de Carvalho, André C P L F},
-    title = "{MathFeature: feature extraction package for DNA, RNA and protein sequences based on mathematical descriptors}",
-    journal = {Briefings in Bioinformatics},
-    year = {2021},
-    month = {11},
-    issn = {1477-4054},
-    doi = {10.1093/bib/bbab434},
-    url = {https://doi.org/10.1093/bib/bbab434},
-    note = {bbab434},
-    eprint = {https://academic.oup.com/bib/advance-article-pdf/doi/10.1093/bib/bbab434/41108442/bbab434.pdf},
-}
+or
 
+$ python BioAutoML-binary.py -train example_csv/lncRNA/train-human.csv -train_label example_csv/lncRNA/train-human-labels.csv -test example_csv/lncRNA/test-human.csv -test_label example_csv/lncRNA/test-human-labels.csv -test_nameseq example_csv/lncRNA/test-human-sequences.csv -imbalance True -tuning True -classifier 2 -output example_results/
 ```
+
+**Note** This example is in the example_csv/lncRNA Directory. 
+
+**Note** Inserting a test dataset is optional. 
