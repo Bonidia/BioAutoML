@@ -27,13 +27,13 @@ To run the code (Example): $ python BioAutoML-feature.py
 
 Where:
 
--fasta_train: fasta format file, e.g., fasta/ncRNA.fasta fasta/lncRNA.fasta fasta/circRNA.fasta
+-fasta_train: fasta format file, e.g., fasta/lncRNA.fasta fasta/circRNA.fasta
  
--fasta_label_train: labels for fasta files, e.g., ncRNA lncRNA circRNA
+-fasta_label_train: labels for fasta files, e.g., lncRNA circRNA
 
--fasta_test: fasta format file, e.g., fasta/ncRNA fasta/lncRNA fasta/circRNA
+-fasta_test: fasta format file, e.g., fasta/lncRNA.fasta fasta/circRNA.fasta
 
--fasta_label_test: labels for fasta files, e.g., ncRNA lncRNA circRNA
+-fasta_label_test: labels for fasta files, e.g., lncRNA circRNA
 
 -estimations: number of estimations - BioAutoML - default = 50
 
