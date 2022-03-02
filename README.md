@@ -10,8 +10,8 @@
 <h4 align="center">BioAutoML: Automated Feature Engineering and Metalearning for Classification of Biological Sequences</h4>
 
 <p align="center">
-  <a href="https://github.com/Bonidia/MathFeature">Home</a> •
-  <a href="https://bonidia.github.io/MathFeature/">Documentation</a> •
+  <a href="https://github.com/Bonidia/BioAutoML/">Home</a> •
+  <a href="https://bonidia.github.io/BioAutoML/">Documentation</a> •
   <a href="#installing-dependencies-and-package">Installing</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#citation">Citation</a> 
@@ -103,7 +103,7 @@ conda deactivate
 ```
 ## How to use
 
-See our [documentation](https://bonidia.github.io/MathFeature).
+See our [documentation](https://bonidia.github.io/BioAutoML/).
 
 ## Citation
 
