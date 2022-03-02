@@ -7,7 +7,7 @@
   <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/BioAutoML.png" alt="BioAutoML" width="400">
 </h1>
 
-<h4 align="center">BioAutoML: Automated Feature Engineering for Classification of Biological Sequences</h4>
+<h4 align="center">BioAutoML: Automated Feature Engineering and Metalearning for Classification of Biological Sequences</h4>
 
 <p align="center">
   <a href="https://github.com/Bonidia/MathFeature">Home</a> •
@@ -21,8 +21,17 @@
 
 ## Abstract
 
-Recent technological advances allowed an exponential expansion of biological sequence data, and the extraction of meaningful information through Machine Learning (ML) algorithms. This knowledge improved the understanding of the mechanisms related to several fatal diseases, e.g., Cancer and COVID-19, helping to develop innovative solutions, such as CRISPR-based gene editing, coronavirus vaccine, and precision medicine. These advances benefit our society and economy, directly impacting people’s lives in various areas, such as health care, drug discovery, forensic analysis, and food analysis. Nevertheless, ML approaches applied to biological data require representative, quantitative, and informative features. Necessarily, as many ML algorithms can handle only numerical
-data, sequences need to be translated into a feature vector. This process is known as feature extraction, a fundamental step for the elaboration of high-quality ML-based models in bioinformatics, especially in the stage of feature engineering. This process often requires extensive domain knowledge, performed manually by a human expert, making feature engineering a decisive and time-consuming step in the ML pipeline. Thus, we developed a new package, BioAutoML, able to extract relevant numerical information from biological sequences. BioAutoML uses Automated ML (AutoML) to recommend the best feature vector to be extracted from a biological dataset, using combinations of descriptors implemented in the MathFeature package. BioAutoML is divided into three modules, such as (1) feature extraction, (2) automated feature engineering, and (3) creation of the ML model and performance. The first experimental results, assessing the relevance of the implemented descriptors, indicate robust results for different problem domains, such as SARS-CoV-2, anticancer peptides, HIV sequences, and non-coding RNAs. According to our systematic review, our proposal is innovative compared to available studies in the literature, being the first study to propose automated feature engineering for biological sequences. BioAutoML has high innovative potential as it can accelerate new studies, reducing the feature engineering time-consuming stage, allowing non-experts to build ML pipelines in bioinformatics.
+Recent technological advances allowed an exponential expansion of biological sequence data and the extraction of meaningful information through Machine Learning (ML) algorithms. This knowledge improved the understanding of the mechanisms related to several fatal diseases, e.g., Cancer and COVID-19, helping to develop innovative solutions, such as CRISPR-based gene editing, coronavirus vaccine, and precision medicine. These advances benefit our society and economy, directly impacting people's lives in various areas, such as health care, drug discovery, forensic analysis, and food processing. Nevertheless, ML-based approaches to biological data require representative, quantitative, and informative features. Many ML algorithms can handle only numerical data, so sequences need to be translated into a numerical feature vector. This process, known as feature extraction, is a fundamental step for elaborating high-quality ML-based models in bioinformatics, by allowing the feature engineering stage, with the design and selection of suitable features. Feature engineering, ML algorithm selection, and hyperparameter tuning are often manual and time-consuming processes, requiring extensive domain knowledge. To deal with this problem, we present a new package, BioAutoML. BioAutoML automatically runs an end-to-end ML pipeline, extracting numerical and informative features from biological sequence databases, using the MathFeature package, and automating the feature selection, ML algorithm(s) recommendation and tuning of the selected algorithm(s) hyperparameters, using Automated ML (AutoML). BioAutoML has two components, divided into four modules, (1) automated feature engineering (feature extraction and selection modules) and (2) Metalearning (algorithm recommendation and hyper-parameter tuning modules). We experimentally evaluate BioAutoML in two different scenarios: (i) prediction of the three main classes of ncRNAs and (ii) prediction of the seven categories of ncRNAs in bacteria, including housekeeping and regulatory types. To assess BioAutoML predictive performance, it is experimentally compared with three other AutoML tools (RECIPE, Auto-Sklearn, and TPOT). According to the experimental results, BioAutoML can accelerate new studies, reducing the cost of feature engineering processing and either keeping or improving predictive performance.
+
+* First study to propose an automated feature engineering and metalearning pipeline for ncRNA sequences in bacteria;
+    
+* BioAutoML can be applied in multi-class and binary problems;
+    
+* BioAutoML can be used in other DNA/RNA sequences scenarios;
+    
+* BioAutoML can accelerate new studies, reducing the feature engineering time-consuming stage and improving the design and performance of ML pipelines in bioinformatics;
+    
+* BioAutoML does not require specialist human assistance.
 
 
 ## Authors
