@@ -22,7 +22,7 @@
 To use this model, follow the example below:
 
 ```sh 
-To run the code (Example): $ python BioAutoML-feature.py
+To run the code (Example): $ python BioAutoML-feature.py -h
 
 
 Where:
