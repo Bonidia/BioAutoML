@@ -4,7 +4,7 @@
 ![Status](https://img.shields.io/badge/status-up-brightgreen)
 
 <h1 align="center">
-  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/BioAutoML.png" alt="BioAutoML" width="400">
+  <img src="img/BioAutoML.png" alt="BioAutoML" width="400">
 </h1>
 
 <h4 align="center">BioAutoML: Automated Feature Engineering and Metalearning for Classification of Biological Sequences</h4>
@@ -41,7 +41,11 @@ Recent technological advances allowed an exponential expansion of biological seq
 
 ## Documentation
 
-Documentation
+- [Installing dependencies and package](install.md)
+- [BioAutoML - Automated Feature Engineering and Metalearning](bio.md)
+- [BioAutoML - Automated Feature Engineering and Metalearning - With Numerical Mapping](bio-mapping.md)
+- [BioAutoML - Metalearning - Binary Problems - Using features from other packages](binary.md)
+- [BioAutoML - Metalearning - Multiclass Problems - Using features from other packages](multi.md)
 
 ## Citation
 
