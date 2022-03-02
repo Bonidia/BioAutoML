@@ -18,3 +18,58 @@
 
 <h1 align="center"></h1>
 
+## Installing dependencies and package
+
+## Conda - Terminal
+
+Installing BioAutoML using miniconda, e.g.:
+
+```sh
+$ git clone https://github.com/Bonidia/BioAutoML.git BioAutoML
+
+$ cd BioAutoML
+
+$ git submodule init
+
+$ git submodule update
+```
+
+**1 - Install Miniconda:** 
+
+```sh
+
+See documentation: https://docs.conda.io/en/latest/miniconda.html
+
+$ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+$ chmod +x Miniconda3-latest-Linux-x86_64.sh
+
+$ ./Miniconda3-latest-Linux-x86_64.sh
+
+$ export PATH=~/miniconda3/bin:$PATH
+
+```
+
+**2 - Create environment:**
+
+```sh
+
+conda env create -f BioAutoML-env.yml -n bioautoml
+
+```
+
+**3 - Activate environment:**
+
+```sh
+
+conda activate bioautoml
+
+```
+
+**4 - You can deactivate the environment, using:**
+
+```sh
+
+conda deactivate
+
+```
