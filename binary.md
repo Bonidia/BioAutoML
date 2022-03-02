@@ -17,7 +17,7 @@
 
 <h1 align="center"></h1>
 
-## BioAutoML - Automated Feature Engineering and Metalearning - With Numerical Mapping - End-to-end Machine Learning Workflow
+## BioAutoML - Metalearning - Binary Problems - Using features from other packages
 
 To use this model, follow the example below:
 
