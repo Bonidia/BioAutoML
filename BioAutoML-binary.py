@@ -149,7 +149,7 @@ def tuning_rf_bayesian():
 	best_tuning = fmin(fn=objective_rf,
 				space=space,
 				algo=tpe.suggest,
-				max_evals=250,
+				max_evals=100,
 				trials=trials)
 
 	best_rf = RandomForestClassifier(n_estimators=int(best_tuning['n_estimators']),
@@ -203,7 +203,7 @@ def tuning_catboost_bayesian():
 	best_tuning = fmin(fn=objective_cb,
 					   space=space,
 					   algo=tpe.suggest,
-					   max_evals=200,
+					   max_evals=100,
 					   trials=trials)
 
 	best_cb = CatBoostClassifier(n_estimators=int(best_tuning['n_estimators']),
@@ -250,7 +250,7 @@ def tuning_lightgbm_bayesian():
 	best_tuning = fmin(fn=objective_lightgbm,
 					   space=space,
 					   algo=tpe.suggest,
-					   max_evals=300,
+					   max_evals=100,
 					   trials=trials)
 
 	best_cb = lgb.LGBMClassifier(n_estimators=int(best_tuning['n_estimators']),
