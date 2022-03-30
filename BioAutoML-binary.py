@@ -424,7 +424,7 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, o
 	train_labels = train_labels_read
 	column_train = train.columns
 	column_test = ''
-	output  + '/'
+	output = output  + '/'
 
 	#  tmp = sys.stdout
 	#  log_file = open(output + 'task.log', 'a')
