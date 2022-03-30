@@ -45,19 +45,19 @@ Where:
 
 -tuning: Tuning Classifier - True = Yes, False = No, default = False
 
--output: results directory, e.g., result/
+-output: results directory, e.g., result
 ```
 
 **Running:**
 
 ```sh
-$ python BioAutoML-multiclass.py -train example_csv/lncRNA/train-human.csv -train_label example_csv/lncRNA/train-human-labels.csv -test example_csv/lncRNA/test-human.csv -test_label example_csv/lncRNA/test-human-labels.csv -test_nameseq example_csv/lncRNA/test-human-sequences.csv -classifier 2 -output example_results/
+$ python BioAutoML-multiclass.py -train example_csv/lncRNA/train-human.csv -train_label example_csv/lncRNA/train-human-labels.csv -test example_csv/lncRNA/test-human.csv -test_label example_csv/lncRNA/test-human-labels.csv -test_nameseq example_csv/lncRNA/test-human-sequences.csv -classifier 2 -output example_results
 
 or
 
-$ python BioAutoML-multiclass.py -train example_csv/lncRNA/train-human.csv -train_label example_csv/lncRNA/train-human-labels.csv -test example_csv/lncRNA/test-human.csv -test_label example_csv/lncRNA/test-human-labels.csv -test_nameseq example_csv/lncRNA/test-human-sequences.csv -tuning True -classifier 2 -output example_results/
+$ python BioAutoML-multiclass.py -train example_csv/lncRNA/train-human.csv -train_label example_csv/lncRNA/train-human-labels.csv -test example_csv/lncRNA/test-human.csv -test_label example_csv/lncRNA/test-human-labels.csv -test_nameseq example_csv/lncRNA/test-human-sequences.csv -tuning True -classifier 2 -output example_results
 ```
 
-**Note** This example is in the example_csv/lncRNA Directory. 
+**Note** This example is in the Directory: example_csv/lncRNA
 
 **Note** Inserting a test dataset is optional. 
