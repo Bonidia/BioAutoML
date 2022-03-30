@@ -48,7 +48,7 @@ Where:
 $ python BioAutoML-feature-mapping.py -fasta_train Case\ Studies/CS-I-A/E_coli/train/rRNA.fasta Case\ Studies/CS-I-A/E_coli/train/sRNA.fasta -fasta_label_train rRNA sRNA -fasta_test Case\ Studies/CS-I-A/E_coli/test/rRNA.fasta Case\ Studies/CS-I-A/E_coli/test/sRNA.fasta -fasta_label_test rRNA sRNA -output test_directory
 ```
 
-**Note** This example is in the Case Studies Directory. 
+**Note** This example is in the Directory: Case Studies. 
 
 **Note** Inserting a test dataset is optional. 
 
