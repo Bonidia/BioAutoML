@@ -280,7 +280,7 @@ def feature_importance_fs_bayesian(model, train, train_labels):
 	best_threshold = fmin(fn=objective_feature_selection,
 					   space=space,
 					   algo=tpe.suggest,
-					   max_evals=100,
+					   max_evals=50,
 					   trials=trials)
 
 	return best_threshold['threshold']
