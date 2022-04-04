@@ -13,6 +13,7 @@ from catboost import CatBoostClassifier
 from sklearn.metrics import balanced_accuracy_score
 # from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_val_score
@@ -53,9 +54,12 @@ def objective_rf(space):
 	# print(index)
 
 	if int(space['Classifier']) == 0:
-		model = CatBoostClassifier(n_estimators=500,
-								   thread_count=n_cpu, nan_mode='Max',
-								   logging_level='Silent')
+		if len(fasta_label_train) > 2:
+			model = AdaBoostClassifier()
+		else:
+			model = CatBoostClassifier(n_estimators=500,
+									   thread_count=n_cpu, nan_mode='Max',
+								   	   logging_level='Silent')
 	elif int(space['Classifier']) == 1:
 		model = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 	else:
@@ -167,8 +171,10 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		print("Error: %s - %s." % (e.filename, e.strerror))
 		print('Creating Directory...')
 
-	if not os.path.exists(path) or not os.path.exists(path_results):
+	if not os.path.exists(path_results):
 		os.mkdir(path_results)
+
+	if not os.path.exists(path):
 		os.mkdir(path)
 		os.mkdir(path + '/train')
 		os.mkdir(path + '/test')
