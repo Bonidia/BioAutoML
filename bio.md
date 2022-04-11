@@ -52,3 +52,10 @@ $ python BioAutoML-feature.py -fasta_train Case\ Studies/CS-I-A/E_coli/train/rRN
 
 **Note** Inserting a test dataset is optional. 
 
+
+**Running: In unknown sequences**
+
+```sh
+$ python BioAutoML-feature.py -fasta_train Case\ Studies/CS-I-A/E_coli/train/rRNA.fasta Case\ Studies/CS-I-A/E_coli/train/sRNA.fasta -fasta_label_train rRNA sRNA -fasta_test new_sequences.fasta -fasta_label_test unknown -output test_directory
+```
+
