@@ -9,6 +9,8 @@
 
 <h4 align="center">BioAutoML: Automated Feature Engineering and Metalearning for Classification of Biological Sequences</h4>
 
+<h4 align="center">Democratizing Machine Learning in Life Sciences</h4>
+
 <p align="center">
   <a href="https://github.com/Bonidia/BioAutoML/">Home</a> •
   <a href="https://bonidia.github.io/BioAutoML/">Documentation</a> •
