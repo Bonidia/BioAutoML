@@ -38,6 +38,7 @@ def objective_rf(space):
 
 	"""Automated Feature Engineering - Objective Function - Bayesian Optimization"""
 
+	position = int((len(df_x.columns) - 955) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
@@ -46,9 +47,8 @@ def objective_rf(space):
 				   'DPC': list(range(518, 918)),
 				   'Fourier_Integer': list(range(918, 937)),
 				   'Fourier_EIIP': list(range(937, 956)),
-				   'EIIP': list(range(956, int((len(df_x.columns) - 955) / 2))),
-				   'AAAF': list(range(int((len(df_x.columns) - 955) / 2) + 1, int((len(df_x.columns) -
-																				  (int((len(df_x.columns) - 955) / 2) + 1)))))}
+				   'EIIP': list(range(956, (956 + position))),
+				   'AAAF': list(range((956 + position), len(df_x.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		if int(space[descriptor]) == 1:
@@ -98,6 +98,7 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 
 	df_x = pd.read_csv(train)
 	labels_y = pd.read_csv(train_labels)
+	# print(df_x.shape)
 
 	if test != '':
 		df_test = pd.read_csv(test)
@@ -137,6 +138,9 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 				max_evals=estimations,
 				trials=trials)
 
+	# print(space)
+
+	position =  int((len(df_x.columns) - 955) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
@@ -145,9 +149,8 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 				   'DPC': list(range(518, 918)),
 				   'Fourier_Integer': list(range(918, 937)),
 				   'Fourier_EIIP': list(range(937, 956)),
-				   'EIIP': list(range(956, int((len(df_x.columns) - 955)/2))),
-				   'AAAF': list(range(int((len(df_x.columns) - 955)/2) + 1, int((len(df_x.columns) -
-																				 (int((len(df_x.columns) - 955)/2) + 1)))))}
+				   'EIIP': list(range(956, (956 + position))),
+				   'AAAF': list(range((956 + position), len(df_x.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		result = param[descriptor][best_tuning[descriptor]]
@@ -210,11 +213,15 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 			file = fasta[i][j].split('/')[-1]
 			if i == 0:  # Train
 				preprocessed_fasta = path + '/train/pre_' + file
-				shutil.copy(fasta[i][j], preprocessed_fasta)
+				subprocess.run(['python', 'other-methods/preprocessing.py',
+								'-i', fasta[i][j], '-o', preprocessed_fasta],
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				train_size += len([1 for line in open(preprocessed_fasta) if line.startswith(">")])
 			else:  # Test
 				preprocessed_fasta = path + '/test/pre_' + file
-				shutil.copy(fasta[i][j], preprocessed_fasta)
+				subprocess.run(['python', 'other-methods/preprocessing.py',
+								'-i', fasta[i][j], '-o', preprocessed_fasta],
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
 			fasta_list.append(preprocessed_fasta)
 
@@ -227,21 +234,21 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 			if 2 in features:
 				dataset = path + '/Tsallis_23.csv'
-				subprocess.run(['python', 'MathFeature/methods/TsallisEntropy.py',
+				subprocess.run(['python', 'other-methods/TsallisEntropy.py',
 								'-i', preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 			if 3 in features:
 				dataset = path + '/Tsallis_30.csv'
-				subprocess.run(['python', 'MathFeature/methods/TsallisEntropy.py',
+				subprocess.run(['python', 'other-methods/TsallisEntropy.py',
 								'-i', preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-k', '5', '-q', '3.0'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 			if 4 in features:
 				dataset = path + '/Tsallis_40.csv'
-				subprocess.run(['python', 'MathFeature/methods/TsallisEntropy.py',
+				subprocess.run(['python', 'other-methods/TsallisEntropy.py',
 								'-i', preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-k', '5', '-q', '4.0'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
@@ -260,7 +267,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 				subprocess.run(['python', 'MathFeature/methods/Kgap.py', '-i',
 								preprocessed_fasta, '-o', dataset_di, '-l',
 								labels[i][j], '-k', '1', '-bef', '1',
-								'-aft', '1', '-seq', '1'],
+								'-aft', '1', '-seq', '3'],
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset_di)
 
