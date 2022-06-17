@@ -447,12 +447,20 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, o
 
 	print('Checking missing values...')
 	missing = train.isnull().values.any()
-	if missing:
+	inf = train.isin([np.inf, -np.inf]).values.any()
+	missing_test = False
+	inf_test = False
+	if os.path.exists(ftest) is True:
+		missing_test = test.isnull().values.any()
+		inf_test = test.isin([np.inf, -np.inf]).values.any()
+	if missing or inf or missing_test or inf_test:
 		print('There are missing values...')
 		print('Applying SimpleImputer - strategy (mean)...')
+		train.replace([np.inf, -np.inf], np.nan, inplace=True)
 		imp = SimpleImputer(missing_values=np.nan, strategy='mean')
 		train = pd.DataFrame(imp.fit_transform(train), columns=column_train)
 		if os.path.exists(ftest) is True:
+			test.replace([np.inf, -np.inf], np.nan, inplace=True)
 			test = pd.DataFrame(imp.transform(test), columns=column_test)
 		else:
 			pass

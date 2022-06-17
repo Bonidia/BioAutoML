@@ -438,7 +438,13 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 
 	print('Checking missing values...')
 	missing = train.isnull().values.any()
-	if missing:
+	inf = train.isin([np.inf, -np.inf]).values.any()
+	missing_test = False
+	inf_test = False
+	if os.path.exists(ftest) is True:
+		missing_test = test.isnull().values.any()
+		inf_test = test.isin([np.inf, -np.inf]).values.any()
+	if missing or inf or missing_test or inf_test:
 		print('There are missing values...')
 		print('Applying SimpleImputer - strategy (mean)...')
 		imp = SimpleImputer(missing_values=np.nan, strategy='mean')
