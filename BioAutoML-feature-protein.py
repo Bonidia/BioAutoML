@@ -488,7 +488,7 @@ if __name__ == '__main__':
 		subprocess.run(['python', 'BioAutoML-binary.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test, '-test_label',
 						 ftest_labels, '-test_nameseq', fnameseqtest,
-						 '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
+						 '-nf', 'True', '-fs', str(1), '-classifier', str(classifier), '-n_cpu', str(n_cpu),
 						 '-output', foutput])
 
 ##########################################################################

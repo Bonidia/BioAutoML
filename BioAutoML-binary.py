@@ -10,6 +10,7 @@ import os.path
 import time
 import lightgbm as lgb
 import joblib
+# import shutil
 #  import xgboost as xgb
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
@@ -416,15 +417,18 @@ def save_prediction(prediction, nameseqs, pred_output):
 	return
 
 
-def binary_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, output):
+def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tuning, output):
 
 	global clf, train, train_labels
+
+	if not os.path.exists(output):
+		os.mkdir(output)
 
 	train = train_read
 	train_labels = train_labels_read
 	column_train = train.columns
 	column_test = ''
-	output = output  + '/'
+	output = output + '/'
 
 	#  tmp = sys.stdout
 	#  log_file = open(output + 'task.log', 'a')
@@ -531,28 +535,30 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, o
 
 	"""Preprocessing: Feature Importance-Based Feature Selection"""
 
-	print('Applying Feature Importance-Based Feature Selection...')
-	# best_t, best_baac = feature_importance_fs(clf, train, train_labels, column_train)
-	best_t = feature_importance_fs_bayesian(clf, train, train_labels)
-	fs = SelectFromModel(clf, threshold=best_t)
-	fs.fit(train, train_labels)
-	feature_idx = fs.get_support()
-	feature_name = column_train[feature_idx]
-	train = pd.DataFrame(fs.transform(train), columns=feature_name)
-	if os.path.exists(ftest) is True:
-		test = pd.DataFrame(fs.transform(test), columns=feature_name)
-	else:
-		pass
-	print('Best Feature Subset: ' + str(len(feature_name)))
-	print('Reduction: ' + str(len(column_train)-len(feature_name)) + ' features')
-	fs_train = output + 'best_feature_train.csv'
-	fs_test = output + 'best_feature_test.csv'
-	print('Saving dataset with selected feature subset - train: ' + fs_train)
-	train.to_csv(fs_train, index=False)
-	if os.path.exists(ftest) is True:
-		print('Saving dataset with selected feature subset - test: ' + fs_test)
-		test.to_csv(fs_test, index=False)
-	print('Feature Selection - Finished...')
+	feature_name = column_train
+	if fs == 1:
+		print('Applying Feature Importance-Based Feature Selection...')
+		# best_t, best_baac = feature_importance_fs(clf, train, train_labels, column_train)
+		best_t = feature_importance_fs_bayesian(clf, train, train_labels)
+		fs = SelectFromModel(clf, threshold=best_t)
+		fs.fit(train, train_labels)
+		feature_idx = fs.get_support()
+		feature_name = column_train[feature_idx]
+		train = pd.DataFrame(fs.transform(train), columns=feature_name)
+		if os.path.exists(ftest) is True:
+			test = pd.DataFrame(fs.transform(test), columns=feature_name)
+		else:
+			pass
+		print('Best Feature Subset: ' + str(len(feature_name)))
+		print('Reduction: ' + str(len(column_train)-len(feature_name)) + ' features')
+		fs_train = output + 'best_feature_train.csv'
+		fs_test = output + 'best_feature_test.csv'
+		print('Saving dataset with selected feature subset - train: ' + fs_train)
+		train.to_csv(fs_train, index=False)
+		if os.path.exists(ftest) is True:
+			print('Saving dataset with selected feature subset - test: ' + fs_test)
+			test.to_csv(fs_test, index=False)
+		print('Feature Selection - Finished...')
 
 	"""Training - StratifiedKFold (cross-validation = 10)..."""
 
@@ -656,6 +662,8 @@ if __name__ == '__main__':
 	parser.add_argument('-test_nameseq', '--test_nameseq', default='', help='csv with sequence names')
 	parser.add_argument('-nf', '--normalization', type=bool, default=False,
 						help='Normalization - Features (default = False)')
+	parser.add_argument('-fs', '--featureselection', default=1,
+						help='Feature Selection (default = True)')
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
 	parser.add_argument('-classifier', '--classifier', default=0,
 						help='Classifier - 0: CatBoost, 1: Random Forest'
@@ -673,6 +681,7 @@ if __name__ == '__main__':
 	ftest_labels = str(args.test_label)
 	nameseq_test = str(args.test_nameseq)
 	norm = args.normalization
+	fs = int(args.featureselection)
 	n_cpu = int(args.n_cpu)
 	classifier = int(args.classifier)
 	imbalance_data = args.imbalance
@@ -721,7 +730,7 @@ if __name__ == '__main__':
 			print('Test_nameseq - %s: File not exists' % nameseq_test)
 			sys.exit()
 
-	binary_pipeline(test_read, test_labels_read, test_nameseq_read, norm, classifier, tuning, foutput)
+	binary_pipeline(test_read, test_labels_read, test_nameseq_read, norm, fs, classifier, tuning, foutput)
 	cost = (time.time() - start_time)/60
 	print('Computation time - Pipeline: %s minutes' % cost)
 ##########################################################################

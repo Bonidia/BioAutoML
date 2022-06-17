@@ -10,6 +10,7 @@ import os.path
 import time
 import lightgbm as lgb
 import joblib
+# import shutil
 #  import xgboost as xgb
 # from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
@@ -401,6 +402,9 @@ def save_prediction(prediction, nameseqs, pred_output):
 def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, output):
 
 	global clf, train, train_labels
+
+	if not os.path.exists(output):
+		os.mkdir(output)
 
 	train = train_read
 	train_labels = train_labels_read
