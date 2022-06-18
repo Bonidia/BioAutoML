@@ -436,7 +436,7 @@ if __name__ == '__main__':
 						help='fasta format file, e.g., fasta/positive_protein_test.fasta negative_protein_test.fasta')
 	parser.add_argument('-fasta_label_test', '--fasta_label_test', nargs='+',
 						help='labels for fasta files, e.g., positive negative')
-	parser.add_argument('-estimations', '--estimations', default=50, help='number of estimations - BioAutoML - default = 50')
+	parser.add_argument('-estimations', '--estimations', default=70, help='number of estimations - BioAutoML - default = 50')
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
 
