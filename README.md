@@ -41,11 +41,11 @@ Recent technological advances allowed an exponential expansion of biological seq
 * BioAutoML does not require specialist human assistance.
 
 <h1 align="center">
-  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/bio-v2.pdf" alt="BioAutoML" width="600">
+  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/bio-v2-1.png" alt="BioAutoML" width="600">
 </h1>
 
 <h1 align="center">
-  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/bio-v4.pdf" alt="BioAutoML" width="600">
+  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/bio-v4-1.png" alt="BioAutoML" width="600">
 </h1>
 
 ## Authors
