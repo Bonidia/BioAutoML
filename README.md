@@ -45,7 +45,7 @@ Recent technological advances allowed an exponential expansion of biological seq
 </h1>
 
 <h1 align="center">
-  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/bio-v4-1.png" alt="BioAutoML" width="800">
+  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/bio-v4-1.png" alt="BioAutoML" width="900">
 </h1>
 
 ## Authors
