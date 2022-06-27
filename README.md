@@ -57,7 +57,7 @@ Recent technological advances allowed an exponential expansion of biological seq
 
 ## Publication
 
-Submitted
+Robson P Bonidia, Anderson P Avila Santos, Breno L S de Almeida, Peter F Stadler, Ulisses N da Rocha, Danilo S Sanches, André C P L F de Carvalho, BioAutoML: automated feature engineering and metalearning to predict noncoding RNAs in bacteria, Briefings in Bioinformatics, 2022, bbac218, [[DOI](https://doi.org/10.1093/bib/bbac218)].
 
 
 ## Installing dependencies and package
@@ -123,23 +123,21 @@ See our [documentation](https://bonidia.github.io/BioAutoML/).
 
 If you use this code in a scientific publication, we would appreciate citations to the following paper:
 
-Submitted - For now, cite the following paper: 
-
-Robson P Bonidia, Douglas S Domingues, Danilo S Sanches, André C P L F de Carvalho, MathFeature: feature extraction package for DNA, RNA and protein sequences based on mathematical descriptors, Briefings in Bioinformatics, 2021; bbab434, https://doi.org/10.1093/bib/bbab434.
+Robson P Bonidia, Anderson P Avila Santos, Breno L S de Almeida, Peter F Stadler, Ulisses N da Rocha, Danilo S Sanches, André C P L F de Carvalho, BioAutoML: automated feature engineering and metalearning to predict noncoding RNAs in bacteria, Briefings in Bioinformatics, 2022, bbac218, [[DOI](https://doi.org/10.1093/bib/bbac218)].
 
 ```sh
 
-@article{10.1093/bib/bbab434,
-    author = {Bonidia, Robson P and Domingues, Douglas S and Sanches, Danilo S and de Carvalho, André C P L F},
-    title = "{MathFeature: feature extraction package for DNA, RNA and protein sequences based on mathematical descriptors}",
+@article{10.1093/bib/bbac218,
+    author = {Bonidia, Robson P and Santos, Anderson P Avila and de Almeida, Breno L S and Stadler, Peter F and da Rocha, Ulisses N and Sanches, Danilo S and de Carvalho, André C P L F},
+    title = "{BioAutoML: automated feature engineering and metalearning to predict noncoding RNAs in bacteria}",
     journal = {Briefings in Bioinformatics},
-    year = {2021},
-    month = {11},
+    year = {2022},
+    month = {06},
     issn = {1477-4054},
-    doi = {10.1093/bib/bbab434},
-    url = {https://doi.org/10.1093/bib/bbab434},
-    note = {bbab434},
-    eprint = {https://academic.oup.com/bib/advance-article-pdf/doi/10.1093/bib/bbab434/41108442/bbab434.pdf},
+    doi = {10.1093/bib/bbac218},
+    url = {https://doi.org/10.1093/bib/bbac218},
+    note = {bbac218},
 }
+
 
 ```
