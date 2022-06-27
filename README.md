@@ -21,6 +21,14 @@
 
 <h1 align="center"></h1>
 
+
+## Update news!!!
+
+**New Version - Protein:** Access on [[https://bonidia.github.io/BioAutoML/](https://bonidia.github.io/BioAutoML/)]
+
+**Published Paper:** Access on [[https://doi.org/10.1093/bib/bbac218](https://doi.org/10.1093/bib/bbac218)]
+
+
 ## Awards
 
 ⭐ Latin America Research Awards (LARA), Google, 2021. Project: BioAutoML: Automated Feature Engineering for Classification of Biological Sequences. Elected by LARA-Google among the 24 most promising ideas in Latin America - 2021 - [[Link](https://blog.google/intl/pt-br/novidades/iniciativas/conheca-os-vencedores-do-premio-lara-2021-o-programa-de-bolsas-de-pesquisa-do-google/)] [[Link](http://www.saocarlos.usp.br/programa-de-bolsas-do-google-premia-trabalhos-orientados-pelo-cemeai/)].
