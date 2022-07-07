@@ -28,13 +28,13 @@ To run the code (Example): $ python BioAutoML-feature-protein.py -h
 
 Where:
 
--fasta_train: fasta format file, e.g., fasta/lncRNA.fasta fasta/circRNA.fasta
+-fasta_train: fasta format file, e.g., fasta/protein_train_pos.fasta fasta/protein_train_neg.fasta
  
--fasta_label_train: labels for fasta files, e.g., lncRNA circRNA
+-fasta_label_train: labels for fasta files, e.g., positive negative
 
--fasta_test: fasta format file, e.g., fasta/lncRNA.fasta fasta/circRNA.fasta
+-fasta_test: fasta format file, e.g., fasta/protein_test_pos.fasta fasta/protein_test_neg.fasta
 
--fasta_label_test: labels for fasta files, e.g., lncRNA circRNA
+-fasta_label_test: labels for fasta files, e.g., positive negative
 
 -estimations: number of estimations - BioAutoML - default = 50
 
