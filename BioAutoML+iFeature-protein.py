@@ -347,7 +347,10 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	if 10 in features:
 		dataset = path + '/Fourier_Integer.csv'
-		labels_list = ftrain_labels + ftest_labels
+		if fasta_test:
+			labels_list = ftrain_labels + ftest_labels
+		else:
+			labels_list = ftrain_labels
 		text_input = ''
 		for i in range(len(fasta_list)):
 			text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
@@ -369,7 +372,10 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	if 11 in features:
 		dataset = path + '/Fourier_EIIP.csv'
-		labels_list = ftrain_labels + ftest_labels
+		if fasta_test:
+			labels_list = ftrain_labels + ftest_labels
+		else:
+			labels_list = ftrain_labels
 		text_input = ''
 		for i in range(len(fasta_list)):
 			text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
@@ -391,7 +397,10 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	if 12 in features:
 		dataset = path + '/EIIP.csv'
-		labels_list = ftrain_labels + ftest_labels
+		if fasta_test:
+			labels_list = ftrain_labels + ftest_labels
+		else:
+			labels_list = ftrain_labels
 		text_input = ''
 		for i in range(len(fasta_list)):
 			text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
@@ -413,7 +422,10 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	if 13 in features:
 		dataset = path + '/AAAF.csv'
-		labels_list = ftrain_labels + ftest_labels
+		if fasta_test:
+			labels_list = ftrain_labels + ftest_labels
+		else:
+			labels_list = ftrain_labels
 		text_input = ''
 		for i in range(len(fasta_list)):
 			text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
