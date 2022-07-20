@@ -4,7 +4,7 @@ warnings.filterwarnings('ignore')
 import pandas as pd
 import argparse
 import subprocess
-import shutil
+# import shutil
 import sys
 import os.path
 import time
@@ -39,17 +39,28 @@ def objective_rf(space):
 
 	"""Automated Feature Engineering - Objective Function - Bayesian Optimization"""
 
-	position = int((len(df_x.columns) - 955) / 2)
+	position =  int((len(df_x.columns) - 5018) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
 				   'ComplexNetworks': list(range(20, 98)), 'kGap_di': list(range(98, 498)),
 				   'AAC': list(range(498, 518)),
 				   'DPC': list(range(518, 918)),
-				   'Fourier_Integer': list(range(918, 937)),
-				   'Fourier_EIIP': list(range(937, 956)),
-				   'EIIP': list(range(956, (956 + position))),
-				   'AAAF': list(range((956 + position), len(df_x.columns)))}
+				   'CKSAAP': list(range(918, 3318)),
+			 	   'DDE': list(range(3318, 3718)),
+			 	   'GAAC': list(range(3718, 3723)),
+			 	   'CKSAAGP': list(range(3723, 3873)),
+			 	   'GDPC': list(range(3873, 3898)),
+			 	   'GTPC': list(range(3898, 4023)),
+			 	   'CTDC': list(range(4023, 4062)),
+			 	   'CTDT': list(range(4062, 4101)),
+			 	   'CTDD': list(range(4101, 4296)),
+			 	   'CTriad': list(range(4296, 4639)),
+			 	   'KSCTriad': list(range(4639, 4981)),
+				   'Fourier_Integer': list(range(4981, 5000)),
+				   'Fourier_EIIP': list(range(5000, 5019)),
+				   'EIIP': list(range(5019, (5019 + position))),
+				   'AAAF': list(range((5019 + position), len(df_x.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		if int(space[descriptor]) == 1:
@@ -63,7 +74,7 @@ def objective_rf(space):
 		if len(fasta_label_train) > 2:
 			model = AdaBoostClassifier()
 		else:
-			model = CatBoostClassifier(n_estimators=500,
+			model = CatBoostClassifier(n_estimators=200,
 									   thread_count=n_cpu, nan_mode='Max',
 								   	   logging_level='Silent')
 	elif int(space['Classifier']) == 1:
@@ -113,6 +124,17 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 'ComplexNetworks': [0, 1],
 			 'kGap_di': [0, 1],
 			 'AAC': [0, 1], 'DPC': [0, 1],
+			 'CKSAAP': [0, 1],
+			 'DDE': [0, 1],
+			 'GAAC': [0, 1],
+			 'CKSAAGP': [0, 1],
+			 'GDPC': [0, 1],
+			 'GTPC': [0, 1],
+			 'CTDC': [0, 1],
+			 'CTDT': [0, 1],
+			 'CTDD': [0, 1],
+			 'CTriad': [0, 1],
+			 'KSCTriad': [0, 1],
 			 'Fourier_Integer': [0, 1],
 			 'Fourier_EIIP': [0, 1], 'EIIP': [0, 1],
 			 'AAAF': [0, 1],
@@ -126,6 +148,17 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 'kGap_di': hp.choice('kGap_di', [0, 1]),
 			 'AAC': hp.choice('AAC', [0, 1]),
 			 'DPC': hp.choice('DPC', [0, 1]),
+			 'CKSAAP': hp.choice('CKSAAP', [0, 1]),
+			 'DDE': hp.choice('DDE', [0, 1]),
+			 'GAAC': hp.choice('GAAC', [0, 1]),
+			 'CKSAAGP': hp.choice('CKSAAGP', [0, 1]),
+			 'GDPC': hp.choice('GDPC', [0, 1]),
+			 'GTPC': hp.choice('GTPC', [0, 1]),
+			 'CTDC': hp.choice('CTDC', [0, 1]),
+			 'CTDT': hp.choice('CTDT', [0, 1]),
+			 'CTDD': hp.choice('CTDD', [0, 1]),
+			 'CTriad': hp.choice('CTriad', [0, 1]),
+			 'KSCTriad': hp.choice('KSCTriad', [0, 1]),
 			 'Fourier_Integer': hp.choice('Fourier_Integer', [0, 1]),
 			 'Fourier_EIIP': hp.choice('Fourier_EIIP', [0, 1]),
 			 'EIIP': hp.choice('EIIP', [0, 1]),
@@ -141,17 +174,28 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 
 	# print(space)
 
-	position =  int((len(df_x.columns) - 955) / 2)
+	position =  int((len(df_x.columns) - 5018) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
 				   'ComplexNetworks': list(range(20, 98)), 'kGap_di': list(range(98, 498)),
 				   'AAC': list(range(498, 518)),
 				   'DPC': list(range(518, 918)),
-				   'Fourier_Integer': list(range(918, 937)),
-				   'Fourier_EIIP': list(range(937, 956)),
-				   'EIIP': list(range(956, (956 + position))),
-				   'AAAF': list(range((956 + position), len(df_x.columns)))}
+				   'CKSAAP': list(range(918, 3318)),
+			 	   'DDE': list(range(3318, 3718)),
+			 	   'GAAC': list(range(3718, 3723)),
+			 	   'CKSAAGP': list(range(3723, 3873)),
+			 	   'GDPC': list(range(3873, 3898)),
+			 	   'GTPC': list(range(3898, 4023)),
+			 	   'CTDC': list(range(4023, 4062)),
+			 	   'CTDT': list(range(4062, 4101)),
+			 	   'CTDD': list(range(4101, 4296)),
+			 	   'CTriad': list(range(4296, 4639)),
+			 	   'KSCTriad': list(range(4639, 4981)),
+				   'Fourier_Integer': list(range(4981, 5000)),
+				   'Fourier_EIIP': list(range(5000, 5019)),
+				   'EIIP': list(range(5019, (5019 + position))),
+				   'AAAF': list(range((5019 + position), len(df_x.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		result = param[descriptor][best_tuning[descriptor]]
@@ -214,7 +258,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 	datasets = []
 	fasta_list = []
 
-	print('Extracting features with MathFeature...')
+	print('Extracting features with MathFeature and iFeature...')
 
 	for i in range(len(labels)):
 		for j in range(len(labels[i])):
@@ -295,10 +339,10 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 
 			if 9 in features:
-				dataset = path + '/TPC.csv'
-				subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
-								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
-								'-t', 'TPC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				dataset = path + '/iFeature-features.csv'
+				subprocess.run(['python', 'other-methods/iFeature/iFeature.py', '--file',
+								preprocessed_fasta, '--type', 'All', '--label', labels[i][j], '--out', dataset], 
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 	if 10 in features:
@@ -474,7 +518,7 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 
-	features = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13]
+	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
 	fnameseqtest, ftrain, ftrain_labels, \
 		ftest, ftest_labels = feature_extraction(fasta_train, fasta_label_train,

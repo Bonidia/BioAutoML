@@ -56,7 +56,7 @@ dependencies:
   - ncurses=6.2=h58526e2_4
   - networkx=2.6.3=pyhd3eb1b0_0
   - numpy=1.19.2=py37h7008fea_1
-  - openssl=1.1.1l=h7f8727e_0
+  - openssl=1.1.1o=h7f8727e_0
   - pandas=0.25.3=py37hb3f55d8_0
   - pcre=8.44=he1b5a44_0
   - pip=21.0.1=pyhd8ed1ab_0
