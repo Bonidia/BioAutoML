@@ -61,11 +61,11 @@ def objective_rf(space):
 	# print(index)
 
 	if int(space['Classifier']) == 0:
-		model = AdaBoostClassifier(n_estimators=500)
+		model = AdaBoostClassifier(n_estimators=500, random_state=63)
 	elif int(space['Classifier']) == 1:
 		model = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 	else:
-		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
+		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 
 	# print(model)
 

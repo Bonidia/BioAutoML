@@ -55,15 +55,15 @@ def objective_rf(space):
 
 	if int(space['Classifier']) == 0:
 		if len(fasta_label_train) > 2:
-			model = AdaBoostClassifier()
+			model = AdaBoostClassifier(random_state=63)
 		else:
 			model = CatBoostClassifier(n_estimators=500,
 									   thread_count=n_cpu, nan_mode='Max',
-								   	   logging_level='Silent')
+								   	   logging_level='Silent', random_state=63)
 	elif int(space['Classifier']) == 1:
 		model = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 	else:
-		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
+		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 
 	# print(model)
 

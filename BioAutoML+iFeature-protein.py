@@ -39,7 +39,7 @@ def objective_rf(space):
 
 	"""Automated Feature Engineering - Objective Function - Bayesian Optimization"""
 
-	position =  int((len(df_x.columns) - 5018) / 2)
+	position = int((len(df_x.columns) - 5018) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
@@ -72,15 +72,15 @@ def objective_rf(space):
 
 	if int(space['Classifier']) == 0:
 		if len(fasta_label_train) > 2:
-			model = AdaBoostClassifier()
+			model = AdaBoostClassifier(random_state=63)
 		else:
 			model = CatBoostClassifier(n_estimators=200,
 									   thread_count=n_cpu, nan_mode='Max',
-								   	   logging_level='Silent')
+								   	   logging_level='Silent', random_state=63)
 	elif int(space['Classifier']) == 1:
 		model = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 	else:
-		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
+		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 
 	# print(model)
 
@@ -174,7 +174,7 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 
 	# print(space)
 
-	position =  int((len(df_x.columns) - 5018) / 2)
+	position = int((len(df_x.columns) - 5018) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
@@ -204,12 +204,10 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 
 	classifier = param['Classifier'][best_tuning['Classifier']]
 
-
 	path_index = path_bio + '/index_best_descriptors.json'
 	with open(path_index, 'a') as fp:
 		json.dump(index, fp)
 		print('Done writing JSON data into .json file - Best descriptors!')
-
 
 	btrain = df_x.iloc[:, index]
 	path_btrain = path_bio + '/best_train.csv'
@@ -500,7 +498,8 @@ if __name__ == '__main__':
 						help='fasta format file, e.g., fasta/positive_protein_test.fasta negative_protein_test.fasta')
 	parser.add_argument('-fasta_label_test', '--fasta_label_test', nargs='+',
 						help='labels for fasta files, e.g., positive negative')
-	parser.add_argument('-estimations', '--estimations', default=70, help='number of estimations - BioAutoML - default = 50')
+	parser.add_argument('-estimations', '--estimations', default=70,
+						help='number of estimations - BioAutoML - default = 50')
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
 

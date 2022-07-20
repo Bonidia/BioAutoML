@@ -154,7 +154,7 @@ def objective_cb(space):
 	model = CatBoostClassifier(n_estimators=int(space['n_estimators']),
 							   max_depth=int(space['max_depth']),
 							   learning_rate=space['learning_rate'],
-							   thread_count=n_cpu, nan_mode='Max', logging_level='Silent')
+							   thread_count=n_cpu, nan_mode='Max', logging_level='Silent', random_state=63)
 
 	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 	metric = cross_val_score(model,
@@ -192,7 +192,7 @@ def tuning_catboost_bayesian():
 	best_cb = CatBoostClassifier(n_estimators=int(best_tuning['n_estimators']),
 								 max_depth=int(best_tuning['max_depth']),
 								 learning_rate=best_tuning['learning_rate'],
-								 thread_count=n_cpu, nan_mode='Max', logging_level='Silent')
+								 thread_count=n_cpu, nan_mode='Max', logging_level='Silent', random_state=63)
 
 	return best_tuning, best_cb
 
@@ -206,7 +206,7 @@ def objective_lightgbm(space):
 							   num_leaves=int(space['num_leaves']),
 							   learning_rate=space['learning_rate'],
 							   subsample=space['subsample'],
-							   n_jobs=n_cpu)
+							   n_jobs=n_cpu, random_state=63)
 
 	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 	metric = cross_val_score(model,
@@ -241,7 +241,7 @@ def tuning_lightgbm_bayesian():
 								 num_leaves=int(best_tuning['num_leaves']),
 								 learning_rate=best_tuning['learning_rate'],
 								 subsample=best_tuning['subsample'],
-								 n_jobs=n_cpu)
+								 n_jobs=n_cpu, random_state=63)
 
 	return best_tuning, best_cb
 
@@ -478,12 +478,12 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: AdaBoost')
-			clf = AdaBoostClassifier(n_estimators=500)
+			clf = AdaBoostClassifier(n_estimators=500, random_state=63)
 			# train, train_labels = imbalanced_function(clf, train, train_labels)
 		else:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: AdaBoost')
-			clf = AdaBoostClassifier(n_estimators=500)
+			clf = AdaBoostClassifier(n_estimators=500, random_state=63)
 			# train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 1:
 		if tuning is True:
@@ -502,14 +502,14 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: LightGBM')
-			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
+			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 			# train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_lightgbm_bayesian()
 			print('Finished Tuning')
 		else:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: LightGBM')
-			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu)
+			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 			# train, train_labels = imbalanced_function(clf, train, train_labels)
 	else:
 		sys.exit('This classifier option does not exist - Try again')
