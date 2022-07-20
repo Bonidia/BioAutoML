@@ -340,7 +340,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 			if 9 in features:
 				dataset = path + '/iFeature-features.csv'
-				subprocess.run(['python', 'other-methods/iFeature/iFeature.py', '--file',
+				subprocess.run(['python', 'other-methods/iFeature-modified/iFeature.py', '--file',
 								preprocessed_fasta, '--type', 'All', '--label', labels[i][j], '--out', dataset], 
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
