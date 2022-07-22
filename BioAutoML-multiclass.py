@@ -81,7 +81,7 @@ def evaluate_model_cross(X, y, model, output_cross, matrix_output):
 			   'f1_ma': make_scorer(f1_score, average='macro'),
 			   'f1_w': make_scorer(f1_score, average='weighted'),
 			   'kappa': make_scorer(cohen_kappa_score)}
-	kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=10, shuffle=True)
 	scores = cross_validate(model, X, y, cv=kfold, scoring=scoring)
 	save_measures(output_cross, scores)
 	y_pred = cross_val_predict(model, X, y, cv=kfold)
@@ -104,7 +104,7 @@ def objective_rf(space):
 								   bootstrap=space['bootstrap'],
 								   n_jobs=n_cpu)
 
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	metric = cross_val_score(model,
 										train,
 										train_labels,
@@ -156,7 +156,7 @@ def objective_cb(space):
 							   learning_rate=space['learning_rate'],
 							   thread_count=n_cpu, nan_mode='Max', logging_level='Silent', random_state=63)
 
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	metric = cross_val_score(model,
 										train,
 										train_labels,
@@ -208,7 +208,7 @@ def objective_lightgbm(space):
 							   subsample=space['subsample'],
 							   n_jobs=n_cpu, random_state=63)
 
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	metric = cross_val_score(model,
 										train,
 										train_labels,
@@ -255,7 +255,7 @@ def objective_feature_selection(space):
 	fs = SelectFromModel(clf, threshold=t)
 	fs.fit(train, train_labels)
 	fs_train = fs.transform(train)
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	f1 = cross_val_score(clf,
 						   fs_train,
 						   train_labels,
@@ -305,7 +305,7 @@ def feature_importance_fs(model, train, train_labels, column_train):
 			fs = SelectFromModel(model, threshold=t)
 			fs.fit(train, train_labels)
 			fs_train = fs.transform(train)
-			kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+			kfold = StratifiedKFold(n_splits=5, shuffle=True)
 			bacc = cross_val_score(model,
 								   fs_train,
 								   train_labels,
@@ -346,7 +346,7 @@ def imbalanced_techniques(model, tech, train, train_labels):
 	sm = tech
 	pipe = Pipeline([('tech', sm), ('classifier', model)])
 	#  train_new, train_labels_new = sm.fit_sample(train, train_labels)
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	f1 = cross_val_score(pipe,
 						  train,
 						  train_labels,

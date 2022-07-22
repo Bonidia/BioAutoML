@@ -89,7 +89,7 @@ def objective_rf(space):
 	else:
 		score = make_scorer(balanced_accuracy_score)
 
-	kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=10, shuffle=True)
 	metric = cross_val_score(model,
 							 x,
 							 labels_y,
@@ -363,7 +363,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 		colnames = ['Integer_Fourier_' + str(i) for i in range(0, max(col_count))]
 
-		df = pd.read_csv(dataset, names=colnames, header=None)
+		df = pd.read_csv(dataset, names=colnames, header=0)
 		df.rename(columns={df.columns[0]: 'nameseq', df.columns[-1]: 'label'}, inplace=True)
 		df.to_csv(dataset, index=False)
 		datasets.append(dataset)
@@ -388,7 +388,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 		colnames = ['EIIP_Fourier_' + str(i) for i in range(0, max(col_count))]
 
-		df = pd.read_csv(dataset, names=colnames, header=None)
+		df = pd.read_csv(dataset, names=colnames, header=0)
 		df.rename(columns={df.columns[0]: 'nameseq', df.columns[-1]: 'label'}, inplace=True)
 		df.to_csv(dataset, index=False)
 		datasets.append(dataset)
@@ -455,6 +455,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 	X_train.pop('nameseq')
 	y_train = X_train.pop('label')
 	ftrain = path + '/ftrain.csv'
+	X_train = X_train.fillna(0)
 	X_train.to_csv(ftrain, index=False)
 	flabeltrain = path + '/flabeltrain.csv'
 	y_train.to_csv(flabeltrain, index=False, header=True)
@@ -468,6 +469,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		fnameseqtest = path + '/fnameseqtest.csv'
 		nameseq_test.to_csv(fnameseqtest, index=False, header=True)
 		ftest = path + '/ftest.csv'
+		X_test = X_test.fillna(0)
 		X_test.to_csv(ftest, index=False)
 		flabeltest = path + '/flabeltest.csv'
 		y_test.to_csv(flabeltest, index=False, header=True)

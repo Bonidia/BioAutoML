@@ -72,10 +72,9 @@ def save_measures(output_measures, scores):
 def evaluate_model_cross(X, y, model, output_cross, matrix_output):
 
 	"""Evaluation Function: Using Cross-Validation"""
-
 	scoring = {'ACC': 'accuracy', 'MCC': make_scorer(matthews_corrcoef), 'f1': 'f1',
 			   'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
-	kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=10, shuffle=True)
 	scores = cross_validate(model, X, LabelEncoder().fit_transform(y), cv=kfold, scoring=scoring)
 	save_measures(output_cross, scores)
 	y_pred = cross_val_predict(model, X, y, cv=kfold)
@@ -100,7 +99,7 @@ def tuning_rf_ga():
 					 'min_samples_split': min_samples_split, 'min_samples_leaf': min_samples_leaf,
 					 'max_features': max_features, 'bootstrap': bootstrap}
 
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	tpot_tuning = TPOTClassifier(generations=20, population_size=10, offspring_size=4,
 									 early_stop=12, config_dict={'sklearn.ensemble.RandomForestClassifier': rf_parameters},
 									 cv=kfold, scoring=make_scorer(balanced_accuracy_score), n_jobs=n_cpu)
@@ -122,7 +121,7 @@ def objective_rf(space):
 								   bootstrap=space['bootstrap'],
 								   n_jobs=n_cpu)
 
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	balanced_accuracy = cross_val_score(model,
 										train,
 										train_labels,
@@ -175,7 +174,7 @@ def objective_cb(space):
 							   thread_count=n_cpu, nan_mode='Max', logging_level='Silent',
 							   random_state=63)
 
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	balanced_accuracy = cross_val_score(model,
 										train,
 										train_labels,
@@ -229,7 +228,7 @@ def objective_lightgbm(space):
 							   n_jobs=n_cpu,
 							   random_state=63)
 
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	balanced_accuracy = cross_val_score(model,
 										train,
 										train_labels,
@@ -277,7 +276,7 @@ def objective_feature_selection(space):
 	fs = SelectFromModel(clf, threshold=t)
 	fs.fit(train, train_labels)
 	fs_train = fs.transform(train)
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	bacc = cross_val_score(clf,
 						   fs_train,
 						   train_labels,
@@ -327,7 +326,7 @@ def feature_importance_fs(model, train, train_labels, column_train):
 			fs = SelectFromModel(model, threshold=t)
 			fs.fit(train, train_labels)
 			fs_train = fs.transform(train)
-			kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+			kfold = StratifiedKFold(n_splits=5, shuffle=True)
 			bacc = cross_val_score(model,
 								   fs_train,
 								   train_labels,
@@ -368,7 +367,7 @@ def imbalanced_techniques(model, tech, train, train_labels):
 	sm = tech
 	pipe = Pipeline([('tech', sm), ('classifier', model)])
 	#  train_new, train_labels_new = sm.fit_sample(train, train_labels)
-	kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=5, shuffle=True)
 	mcc = cross_val_score(pipe,
 						  train,
 						  train_labels,

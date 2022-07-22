@@ -72,7 +72,7 @@ def objective_rf(space):
 	else:
 		score = make_scorer(balanced_accuracy_score)
 
-	kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+	kfold = StratifiedKFold(n_splits=10, shuffle=True)
 	metric = cross_val_score(model,
 							 x,
 							 labels_y,
