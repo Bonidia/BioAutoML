@@ -56,11 +56,11 @@ def objective_rf(space):
 			 	   'CTDT': list(range(4062, 4101)),
 			 	   'CTDD': list(range(4101, 4296)),
 			 	   'CTriad': list(range(4296, 4639)),
-			 	   'KSCTriad': list(range(4639, 4981)),
-				   'Fourier_Integer': list(range(4981, 5000)),
-				   'Fourier_EIIP': list(range(5000, 5019)),
-				   'EIIP': list(range(5019, (5019 + position))),
-				   'AAAF': list(range((5019 + position), len(df_x.columns)))}
+			 	   'KSCTriad': list(range(4639, 4982)),
+				   'Fourier_Integer': list(range(4982, 5001)),
+				   'Fourier_EIIP': list(range(5001, 5020)),
+				   'EIIP': list(range(5020, (5020 + position))),
+				   'AAAF': list(range((5020 + position), len(df_x.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		if int(space[descriptor]) == 1:
@@ -323,14 +323,14 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 			if 7 in features:
 				dataset = path + '/AAC.csv'
-				subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
+				subprocess.run(['python', 'other-methods/ExtractionTechniques-Protein.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-t', 'AAC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
 			if 8 in features:
 				dataset = path + '/DPC.csv'
-				subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
+				subprocess.run(['python', 'other-methods/ExtractionTechniques-Protein.py', '-i',
 								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
 								'-t', 'DPC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
