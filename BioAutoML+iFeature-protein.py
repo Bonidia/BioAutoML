@@ -9,6 +9,7 @@ import sys
 import os.path
 import time
 import shutil
+import xgboost as xgb
 import lightgbm as lgb
 import json
 from catboost import CatBoostClassifier
@@ -69,6 +70,7 @@ def objective_rf(space):
 	x = df_x.iloc[:, index]
 
 	# print(index)
+	# print(space)
 
 	if int(space['Classifier']) == 0:
 		if len(fasta_label_train) > 2:
@@ -79,8 +81,10 @@ def objective_rf(space):
 								   	   logging_level='Silent', random_state=63)
 	elif int(space['Classifier']) == 1:
 		model = RandomForestClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
-	else:
+	elif int(space['Classifier']) == 2:
 		model = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
+	else:
+		model = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
 
 	# print(model)
 
@@ -138,7 +142,7 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 'Fourier_Integer': [0, 1],
 			 'Fourier_EIIP': [0, 1], 'EIIP': [0, 1],
 			 'AAAF': [0, 1],
-			 'Classifier': [0, 1, 2]}
+			 'Classifier': [0, 1, 2, 3]}
 
 	space = {'Shannon': hp.choice('Shannon', [0, 1]),
 			 'Tsallis_23': hp.choice('Tsallis_23', [0, 1]),
@@ -163,7 +167,7 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 'Fourier_EIIP': hp.choice('Fourier_EIIP', [0, 1]),
 			 'EIIP': hp.choice('EIIP', [0, 1]),
 			 'AAAF': hp.choice('AAAF', [0, 1]),
-			 'Classifier': hp.choice('Classifier', [0, 1, 2])}
+			 'Classifier': hp.choice('Classifier', [0, 1, 2, 3])}
 
 	trials = Trials()
 	best_tuning = fmin(fn=objective_rf,

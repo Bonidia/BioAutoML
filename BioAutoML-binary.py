@@ -11,7 +11,7 @@ import time
 import lightgbm as lgb
 import joblib
 # import shutil
-#  import xgboost as xgb
+import xgboost as xgb
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
 #  from sklearn.metrics import multilabel_confusion_matrix
@@ -32,6 +32,12 @@ from sklearn.metrics import matthews_corrcoef
 from sklearn.feature_selection import SelectFromModel
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
+from imblearn.under_sampling import NearMiss 
+from imblearn.under_sampling import EditedNearestNeighbours 
+from imblearn.under_sampling import CondensedNearestNeighbour 
+from imblearn.combine import SMOTEENN 
+from imblearn.combine import SMOTETomek 
+from imblearn.under_sampling import ClusterCentroids
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import cohen_kappa_score, make_scorer
 from imblearn.metrics import geometric_mean_score
@@ -368,13 +374,13 @@ def imbalanced_techniques(model, tech, train, train_labels):
 	pipe = Pipeline([('tech', sm), ('classifier', model)])
 	#  train_new, train_labels_new = sm.fit_sample(train, train_labels)
 	kfold = StratifiedKFold(n_splits=5, shuffle=True)
-	mcc = cross_val_score(pipe,
+	acc = cross_val_score(pipe,
 						  train,
 						  train_labels,
 						  cv=kfold,
-						  scoring=make_scorer(matthews_corrcoef),
+						  scoring=make_scorer(balanced_accuracy_score),
 						  n_jobs=n_cpu).mean()
-	return mcc
+	return acc
 
 
 def imbalanced_function(clf, train, train_labels):
@@ -387,15 +393,51 @@ def imbalanced_function(clf, train, train_labels):
 	if all(x == n_labels[0] for x in n_labels) is False:
 		print('There are imbalanced labels...')
 		print('Checking the best technique...')
+		performance = []
 		smote = imbalanced_techniques(clf, SMOTE(random_state=42), train, train_labels)
 		random = imbalanced_techniques(clf, RandomUnderSampler(random_state=42), train, train_labels)
-		if smote > random:
+		hybrid_one = imbalanced_techniques(clf, SMOTEENN(random_state=42), train, train_labels)
+		hybrid_two = imbalanced_techniques(clf, SMOTETomek(random_state=42), train, train_labels)
+		cluster = imbalanced_techniques(clf, ClusterCentroids(random_state=42), train, train_labels)
+		near = imbalanced_techniques(clf, EditedNearestNeighbours(), train, train_labels)
+		near_miss = imbalanced_techniques(clf, NearMiss(), train, train_labels)
+		performance.append(smote)
+		performance.append(random)
+		performance.append(hybrid_one)
+		performance.append(hybrid_two)
+		performance.append(cluster)
+		performance.append(near)
+		performance.append(near_miss)
+		max_pos = performance.index(max(performance))
+		# print(performance)
+		# print(max_pos)
+		if max_pos == 0:
 			print('Applying Smote - Oversampling...')
 			sm = SMOTE(random_state=42)
 			train, train_labels = sm.fit_sample(train, train_labels)
-		else:
+		elif max_pos == 1:
 			print('Applying Random - Undersampling...')
 			sm = RandomUnderSampler(random_state=42)
+			train, train_labels = sm.fit_sample(train, train_labels)
+		elif max_pos == 2:
+			print('Applying SMOTEENN - Hybrid...')
+			sm = SMOTEENN(random_state=42)
+			train, train_labels = sm.fit_sample(train, train_labels)
+		elif max_pos == 3:
+			print('Applying SMOTETomek - Hybrid...')
+			sm = SMOTETomek(random_state=42)
+			train, train_labels = sm.fit_sample(train, train_labels)
+		elif max_pos == 4:
+			print('Applying ClusterCentroids - Undersampling...')
+			sm = ClusterCentroids(random_state=42)
+			train, train_labels = sm.fit_sample(train, train_labels)
+		elif max_pos == 5:
+			print('Applying EditedNearestNeighbours - Undersampling...')
+			sm = EditedNearestNeighbours()
+			train, train_labels = sm.fit_sample(train, train_labels)
+		else:
+			print('Applying NearMiss - Undersampling...')
+			sm = NearMiss()
 			train, train_labels = sm.fit_sample(train, train_labels)
 	else:
 		print('There are no imbalanced labels...')
@@ -535,6 +577,20 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 			if imbalance_data is True:
 				train, train_labels = imbalanced_function(clf, train, train_labels)
+	elif classifier == 3:
+		if tuning is True:
+			print('Tuning: ' + str(tuning))
+			print('Classifier: XGBClassifier')
+			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
+			if imbalance_data is True:
+				train, train_labels = imbalanced_function(clf, train, train_labels)
+			print('Tuning not yet available for XGBClassifier.')
+		else:
+			print('Tuning: ' + str(tuning))
+			print('Classifier: XGBClassifier')
+			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
+			if imbalance_data is True:
+				train, train_labels = imbalanced_function(clf, train, train_labels)
 	else:
 		sys.exit('This classifier option does not exist - Try again')
 
@@ -672,7 +728,7 @@ if __name__ == '__main__':
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
 	parser.add_argument('-classifier', '--classifier', default=0,
 						help='Classifier - 0: CatBoost, 1: Random Forest'
-							 '2: LightGBM')
+							 '2: LightGBM, 3: XGBoost')
 	parser.add_argument('-imbalance', '--imbalance', type=bool, default=False,
 						help='To deal with the imbalanced dataset problem - True = Yes, False = No, '
 							 'default = False')
