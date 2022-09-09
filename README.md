@@ -31,6 +31,8 @@
 
 ## Awards
 
+⭐ Finalist Project (Top 15 of 82), Falling Walls Lab Brazil 2022, DWIH São Paulo, Falling Walls Foundation, DAAD The German Center for Science and Innovation.
+
 ⭐ Latin America Research Awards (LARA), Google, 2021. Project: BioAutoML: Automated Feature Engineering for Classification of Biological Sequences. Elected by LARA-Google among the 24 most promising ideas in Latin America - 2021 - [[Link](https://blog.google/intl/pt-br/novidades/iniciativas/conheca-os-vencedores-do-premio-lara-2021-o-programa-de-bolsas-de-pesquisa-do-google/)] [[Link](http://www.saocarlos.usp.br/programa-de-bolsas-do-google-premia-trabalhos-orientados-pelo-cemeai/)].
 
 
