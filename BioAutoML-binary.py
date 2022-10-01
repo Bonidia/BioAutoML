@@ -12,6 +12,7 @@ import lightgbm as lgb
 import joblib
 # import shutil
 import xgboost as xgb
+import shap #add by Bruno
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
 #  from sklearn.metrics import multilabel_confusion_matrix
@@ -47,7 +48,8 @@ from sklearn.model_selection import cross_val_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
 from sklearn.preprocessing import LabelEncoder
 from tpot import TPOTClassifier
-
+from yellowbrick.datasets import load_occupancy #add by Bruno
+from yellowbrick.features import RadViz #add by Bruno
 
 def header(output_header):
 
@@ -460,7 +462,52 @@ def save_prediction(prediction, nameseqs, pred_output):
 			file.write('%s' % str(prediction[i]))
 			file.write('\n')
 	return
-
+#add by Bruno
+def inter_shap_waterf(explainer, X_train, X_label):
+	classes = X_label.iloc[:,0].unique()
+	graph_name = 'waterfall'
+	for i in range(len(X_label.iloc[:,0].unique())):
+		for j in range(2):
+			subset = X_train[X_label.label==classes[i]]
+			shap_valuesW = explainer(subset)
+			sp = shap.plots.waterfall(shap_valuesW[random.randrange(subset.shape[0])], show=False)
+			waterfall_name = output + graph_name + str(j) + '.png'
+			plt.savefig(waterfall_name, dpi=300,bbox_inches='tight')  
+			plt.close(sp)
+def interp_shap(model, X_train, X_label):
+    #to create a visualizer
+	explainer = shap.Explainer(model, X_train)
+	shap_values = explainer(X_train)
+	shap.initjs()
+    #bar graph
+	sp = shap.plots.bar(shap_values, show=False)
+	
+	plt.savefig('bar_graph.png', dpi=300,bbox_inches='tight')  
+	plt.close(sp)
+    #beeswarm graph
+	sp = shap.plots.beeswarm(shap_values, show=False)
+	plt.savefig('beeswarm_graph.png', dpi=300,bbox_inches='tight')  
+	plt.close(sp)
+    #scatter graph
+	feats = random.sample(range(0,X_train.shape[1]), 2)
+	sp = shap.plots.scatter(shap_values[:,feats[0]], color=shap_values, show=False)
+	plt.savefig('scatter_graph1.png')  
+	plt.close(sp)
+	sp = shap.plots.scatter(shap_values[:,feats[1]], color=shap_values, show=False)
+	plt.savefig('scatter_graph2.png')  
+	plt.close(sp)
+    #waterfall graph
+	inter_shap_waterf(explainer, X_train, X_label)
+def interp_yellow(model,X_train,X_label):
+	classes = X_label.iloc[:,0].unique()
+	visualizer = RadViz(classes=classes)
+	labelencoder = LabelEncoder()
+	X_label = labelencoder.fit_transform(X_label)
+	feats = random.sample(range(0,X_train.shape[1]), 5)
+	visualizer.fit(X_train.iloc[:,[i for i in feats]], X_label)           
+	visualizer.transform(X_train.iloc[:,[i for i in feats]])            
+	plt.savefig('radial_graph.png')
+#add by Bruno
 
 def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tuning, output):
 
@@ -635,6 +682,9 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	print('Saving trained model in ' + model_output + '...')
 	print('Training: Finished...')
 
+	interp_shap(clf, train, train_labels) #add by Bruno
+	interp_yellow(clf, train, train_labels) #add by Bruno
+	
 	"""Generating Feature Importance - Selected feature subset..."""
 
 	print('Generating Feature Importance - Selected feature subset...')
