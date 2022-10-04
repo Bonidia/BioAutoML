@@ -12,6 +12,7 @@ import lightgbm as lgb
 import joblib
 # import shutil
 import xgboost as xgb
+import matplotlib.pyplot as plt #add by Bruno
 import shap #add by Bruno
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
@@ -463,50 +464,63 @@ def save_prediction(prediction, nameseqs, pred_output):
 			file.write('\n')
 	return
 #add by Bruno
-def inter_shap_waterf(explainer, X_train, X_label):
+def type_model(explainer, model, data):
+	shap_values = explainer(data)
+	catype = "<class 'lightgbm.sklearn.LGBMClassifier'>"
+	randtype = "<class 'sklearn.ensemble._forest.RandomForestClassifier'>"
+	if catype == str(type(model) ) or randtype == str(type(model)):
+		shap_values = shap_values[:, :, 0]
+	return shap_values         
+def inter_shap_waterf(explainer, X_train, X_label,model,output):
+	X_label= pd.DataFrame(data={'label': X_label}) 
 	classes = X_label.iloc[:,0].unique()
 	graph_name = 'waterfall'
 	for i in range(len(X_label.iloc[:,0].unique())):
 		for j in range(2):
 			subset = X_train[X_label.label==classes[i]]
-			shap_valuesW = explainer(subset)
+			shap_valuesW = type_model(explainer, model, subset)
 			sp = shap.plots.waterfall(shap_valuesW[random.randrange(subset.shape[0])], show=False)
-			waterfall_name = output + graph_name + str(j) + '.png'
-			plt.savefig(waterfall_name, dpi=300,bbox_inches='tight')  
+			waterfall_name = output + graph_name + classes[i] + str(j) + '.png'
+			plt.savefig(waterfall_name, dpi=300,bbox_inches='tight')
 			plt.close(sp)
-def interp_shap(model, X_train, X_label):
+def interp_shap(model, X_train, X_label,output):
     #to create a visualizer
-	explainer = shap.Explainer(model, X_train)
-	shap_values = explainer(X_train)
+	explainer = shap.TreeExplainer(model,feature_perturbation="tree_path_dependent")
 	shap.initjs()
+	shap_values = type_model(explainer, model, X_train)
     #bar graph
 	sp = shap.plots.bar(shap_values, show=False)
-	
-	plt.savefig('bar_graph.png', dpi=300,bbox_inches='tight')  
+	namefig = output + 'bar_graph.png'
+	plt.savefig(namefig, dpi=300,bbox_inches='tight')
 	plt.close(sp)
     #beeswarm graph
 	sp = shap.plots.beeswarm(shap_values, show=False)
-	plt.savefig('beeswarm_graph.png', dpi=300,bbox_inches='tight')  
+	namefig = output + 'beeswarm_graph.png'
+	plt.savefig(namefig, dpi=300,bbox_inches='tight')
 	plt.close(sp)
     #scatter graph
 	feats = random.sample(range(0,X_train.shape[1]), 2)
 	sp = shap.plots.scatter(shap_values[:,feats[0]], color=shap_values, show=False)
-	plt.savefig('scatter_graph1.png')  
+	namefig = output + 'scatter_graph1.png'
+	plt.savefig(namefig)
 	plt.close(sp)
 	sp = shap.plots.scatter(shap_values[:,feats[1]], color=shap_values, show=False)
-	plt.savefig('scatter_graph2.png')  
+	namefig = output + 'scatter_graph2.png'
+	plt.savefig(namefig)
 	plt.close(sp)
     #waterfall graph
-	inter_shap_waterf(explainer, X_train, X_label)
-def interp_yellow(model,X_train,X_label):
+	inter_shap_waterf(explainer, X_train, X_label,model,output)
+def interp_yellow(model,X_train,X_label,output):
+	X_label= pd.DataFrame(data={'label': X_label})
 	classes = X_label.iloc[:,0].unique()
 	visualizer = RadViz(classes=classes)
 	labelencoder = LabelEncoder()
 	X_label = labelencoder.fit_transform(X_label)
 	feats = random.sample(range(0,X_train.shape[1]), 5)
-	visualizer.fit(X_train.iloc[:,[i for i in feats]], X_label)           
-	visualizer.transform(X_train.iloc[:,[i for i in feats]])            
-	plt.savefig('radial_graph.png')
+	visualizer.fit(X_train.iloc[:,[i for i in feats]], X_label)
+	visualizer.transform(X_train.iloc[:,[i for i in feats]])
+	namefig = output + 'radial_graph.png'
+	plt.savefig(namefig)
 #add by Bruno
 
 def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tuning, output):
@@ -682,8 +696,8 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	print('Saving trained model in ' + model_output + '...')
 	print('Training: Finished...')
 
-	interp_shap(clf, train, train_labels) #add by Bruno
-	interp_yellow(clf, train, train_labels) #add by Bruno
+	interp_shap(clf, train, train_labels,output) #add by Bruno
+	interp_yellow(clf, train, train_labels,output) #add by Bruno
 	
 	"""Generating Feature Importance - Selected feature subset..."""
 
