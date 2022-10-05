@@ -435,7 +435,7 @@ def _generate_waterfall_plot(id_plot, class_shap_values, class_name, sample_row,
     fig = plt.figure()
     plt.title(f'Waterfall plot for sample {id_plot} of class \'{class_name}\'', fontsize=16)
     shap.waterfall_plot(exp, show=False)
-    plt.savefig(path + f'waterfall_random_{class_name}_{id_plot}.png', dpi=100)
+    plt.savefig(path + f'waterfall_random_{class_name}_{id_plot}.png', bbox_inches = 'tight')
 
 
 def _generate_summary_plot(class_shap_values, class_name, data, feature_names, path):
@@ -446,7 +446,7 @@ def _generate_summary_plot(class_shap_values, class_name, data, feature_names, p
     fig = plt.figure()
     plt.title(f'Summary plot for class \'{class_name}\'', fontsize=16)
     shap.summary_plot(class_shap_values, data, feature_names=feature_names, show=False)
-    plt.savefig(path + f'summary_{class_name}.png', dpi=100)
+    plt.savefig(path + f'summary_{class_name}.png', bbox_inches = 'tight')
 
 
 def generate_all_plots(model, features, feature_names, targets, output_dir='explanations', n_samples=3):
