@@ -412,10 +412,10 @@ def _randomize_samples(targets, _class, n_samples=1):
         f"(n_samples={n_samples} is too high)."
 
     samples, already_taken = [], []
-    max = len(targets)-1
+    _max = len(targets)-1
 
     while len(samples) < n_samples:
-        rng = random.randint(0, max)
+        rng = random.randint(0, _max)
         if rng in already_taken:
             continue
         already_taken.append(rng)
@@ -477,7 +477,7 @@ def generate_all_plots(model, features, feature_names, targets, output_dir='expl
             _generate_waterfall_plot(j+1, shap_values[i][sample], cl, features[sample], 
                                    base_value, feature_names, path)
 
-# need to integrate the plot functions into the multiclass pipeline
+
 def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tuning, output):
 
 	global clf, train, train_labels
@@ -647,6 +647,12 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 		pred_output = output + 'test_predictions.csv'
 		print('Saving prediction in ' + pred_output + '...')
 		save_prediction(preds, test_nameseq, pred_output)
+
+		"""Generating Explainable Machine Learning plots from the test set"""
+
+		plot_output = output + 'explanations'
+		generate_all_plots(clf, test.values, test.columns, preds, output_dir=plot_output)
+
 		if os.path.exists(ftest_labels) is True:
 			print('Generating Metrics - Test set...')
 			report = classification_report(test_labels, preds, output_dict=True)
