@@ -1,4 +1,4 @@
-import warnings
+import warnings #teste 
 warnings.filterwarnings(action='ignore', category=FutureWarning)
 warnings.filterwarnings('ignore')
 import pandas as pd
