@@ -616,61 +616,61 @@ def binary_summary(output):
 	"""
 	To do the binary summary. 
 	"""
-        name_dir = output + "interpretability.pdf"
-        doc = SimpleDocTemplate(name_dir,rightMargin=60,leftMargin=60,topMargin=42,bottomMargin=18)
-        Story=[]
-        styles=getSampleStyleSheet()
-        styles.add(ParagraphStyle(name='Justify', fontName="Courier",alignment=TA_JUSTIFY))
-        styles.add(ParagraphStyle(name='Center', fontName="Courier",alignment=TA_CENTER))
-
-        text = 'Relatório de interpretabilidade do modelo'
-        ptext = '<font size=18>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Center"]))
-        Story.append(Spacer(1, 24))
-
-        text = 'Método Shap:'
-        ptext = '<font size=16>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Justify"]))
-        Story.append(Spacer(1, 12))
-
-        text = 'SHAP calcula para cada  amostra qual a importância de cada  feature para a decisão de classificação.'
-        ptext = '<font size=12>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Justify"]))
-        Story.append(Spacer(1, 12))
-
-        fig_name = ['bar_graph.png']
-        title = ['Bar Graph']
-        descrition = 'Esse  gráfico  representa a média da  contribuição de  cada característica, de  forma a destacar quais são as mais importantes  no modelo como um todo. Através desse gráfico é possível  entender quais são os  fatores  mais decisivos para a classificação.'
-        Story = input_graph(output,Story,styles, fig_name, title, descrition)
-
-        fig_name = ['beeswarm_graph.png']
-        title = ['Beeswarm Graph']
-        descrition = 'Cada linha desse gráfico representa uma feature e cada ponto uma amostra do conjunto de treinamento.  Desse gráfico é possível  tentar estabelecer uma correlação entre o valor da  amostra  para  determinada  característica,  sendo  ele  alto  ou  baixo,  com  sua contribuição para predição.'
-        Story = input_graph(output,Story,styles, fig_name, title, descrition)
-
-        fig_name = ['rRNAsample_1.png','rRNAsample_2.png','sRNAsample_1.png','sRNAsample_2.png']
-        title = []
-        for i in range(len(fig_name)):
-                title.append(fig_name[i].split('.')[0])
-        descrition = 'Cada um dos gráficos acima é referente a uma amostra em específico, sendo os dois de cima para um grupo da classificação e os abaixo para o outro. Em cada linha temos uma feature, no extremo esquerdo podemos ver o valor assumido nessa amostra em específico e nas barras coloridas vemos o quanto este valor contribui para a classificação nesta classe.'
-        Story = input_graph(output,Story,styles, fig_name, title, descrition)
-
-        text = 'Método Yellow Brick:'
-        ptext = '<font size=16>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Justify"]))
-        Story.append(Spacer(1, 12))
-
-        text = 'Visualização de dados multidimensionais com o YellowBrick'
-        ptext = '<font size=12>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Justify"]))
-        Story.append(Spacer(1, 12))
-
-        fig_name = ['radial_graph.png']
-        title = ['Radial Graph']
-        descrition =  'Cada ponto tem uma amostra  do grupo  de treinamento  e vemos um subgrupo de features nomeados na borda da circunferência. É uma técnica de  visualização multidimensional de dados que permite visualizar uma possível separação entre as classes'
-        Story = input_graph(output,Story, styles,fig_name, title, descrition)
-
-        doc.build(Story)
+	name_dir = output + "interpretability.pdf"
+	doc = SimpleDocTemplate(name_dir,rightMargin=60,leftMargin=60,topMargin=42,bottomMargin=18)
+	Story=[]
+	styles=getSampleStyleSheet()
+	styles.add(ParagraphStyle(name='Justify', fontName="Courier",alignment=TA_JUSTIFY))
+	styles.add(ParagraphStyle(name='Center', fontName="Courier",alignment=TA_CENTER))
+	
+	text = 'Relatório de interpretabilidade do modelo'
+	ptext = '<font size=18>%s</font>' % text
+	Story.append(Paragraph(ptext, styles["Center"]))
+	Story.append(Spacer(1, 24))
+	
+	text = 'Método Shap:'
+	ptext = '<font size=16>%s</font>' % text
+	Story.append(Paragraph(ptext, styles["Justify"]))
+	Story.append(Spacer(1, 12))
+	
+	text = 'SHAP calcula para cada  amostra qual a importância de cada  feature para a decisão de classificação.'
+	ptext = '<font size=12>%s</font>' % text
+	Story.append(Paragraph(ptext, styles["Justify"]))
+	Story.append(Spacer(1, 12))
+	
+	fig_name = ['bar_graph.png']
+	title = ['Bar Graph']
+	descrition = 'Esse  gráfico  representa a média da  contribuição de  cada característica, de  forma a destacar quais são as mais importantes  no modelo como um todo. Através desse gráfico é possível  entender quais são os  fatores  mais decisivos para a classificação.'
+	Story = input_graph(output,Story,styles, fig_name, title, descrition)
+	
+	fig_name = ['beeswarm_graph.png']
+	title = ['Beeswarm Graph']
+	descrition = 'Cada linha desse gráfico representa uma feature e cada ponto uma amostra do conjunto de treinamento.  Desse gráfico é possível  tentar estabelecer uma correlação entre o valor da  amostra  para  determinada  característica,  sendo  ele  alto  ou  baixo,  com  sua contribuição para predição.'
+	Story = input_graph(output,Story,styles, fig_name, title, descrition)
+	
+	fig_name = ['rRNAsample_1.png','rRNAsample_2.png','sRNAsample_1.png','sRNAsample_2.png']
+	title = []
+	for i in range(len(fig_name)):
+		title.append(fig_name[i].split('.')[0])
+	descrition = 'Cada um dos gráficos acima é referente a uma amostra em específico, sendo os dois de cima para um grupo da classificação e os abaixo para o outro. Em cada linha temos uma feature, no extremo esquerdo podemos ver o valor assumido nessa amostra em específico e nas barras coloridas vemos o quanto este valor contribui para a classificação nesta classe.'
+	Story = input_graph(output,Story,styles, fig_name, title, descrition)
+	
+	text = 'Método Yellow Brick:'
+	ptext = '<font size=16>%s</font>' % text
+	Story.append(Paragraph(ptext, styles["Justify"]))
+	Story.append(Spacer(1, 12))
+	
+	text = 'Visualização de dados multidimensionais com o YellowBrick'
+	ptext = '<font size=12>%s</font>' % text
+	Story.append(Paragraph(ptext, styles["Justify"]))
+	Story.append(Spacer(1, 12))
+	
+	fig_name = ['radial_graph.png']
+	title = ['Radial Graph']
+	descrition =  'Cada ponto tem uma amostra  do grupo  de treinamento  e vemos um subgrupo de features nomeados na borda da circunferência. É uma técnica de  visualização multidimensional de dados que permite visualizar uma possível separação entre as classes'
+	Story = input_graph(output,Story, styles,fig_name, title, descrition)
+	
+	doc.build(Story)
 #add by Bruno
 
 def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tuning, output):
