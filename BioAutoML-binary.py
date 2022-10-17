@@ -465,6 +465,9 @@ def save_prediction(prediction, nameseqs, pred_output):
 	return
 #add by Bruno
 def type_model(explainer, model, data):
+	"""
+        Check the type of exit and modify the "shap" structure as is necessary in the next function. 
+        """
 	shap_values = explainer(data)
 	catype = "<class 'lightgbm.sklearn.LGBMClassifier'>"
 	randtype = "<class 'sklearn.ensemble._forest.RandomForestClassifier'>"
@@ -472,6 +475,9 @@ def type_model(explainer, model, data):
 		shap_values = shap_values[:, :, 0]
 	return shap_values         
 def inter_shap_waterf(explainer, X_train, X_label,model,output):
+	"""
+        To do two waterfall graph for each classes in the problem. 
+        """
 	X_label= pd.DataFrame(data={'label': X_label}) 
 	classes = X_label.iloc[:,0].unique()
 	graph_name = 'waterfall'
@@ -484,21 +490,23 @@ def inter_shap_waterf(explainer, X_train, X_label,model,output):
 			plt.savefig(waterfall_name, dpi=300,bbox_inches='tight')
 			plt.close(sp)
 def interp_shap(model, X_train, X_label,output):
-    #to create a visualizer
+	"""
+        To do all types of graphs for interpretability by shap values.
+        """
 	explainer = shap.TreeExplainer(model,feature_perturbation="tree_path_dependent")
 	shap.initjs()
 	shap_values = type_model(explainer, model, X_train)
-    #bar graph
+
 	sp = shap.plots.bar(shap_values, show=False)
 	namefig = output + 'bar_graph.png'
 	plt.savefig(namefig, dpi=300,bbox_inches='tight')
 	plt.close(sp)
-    #beeswarm graph
+
 	sp = shap.plots.beeswarm(shap_values, show=False)
 	namefig = output + 'beeswarm_graph.png'
 	plt.savefig(namefig, dpi=300,bbox_inches='tight')
 	plt.close(sp)
-    #scatter graph
+
 	feats = random.sample(range(0,X_train.shape[1]), 2)
 	sp = shap.plots.scatter(shap_values[:,feats[0]], color=shap_values, show=False)
 	namefig = output + 'scatter_graph1.png'
@@ -508,9 +516,12 @@ def interp_shap(model, X_train, X_label,output):
 	namefig = output + 'scatter_graph2.png'
 	plt.savefig(namefig)
 	plt.close(sp)
-    #waterfall graph
+
 	inter_shap_waterf(explainer, X_train, X_label,model,output)
 def interp_yellow(model,X_train,X_label,output):
+	"""
+        To do all types of graphs for interpretability by yellow brick.
+        """
 	X_label= pd.DataFrame(data={'label': X_label})
 	classes = X_label.iloc[:,0].unique()
 	visualizer = RadViz(classes=classes)
