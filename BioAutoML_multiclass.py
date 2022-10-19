@@ -47,13 +47,6 @@ from sklearn.model_selection import cross_val_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
 # from tpot import TPOTClassifier
 
-mc_handler = logging.StreamHandler(stream=sys.stdout)
-mc_handler.setLevel(logging.WARNING)
-mc_handler.setFormatter(logging.Formatter("%(name)s - %(levelname)s - %(message)s"))
-
-mc_logger = logging.getLogger(__file__)
-mc_logger.addHandler(mc_handler)
-
 def header(output_header):
 
 	"""Header Function: Header of the evaluate_model_cross Function"""
