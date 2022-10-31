@@ -36,12 +36,11 @@ class Report:
 
 
 	def insert_text_on_doc(self, text, font_size=12, style='Justify', pre_margin=1, pos_margin=12):
-		# usar logging
 		if pre_margin > 0:
 			self.story.append(Spacer(1, pre_margin))
 		else:
 			mc_logger.warning(f"'pre_margin' can't be negative. Ignoring it " +\
-							  f"and using default value (1). [pos_margin={pre_margin}]")
+							  f"and using default value (1). [pre_margin={pre_margin}]")
 
 		assert font_size > 0, f"Error: 'font_size' can't be negative. Aborted. [font_size={font_size}]"
 		fmt = f"<font size={font_size}>{text}</font>"
@@ -55,7 +54,7 @@ class Report:
 
 
 	def insert_figure_on_doc(
-			self, fig_path, title, description, title_size=14, description_size=10, 
+			self, fig_path, title, title_size=14, description_size=10, 
 			title_style='Center', description_style='Justify', image_width=4*inch, 
 			image_height=3*inch, pre_margin=1, pos_margin=24
 		):
@@ -65,7 +64,7 @@ class Report:
 			self.story.append(Spacer(1, pre_margin))
 		else:
 			mc_logger.warning(f"'pre_margin' can't be negative. Ignoring it " +\
-							  f"and using default value (1). [pos_margin={pre_margin}]")
+							  f"and using default value (1). [pre_margin={pre_margin}]")
 		
 		assert image_width > 0, f"Error: 'image_width' can't be negative. Aborted. image_width=[{image_width}]"
 		assert image_height > 0, f"Error: 'image_height' can't be negative. Aborted. image_height=[{image_height}]"
