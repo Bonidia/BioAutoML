@@ -12,7 +12,6 @@ import time
 import lightgbm as lgb
 import joblib
 import shap
-import logging
 from orderedset import OrderedSet
 # import shutil
 #  import xgboost as xgb
@@ -680,6 +679,8 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 			print("Explanation plots failed. Proceeding without it....")
 		else:
 			print("Explanation plots generated successfully!")
+
+			# Geração do pdf
 
 		if os.path.exists(ftest_labels) is True:
 			print('Generating Metrics - Test set...')
