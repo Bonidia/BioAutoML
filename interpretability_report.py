@@ -14,6 +14,10 @@ report_handler.setFormatter(logging.Formatter("%(name)s - %(levelname)s - %(mess
 report_logger = logging.getLogger(basename(__file__))
 report_logger.addHandler(report_handler)
 
+REPORT_MAIN_TITLE = "Model Interpretability Report (BioAutoML)"
+REPORT_SHAP_PREAMBLE = "Método Shap: SHAP calcula para cada amostra qual a importância de cada  feature para a decisão de classificação."
+REPORT_SHAP_SUMMARY = "Lorem ipsum"
+REPORT_SHAP_WATERFALL = "Lorem ipsum"
 
 class Report:
 	def __init__(self, report_name, directory=".", lr_margin=12, tb_margin=12):
