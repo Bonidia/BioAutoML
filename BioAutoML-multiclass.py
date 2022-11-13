@@ -12,7 +12,7 @@ import time
 import lightgbm as lgb
 import joblib
 import shap
-from interpretability_report import Report, REPORT_MAIN_TITLE, REPORT_SHAP_PREAMBLE, \
+from interpretability_report import Report, REPORT_MAIN_TITLE_MULTICLASS, REPORT_SHAP_PREAMBLE, \
 	REPORT_SHAP_SUMMARY_1, REPORT_SHAP_SUMMARY_2, REPORT_SHAP_WATERFALL, REPORT_SUMMARY_TITLE, \
 	REPORT_WATERFALL_TITLE
 from orderedset import OrderedSet

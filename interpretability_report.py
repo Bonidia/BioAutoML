@@ -80,6 +80,9 @@ class Report:
 
 
 	def insert_doc_header(self, title, font_size=16, logo_fig=None, pre_margin=1, pos_margin=18, bold=True):
+		
+		"""Insert a header with given title and logo on the file"""
+
 		if not logo_fig:
 			self.insert_text_on_doc(title, font_size=font_size, style='Center', pos_margin=pos_margin, bold=bold)
 			return
