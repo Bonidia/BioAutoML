@@ -12,7 +12,9 @@ import time
 import lightgbm as lgb
 import joblib
 import shap
-from interpretability_report import Report, REPORT_MAIN_TITLE, REPORT_SHAP_PREAMBLE, REPORT_SHAP_SUMMARY, REPORT_SHAP_WATERFALL
+from interpretability_report import Report, REPORT_MAIN_TITLE, REPORT_SHAP_PREAMBLE, \
+	REPORT_SHAP_SUMMARY_1, REPORT_SHAP_SUMMARY_2, REPORT_SHAP_WATERFALL, REPORT_SUMMARY_TITLE, \
+	REPORT_WATERFALL_TITLE
 from orderedset import OrderedSet
 # import shutil
 #  import xgboost as xgb
@@ -449,7 +451,8 @@ def _generate_waterfall_plot(id_plot, class_shap_values, class_name, sample_row,
 def _generate_summary_plot(class_shap_values, class_name, data, feature_names, path):
 	
 	"""Generates a summary plot for a given class of the multiclass classification"""
-	local_name = os.path.join(path, 'summary_{class_name}.png')
+	
+	local_name = os.path.join(path, f"summary_{class_name}.png")
 
 	fig = plt.figure()
 	plt.title(f'Summary plot for class \'{class_name}\'', fontsize=16)
@@ -503,17 +506,21 @@ def generate_all_plots(model, features, feature_names, targets, path='explanatio
 	return generated_plt
 
 
-def build_interpretability_report(generated_plt, report_name="interpretability.pdf", directory="."):
+def build_interpretability_report(generated_plt,  n_samples, report_name="interpretability.pdf", directory="."):
 	report = Report(report_name, directory=directory)
+	
+	root_dir = os.path.abspath(os.path.join(__file__, os.pardir))
+	report.insert_doc_header(REPORT_MAIN_TITLE_MULTICLASS, logo_fig=os.path.join(root_dir, "img/BioAutoML.png"))
+	report.insert_text_on_doc(REPORT_SHAP_PREAMBLE, font_size=12, pos_margin=1)
 
-	report.insert_text_on_doc(REPORT_MAIN_TITLE, font_size=18, style="Center", pos_margin=24)
-	report.insert_text_on_doc(REPORT_SHAP_PREAMBLE, font_size=14)
-
+	report.insert_text_on_doc(REPORT_SUMMARY_TITLE, font_size=14, style="Center", pre_margin=18, pos_margin=12, bold=True)
 	report.insert_figure_on_doc(generated_plt[PLOT_NAME_SUMMARY])
-	report.insert_text_on_doc(REPORT_SHAP_SUMMARY, font_size=14)
+	report.insert_text_on_doc(REPORT_SHAP_SUMMARY_1, font_size=12)
+	report.insert_text_on_doc(REPORT_SHAP_SUMMARY_2, font_size=12, pos_margin=1)
 
+	report.insert_text_on_doc(REPORT_WATERFALL_TITLE, font_size=14, style="Center", pre_margin=18, pos_margin=12, bold=True)
 	report.insert_figure_on_doc(generated_plt[PLOT_NAME_WATERFALL])
-	report.insert_text_on_doc(REPORT_SHAP_WATERFALL, font_size=14)
+	report.insert_text_on_doc(REPORT_SHAP_WATERFALL(n_samples), font_size=12)
 
 	report.build()
 
@@ -598,6 +605,7 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 			print('Tuning: ' + str(tuning))
 			print('Classifier: AdaBoost')
 			clf = AdaBoostClassifier(n_estimators=500, random_state=63)
+			# tuning function is missing
 			# train, train_labels = imbalanced_function(clf, train, train_labels)
 		else:
 			print('Tuning: ' + str(tuning))
@@ -693,15 +701,15 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 		try:
 			plot_output = output + 'explanations'
 			generated_plt = generate_all_plots(clf, test.values, test.columns, preds,
-								   output_dir=plot_output, n_samples=exp_n_samples)
-			build_interpretability_report(generated_plt, output)
+								   			   path=plot_output, n_samples=exp_n_samples)
+			build_interpretability_report(generated_plt, exp_n_samples, directory=output)
 		except ValueError as e:
 			print(e)
-			print("Generation of explanation plots and report failed. Proceeding without it....")
+			print("Generation of explanation plots and report failed. Proceeding without it...")
 		except AssertionError as e:
 			print(e)
 			print("This is a bug. Please report it to https://github.com/Bonidia/BioAutoML.")
-			print("Generation of explanation plots and report failed. Proceeding without it....")
+			print("Generation of explanation plots and report failed. Proceeding without it...")
 		else:
 			print("Explanation plots and report generated successfully!")
 
