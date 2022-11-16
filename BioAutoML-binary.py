@@ -741,7 +741,7 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 
 	"""Generating Interpretability Summary """
     
-	generated_plt = interp_shap(clf, train, train_labels,output) 
+	generated_plt = interp_shap(clf, test, test_labels,output) 
 	build_interpretability_report(generated_plt=generated_plt,directory=output)
 	
 	"""Generating Feature Importance - Selected feature subset..."""
