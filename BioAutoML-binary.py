@@ -55,6 +55,8 @@ from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER #add by Bruno
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image #add by Bruno
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle #add by Bruno
 from numpy.random import default_rng #add by Bruno
+from interpretability_report import Report, REPORT_MAIN_TITLE, REPORT_SHAP_PREAMBLE, REPORT_SHAP_BAR, \
+	REPORT_SHAP_BEESWARM, REPORT_SHAP_WATERFALL, REPORT_YELLOW_PREAMBLE, REPORT_YELLOW_RADIAL
 
 def header(output_header):
 
