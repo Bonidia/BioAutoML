@@ -38,6 +38,29 @@ REPORT_SHAP_WATERFALL = lambda n_samples: (
 	f"its classified class. In this case, {n_samples} samples for each class were chosen randomly to be analyzed."
 )
 
+REPORT_MAIN_TITLE = "Model Interpretability Report (BioAutoML)"
+REPORT_SHAP_PREAMBLE = "SHAP: For each sample the SHAP do calculate the feature importance for the classification decision."
+REPORT_SHAP_SUMMARY = "Lorem ipsum"
+REPORT_SHAP_WATERFALL = "Lorem ipsum"
+
+REPORT_SHAP_BAR = """
+This graph shows the average contribution of each feature, for then highlighting the best features for the model. 
+Through this graph it is possible to understand which are the features most important for the problem. 
+"""
+
+REPORT_SHAP_BEESWARM= """
+Each line in this graph represents a feature and each dot a sample of the trainament conjunction. 
+Through this graph it is possible to try to establish a correlation between the value of the sample, being high or low, 
+with your contribution to the prediction. 
+"""
+
+REPORT_SHAP_WATERFALL = """
+Each graph above it is referent to a specific sample, being that the title describes the sample label. 
+Each line shows a feature, on the left side can see the sample value for this feature and in the colorful bars can see the contribution value for the classification in this class. 
+And can see the limite E[f(x)], values below this number belong one class and values above this same number belong the other class. 
+"""
+
+
 make_bold = lambda s: f"<b>{s}</b>"
 make_font_size = lambda s, size: f"<font size={size}>{s}</font>"
 
