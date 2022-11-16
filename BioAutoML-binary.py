@@ -54,7 +54,7 @@ from yellowbrick.features import RadViz #add by Bruno
 from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER #add by Bruno
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image #add by Bruno
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle #add by Bruno
-from reportlab.lib.units import inch #add by Bruno
+from numpy.random import default_rng #add by Bruno
 
 def header(output_header):
 
@@ -468,209 +468,100 @@ def save_prediction(prediction, nameseqs, pred_output):
 			file.write('\n')
 	return
 #add by Bruno
+
 def type_model(explainer, model, data):
 	"""
         Check the type of exit and modify the "shap" structure as is necessary in the next function. 
-        """
+	"""
 	shap_values = explainer(data)
+    
 	catype = "<class 'lightgbm.sklearn.LGBMClassifier'>"
 	randtype = "<class 'sklearn.ensemble._forest.RandomForestClassifier'>"
+    
 	if catype == str(type(model) ) or randtype == str(type(model)):
 		shap_values = shap_values[:, :, 0]
-	return shap_values         
-def inter_shap_waterf(explainer, X_train, X_label,model,output):
+	return shap_values
+
+def shap_waterf(explainer, model, X_train, X_label, output):
 	"""
         To do two waterfall graph for each classes in the problem. 
-        """
+	"""
 	X_label= pd.DataFrame(data={'label': X_label}) 
 	classes = X_label.iloc[:,0].unique()
-	graph_name = 'waterfall'
-	for i in range(len(X_label.iloc[:,0].unique())):
-		for j in range(2):
-			subset = X_train[X_label.label==classes[i]]
-			shap_valuesW = type_model(explainer, model, subset)
-			sp = shap.plots.waterfall(shap_valuesW[random.randrange(subset.shape[0])], show=False)
-			waterfall_name = output + graph_name + classes[i] + str(j) + '.png'
-			plt.savefig(waterfall_name, dpi=300,bbox_inches='tight')
+	graphs_path = []
+	for i in range(2):
+        
+		# made a subset with only one class
+		subset = X_train[X_label.label==classes[i]]
+		shap_values = type_model(explainer, model, subset)
+        
+        # choose two samples from a given class
+		numbers = default_rng().choice(range(1, subset.shape[0]), size=(2), replace=False)
+        
+		for j in numbers:
+			waterfall_name = classes[i] + 'sample_' +str(j)
+			plt.title(waterfall_name, fontsize=16)
+			sp = shap.plots.waterfall(shap_values[j], show=False)
+			plt.savefig(output+waterfall_name+'.png', dpi=300,bbox_inches='tight')
 			plt.close(sp)
+			graphs_path.append(output+waterfall_name+'.png')
+    # return the graph paths
+	return graphs_path
+
+
+def shap_bar(shap_values, output, fig_name):
+
+	local_name = [output + fig_name + '.png']
+	plt.title(fig_name, fontsize=16)
+	sp = shap.plots.bar(shap_values, show=False)
+	plt.savefig(output + fig_name + '.png', dpi=300,bbox_inches='tight')
+	plt.close(sp)
+	return local_name
+
+def shap_beeswarm(shap_values, output, fig_name):
+
+	local_name = [output + fig_name + '.png']
+	plt.title(fig_name, fontsize=16)
+	sp = shap.plots.beeswarm(shap_values, show=False)
+	plt.savefig(output + fig_name + '.png', dpi=300,bbox_inches='tight')
+	plt.close(sp)
+	return local_name
+
+
 def interp_shap(model, X_train, X_label,output):
 	"""
         To do all types of graphs for interpretability by shap values.
-        """
+	"""
+	generated_plt = {}
+    
 	explainer = shap.TreeExplainer(model,feature_perturbation="tree_path_dependent")
-	shap.initjs()
 	shap_values = type_model(explainer, model, X_train)
 
-	sp = shap.plots.bar(shap_values, show=False)
-	namefig = output + 'bar_graph.png'
-	plt.savefig(namefig, dpi=300,bbox_inches='tight')
-	plt.close(sp)
+	generated_plt['bar_graph']=shap_bar(shap_values, output, fig_name='bar_graph')
+	generated_plt['beeswarm_graph']=shap_beeswarm(shap_values, output, fig_name='beeswarm_graph')
+	generated_plt['waterfall_graph']=shap_waterf(explainer, model, X_train, X_label, output)
+    
+	return generated_plt
 
-	sp = shap.plots.beeswarm(shap_values, show=False)
-	namefig = output + 'beeswarm_graph.png'
-	plt.savefig(namefig, dpi=300,bbox_inches='tight')
-	plt.close(sp)
+    
+def build_interpretability_report(generated_plt=[], report_name="interpretability.pdf", directory="."):
+	report = Report(report_name, directory=directory)
+    
+	root_dir = os.path.abspath(os.path.join(__file__, os.pardir))
+	report.insert_doc_header(REPORT_MAIN_TITLE, logo_fig=os.path.join(root_dir, "img/BioAutoML.png"))
 
-	feats = random.sample(range(0,X_train.shape[1]), 2)
-	sp = shap.plots.scatter(shap_values[:,feats[0]], color=shap_values, show=False)
-	namefig = output + 'scatter_graph1.png'
-	plt.savefig(namefig)
-	plt.close(sp)
-	sp = shap.plots.scatter(shap_values[:,feats[1]], color=shap_values, show=False)
-	namefig = output + 'scatter_graph2.png'
-	plt.savefig(namefig)
-	plt.close(sp)
+	report.insert_text_on_doc(REPORT_SHAP_PREAMBLE, font_size=14)
 
-	inter_shap_waterf(explainer, X_train, X_label,model,output)
-def interp_yellow(model,X_train,X_label,output):
-	"""
-        To do all types of graphs for interpretability by yellow brick.
-        """
-	X_label= pd.DataFrame(data={'label': X_label})
-	classes = X_label.iloc[:,0].unique()
-	visualizer = RadViz(classes=classes)
-	labelencoder = LabelEncoder()
-	X_label = labelencoder.fit_transform(X_label)
-	feats = random.sample(range(0,X_train.shape[1]), 5)
-	visualizer.fit(X_train.iloc[:,[i for i in feats]], X_label)
-	visualizer.transform(X_train.iloc[:,[i for i in feats]])
-	namefig = output + 'radial_graph.png'
-	plt.savefig(namefig)
-	
-def input_graph(output, Story, styles,fig_name,title,descrition,font_size=10):
-        """
-        To do a unique brick of figure, title and figure description.
-        """
-        for i in range(len(fig_name)):
-                ptext = '<font size=14>%s</font>' % title[i]
-                Story.append(Paragraph(ptext, styles["Center"]))
-                Story.append(Spacer(1, 12))
-                im_dir = output + fig_name[i]
-                im = Image(im_dir, 4*inch, 3*inch)
-                Story.append(im)
-                Story.append(Spacer(1, 24))
-        ptext = '<font size=%s>%s</font>' % (font_size, descrition)
-        Story.append(Paragraph(ptext, styles["Justify"]))
-        Story.append(Spacer(1, 24))
-        return Story
+	report.insert_figure_on_doc(generated_plt['bar_graph'])
+	report.insert_text_on_doc(REPORT_SHAP_BAR, font_size=14)
 
-def binary_summary(output):
-        name_dir = output + "interpretability.pdf"
+	report.insert_figure_on_doc(generated_plt['beeswarm_graph'])
+	report.insert_text_on_doc(REPORT_SHAP_BEESWARM, font_size=12)
+    
+	report.insert_figure_on_doc(generated_plt['waterfall_graph'])
+	report.insert_text_on_doc(REPORT_SHAP_WATERFALL, font_size=12)
 
-        doc = SimpleDocTemplate(name_dir,rightMargin=60,leftMargin=60,topMargin=42,bottomMargin=18)
-        Story=[]
-        styles=getSampleStyleSheet()
-        styles.add(ParagraphStyle(name='Justify', fontName="Courier",alignment=TA_JUSTIFY))
-        styles.add(ParagraphStyle(name='Center', fontName="Courier",alignment=TA_CENTER))
-
-        text = 'Relatório de interpretabilidade do modelo'
-        ptext = '<font size=18>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Center"]))
-        Story.append(Spacer(1, 24))
-
-        text = 'Método Shap:'
-        ptext = '<font size=16>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Justify"]))
-        Story.append(Spacer(1, 12))
-
-        text = 'SHAP calcula para cada  amostra qual a importância de cada  feature para a decisão de classificação.'
-        ptext = '<font size=12>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Justify"]))
-        Story.append(Spacer(1, 12))
-
-        fig_name = ['bar_graph.png']
-        title = ['Bar Graph']
-        descrition = 'Esse  gráfico  representa a média da  contribuição de  cada característica, de  forma a destacar quais são as mais importantes  no modelo como um todo. Através desse gráfico é possível  entender quais são os  fatores  mais decisivos para a classificação.'
-        Story = input_graph(output,Story,styles, fig_name, title, descrition)
-
-        fig_name = ['beeswarm_graph.png']
-        title = ['Beeswarm Graph']
-        descrition = 'Cada linha desse gráfico representa uma feature e cada ponto uma amostra do conjunto de treinamento.  Desse gráfico é possível  tentar estabelecer uma correlação entre o valor da  amostra  para  determinada  característica,  sendo  ele  alto  ou  baixo,  com  sua contribuição para predição.'
-        Story = input_graph(output,Story,styles, fig_name, title, descrition)
-
-        fig_name = ['rRNAsample_1.png','rRNAsample_2.png','sRNAsample_1.png','sRNAsample_2.png']
-        title = []
-        for i in range(len(fig_name)):
-                title.append(fig_name[i].split('.')[0])
-        descrition = 'Cada um dos gráficos acima é referente a uma amostra em específico, sendo os dois de cima para um grupo da classificação e os abaixo para o outro. Em cada linha temos uma feature, no extremo esquerdo podemos ver o valor assumido nessa amostra em específico e nas barras coloridas vemos o quanto este valor contribui para a classificação nesta classe.'
-        Story = input_graph(output,Story,styles, fig_name, title, descrition)
-
-        text = 'Método Yellow Brick:'
-        ptext = '<font size=16>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Justify"]))
-        Story.append(Spacer(1, 12))
-
-        text = 'Visualização de dados multidimensionais com o YellowBrick'
-        ptext = '<font size=12>%s</font>' % text
-        Story.append(Paragraph(ptext, styles["Justify"]))
-        Story.append(Spacer(1, 12))
-
-        fig_name = ['radial_graph.png']
-        title = ['Radial Graph']
-        descrition =  'Cada ponto tem uma amostra  do grupo  de treinamento  e vemos um subgrupo de features nomeados na borda da circunferência. É uma técnica de  visualização multidimensional de dados que permite visualizar uma possível separação entre as classes'
-        Story = input_graph(output,Story, styles,fig_name, title, descrition)
-
-        doc.build(Story)
-
-def binary_summary(output):
-	"""
-	To do the binary summary. 
-	"""
-	name_dir = output + "interpretability.pdf"
-	doc = SimpleDocTemplate(name_dir,rightMargin=60,leftMargin=60,topMargin=42,bottomMargin=18)
-	Story=[]
-	styles=getSampleStyleSheet()
-	styles.add(ParagraphStyle(name='Justify', fontName="Courier",alignment=TA_JUSTIFY))
-	styles.add(ParagraphStyle(name='Center', fontName="Courier",alignment=TA_CENTER))
-	
-	text = 'Relatório de interpretabilidade do modelo'
-	ptext = '<font size=18>%s</font>' % text
-	Story.append(Paragraph(ptext, styles["Center"]))
-	Story.append(Spacer(1, 24))
-	
-	text = 'Método Shap:'
-	ptext = '<font size=16>%s</font>' % text
-	Story.append(Paragraph(ptext, styles["Justify"]))
-	Story.append(Spacer(1, 12))
-	
-	text = 'SHAP calcula para cada  amostra qual a importância de cada  feature para a decisão de classificação.'
-	ptext = '<font size=12>%s</font>' % text
-	Story.append(Paragraph(ptext, styles["Justify"]))
-	Story.append(Spacer(1, 12))
-	
-	fig_name = ['bar_graph.png']
-	title = ['Bar Graph']
-	descrition = 'Esse  gráfico  representa a média da  contribuição de  cada característica, de  forma a destacar quais são as mais importantes  no modelo como um todo. Através desse gráfico é possível  entender quais são os  fatores  mais decisivos para a classificação.'
-	Story = input_graph(output,Story,styles, fig_name, title, descrition)
-	
-	fig_name = ['beeswarm_graph.png']
-	title = ['Beeswarm Graph']
-	descrition = 'Cada linha desse gráfico representa uma feature e cada ponto uma amostra do conjunto de treinamento.  Desse gráfico é possível  tentar estabelecer uma correlação entre o valor da  amostra  para  determinada  característica,  sendo  ele  alto  ou  baixo,  com  sua contribuição para predição.'
-	Story = input_graph(output,Story,styles, fig_name, title, descrition)
-	
-	fig_name = ['rRNAsample_1.png','rRNAsample_2.png','sRNAsample_1.png','sRNAsample_2.png']
-	title = []
-	for i in range(len(fig_name)):
-		title.append(fig_name[i].split('.')[0])
-	descrition = 'Cada um dos gráficos acima é referente a uma amostra em específico, sendo os dois de cima para um grupo da classificação e os abaixo para o outro. Em cada linha temos uma feature, no extremo esquerdo podemos ver o valor assumido nessa amostra em específico e nas barras coloridas vemos o quanto este valor contribui para a classificação nesta classe.'
-	Story = input_graph(output,Story,styles, fig_name, title, descrition)
-	
-	text = 'Método Yellow Brick:'
-	ptext = '<font size=16>%s</font>' % text
-	Story.append(Paragraph(ptext, styles["Justify"]))
-	Story.append(Spacer(1, 12))
-	
-	text = 'Visualização de dados multidimensionais com o YellowBrick'
-	ptext = '<font size=12>%s</font>' % text
-	Story.append(Paragraph(ptext, styles["Justify"]))
-	Story.append(Spacer(1, 12))
-	
-	fig_name = ['radial_graph.png']
-	title = ['Radial Graph']
-	descrition =  'Cada ponto tem uma amostra  do grupo  de treinamento  e vemos um subgrupo de features nomeados na borda da circunferência. É uma técnica de  visualização multidimensional de dados que permite visualizar uma possível separação entre as classes'
-	Story = input_graph(output,Story, styles,fig_name, title, descrition)
-	
-	doc.build(Story)
+	report.build()
 #add by Bruno
 
 def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tuning, output):
@@ -846,9 +737,10 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	print('Saving trained model in ' + model_output + '...')
 	print('Training: Finished...')
 
-	interp_shap(clf, train, train_labels,output) #add by Bruno
-	interp_yellow(clf, train, train_labels,output) #add by Bruno
-	binary_summary(output) #add by Bruno
+	"""Generating Interpretability Summary """
+    
+	generated_plt = interp_shap(clf, train, train_labels,output) 
+	build_interpretability_report(generated_plt=generated_plt,directory=output)
 	
 	"""Generating Feature Importance - Selected feature subset..."""
 
