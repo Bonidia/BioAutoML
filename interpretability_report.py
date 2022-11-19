@@ -40,8 +40,6 @@ REPORT_SHAP_WATERFALL = lambda n_samples: (
 
 REPORT_MAIN_TITLE = "Model Interpretability Report (BioAutoML)"
 REPORT_SHAP_PREAMBLE = "SHAP: For each sample the SHAP do calculate the feature importance for the classification decision."
-REPORT_SHAP_SUMMARY = "Lorem ipsum"
-REPORT_SHAP_WATERFALL = "Lorem ipsum"
 
 REPORT_SHAP_BAR = """
 This graph shows the average contribution of each feature, for then highlighting the best features for the model. 
