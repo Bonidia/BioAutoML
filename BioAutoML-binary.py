@@ -1,4 +1,4 @@
-import warnings #teste 
+import warnings
 warnings.filterwarnings(action='ignore', category=FutureWarning)
 warnings.filterwarnings('ignore')
 import pandas as pd
@@ -469,7 +469,7 @@ def save_prediction(prediction, nameseqs, pred_output):
 			file.write('%s' % str(prediction[i]))
 			file.write('\n')
 	return
-#add by Bruno
+
 def type_model(explainer, model, data):
 	"""
         Check the type of exit and modify the "shap" structure as is necessary in the next function. 
@@ -560,20 +560,20 @@ def build_interpretability_report(generated_plt=[], report_name="interpretabilit
 	report = Report(report_name, directory=directory)
 	root_dir = os.path.abspath(os.path.join(__file__, os.pardir))
     
-	report.insert_doc_header(REPORT_MAIN_TITLE, logo_fig=os.path.join(root_dir, "img/BioAutoML.png"))
-	report.insert_text_on_doc(REPORT_SHAP_PREAMBLE, font_size=14)
+	report.insert_doc_header(REPORT_MAIN_TITLE_BINARY, logo_fig=os.path.join(root_dir, "img/BioAutoML.png"))
+	report.insert_text_on_doc(REPORT_SHAP_PREAMBLE_BINARY, font_size=14)
 
 	report.insert_figure_on_doc(generated_plt['bar_graph'])
-	report.insert_text_on_doc(REPORT_SHAP_BAR, font_size=14)
+	report.insert_text_on_doc(REPORT_SHAP_BAR_BINARY, font_size=14)
 
 	report.insert_figure_on_doc(generated_plt['beeswarm_graph'])
-	report.insert_text_on_doc(REPORT_SHAP_BEESWARM, font_size=12)
+	report.insert_text_on_doc(REPORT_SHAP_BEESWARM_BINARY, font_size=12)
     
 	report.insert_figure_on_doc(generated_plt['waterfall_graph'])
-	report.insert_text_on_doc(REPORT_SHAP_WATERFALL, font_size=12)
+	report.insert_text_on_doc(REPORT_SHAP_WATERFALL_BINARY, font_size=12)
 
 	report.build()
-#add by Bruno
+
 
 def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tuning, output):
 
