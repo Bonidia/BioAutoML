@@ -12,8 +12,8 @@ import lightgbm as lgb
 import joblib
 # import shutil
 import xgboost as xgb
-import matplotlib.pyplot as plt #add by Bruno
-import shap #add by Bruno
+import matplotlib.pyplot as plt
+import shap
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
 #  from sklearn.metrics import multilabel_confusion_matrix
@@ -49,14 +49,12 @@ from sklearn.model_selection import cross_val_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
 from sklearn.preprocessing import LabelEncoder
 from tpot import TPOTClassifier
-from yellowbrick.datasets import load_occupancy #add by Bruno
-from yellowbrick.features import RadViz #add by Bruno
-from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER #add by Bruno
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image #add by Bruno
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle #add by Bruno
-from numpy.random import default_rng #add by Bruno
-from interpretability_report import Report, REPORT_MAIN_TITLE, REPORT_SHAP_PREAMBLE, REPORT_SHAP_BAR, \
-	REPORT_SHAP_BEESWARM, REPORT_SHAP_WATERFALL
+from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from numpy.random import default_rng
+from interpretability_report import Report, REPORT_MAIN_TITLE_BINARY, REPORT_SHAP_PREAMBLE_BINARY, REPORT_SHAP_BAR_BINARY, \
+	REPORT_SHAP_BEESWARM_BINARY, REPORT_SHAP_WATERFALL_BINARY
 
 def header(output_header):
 
