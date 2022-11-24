@@ -1,6 +1,7 @@
 import warnings
 warnings.filterwarnings(action='ignore', category=FutureWarning)
 warnings.filterwarnings('ignore')
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,45 +13,45 @@ import time
 import lightgbm as lgb
 import joblib
 import shap
+import xgboost as xgb
+# import shutil
+from catboost import CatBoostClassifier
+from orderedset import OrderedSet
+# from tpot import TPOTClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import f1_score
+from sklearn.metrics import cohen_kappa_score, make_scorer
+from sklearn.metrics import matthews_corrcoef
+# from sklearn.metrics import roc_auc_score
+# from sklearn.metrics import multilabel_confusion_matrix
+# from sklearn.metrics import balanced_accuracy_score
+# from sklearn.metrics import precision_score
+# from sklearn.metrics import recall_score
+from sklearn.model_selection import cross_val_predict
+from sklearn.model_selection import cross_validate
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
+# from sklearn.preprocessing import MinMaxScaler
+# from sklearn.model_selection import KFold
+# from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+# from sklearn.ensemble import AdaBoostClassifier
+from sklearn.feature_selection import SelectFromModel
+# from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+# from imblearn.metrics import geometric_mean_score
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.pipeline import Pipeline
+from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
 from interpretability_report import Report, REPORT_MAIN_TITLE_MULTICLASS, REPORT_SHAP_PREAMBLE, \
     REPORT_SHAP_SUMMARY_1, REPORT_SHAP_SUMMARY_2, REPORT_SHAP_WATERFALL, REPORT_SUMMARY_TITLE, \
     REPORT_WATERFALL_TITLE
-from orderedset import OrderedSet
-# import shutil
-#  import xgboost as xgb
-# from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import cross_val_predict
-from sklearn.metrics import classification_report
-# from sklearn.metrics import multilabel_confusion_matrix
-#  from sklearn.model_selection import KFold
-from catboost import CatBoostClassifier
-# from sklearn.metrics import balanced_accuracy_score
-#  from sklearn.pipeline import Pipeline
-#  from sklearn.preprocessing import MinMaxScaler
-#  from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import cross_validate
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score
-from sklearn.ensemble import AdaBoostClassifier
-# from sklearn.metrics import precision_score
-# from sklearn.metrics import recall_score
-from sklearn.metrics import matthews_corrcoef
-from sklearn.feature_selection import SelectFromModel
-from imblearn.over_sampling import SMOTE
-from imblearn.under_sampling import RandomUnderSampler
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import cohen_kappa_score, make_scorer
-# from imblearn.metrics import geometric_mean_score
-from imblearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.model_selection import cross_val_score
-from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
-# from tpot import TPOTClassifier
 
-PLOT_NAME_WATERFALL = "waterfall"
-PLOT_NAME_SUMMARY = "summary"
+PLOT_NAME_WATERFALL = "0"
+PLOT_NAME_SUMMARY = "1"
 
 def header(output_header):
 
@@ -89,13 +90,13 @@ def evaluate_model_cross(X, y, model, output_cross, matrix_output):
                'f1_ma': make_scorer(f1_score, average='macro'),
                'f1_w': make_scorer(f1_score, average='weighted'),
                'kappa': make_scorer(cohen_kappa_score)}
+
     kfold = StratifiedKFold(n_splits=10, shuffle=True)
     scores = cross_validate(model, X, y, cv=kfold, scoring=scoring)
     save_measures(output_cross, scores)
     y_pred = cross_val_predict(model, X, y, cv=kfold)
     conf_mat = (pd.crosstab(y, y_pred, rownames=['REAL'], colnames=['PREDITO'], margins=True))
     conf_mat.to_csv(matrix_output)
-    return
 
 
 def objective_rf(space):
@@ -114,11 +115,11 @@ def objective_rf(space):
 
     kfold = StratifiedKFold(n_splits=5, shuffle=True)
     metric = cross_val_score(model,
-                                        train,
-                                        train_labels,
-                                        cv=kfold,
-                                        scoring=make_scorer(f1_score, average='weighted'),
-                                        n_jobs=n_cpu).mean()
+                             train,
+                             train_labels,
+                             cv=kfold,
+                             scoring=make_scorer(f1_score, average='weighted'),
+                             n_jobs=n_cpu).mean()
 
     return {'loss': -metric, 'status': STATUS_OK}
 
@@ -138,10 +139,10 @@ def tuning_rf_bayesian():
 
     trials = Trials()
     best_tuning = fmin(fn=objective_rf,
-                space=space,
-                algo=tpe.suggest,
-                max_evals=100,
-                trials=trials)
+                       space=space,
+                       algo=tpe.suggest,
+                       max_evals=100,
+                       trials=trials)
 
     best_rf = RandomForestClassifier(n_estimators=int(best_tuning['n_estimators']),
                                      criterion=param['criterion'][best_tuning['criterion']],
@@ -155,6 +156,7 @@ def tuning_rf_bayesian():
     return best_tuning, best_rf
 
 
+# function not used anywhere
 def objective_cb(space):
 
     """Tuning of classifier: Objective Function - CatBoost - Bayesian Optimization"""
@@ -162,19 +164,21 @@ def objective_cb(space):
     model = CatBoostClassifier(n_estimators=int(space['n_estimators']),
                                max_depth=int(space['max_depth']),
                                learning_rate=space['learning_rate'],
-                               thread_count=n_cpu, nan_mode='Max', logging_level='Silent', random_state=63)
+                               thread_count=n_cpu, nan_mode='Max', 
+                               logging_level='Silent', random_state=63)
 
     kfold = StratifiedKFold(n_splits=5, shuffle=True)
     metric = cross_val_score(model,
-                                        train,
-                                        train_labels,
-                                        cv=kfold,
-                                        scoring=make_scorer(f1_score, average='weighted'),
-                                        n_jobs=n_cpu).mean()
+                             train,
+                             train_labels,
+                             cv=kfold,
+                             scoring=make_scorer(f1_score, average='weighted'),
+                             n_jobs=n_cpu).mean()
 
     return {'loss': -metric, 'status': STATUS_OK}
 
 
+# function not used anywhere
 def tuning_catboost_bayesian():
 
     """Tuning of classifier: CatBoost - Bayesian Optimization"""
@@ -529,7 +533,6 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
     train_labels = train_labels_read
     column_train = train.columns
     column_test = ''
-    output = output  + '/'
 
     #  tmp = sys.stdout
     #  log_file = open(output + 'task.log', 'a')
@@ -574,8 +577,6 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
         train = pd.DataFrame(imp.fit_transform(train), columns=column_train)
         if os.path.exists(ftest) is True:
             test = pd.DataFrame(imp.transform(test), columns=column_test)
-        else:
-            pass
     else:
         print('There are no missing values...')
 
@@ -587,50 +588,33 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
         train = pd.DataFrame(sc.fit_transform(train), columns=column_train)
         if os.path.exists(ftest) is True:
             test = pd.DataFrame(sc.transform(test), columns=column_test)
-        else:
-            pass
 
     """Choosing Classifier """
 
     print('Choosing Classifier...')
     if classifier == 0:
+        print('Tuning: ' + str(tuning))
+        print('Classifier: XGBClassifier')
+        clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63, use_label_encoder=False)
+        # train, train_labels = imbalanced_function(clf, train, train_labels)
         if tuning is True:
-            print('Tuning: ' + str(tuning))
-            print('Classifier: AdaBoost')
-            clf = AdaBoostClassifier(n_estimators=500, random_state=63)
-            # tuning function is missing
-            # train, train_labels = imbalanced_function(clf, train, train_labels)
-        else:
-            print('Tuning: ' + str(tuning))
-            print('Classifier: AdaBoost')
-            clf = AdaBoostClassifier(n_estimators=500, random_state=63)
-            # train, train_labels = imbalanced_function(clf, train, train_labels)
+            print('Tuning not yet available for XGBClassifier')
     elif classifier == 1:
+        print('Tuning: ' + str(tuning))
+        print('Classifier: Random Forest')
+        clf = RandomForestClassifier(n_estimators=200, n_jobs=n_cpu, random_state=63)
+        # train, train_labels = imbalanced_function(clf, train, train_labels)
         if tuning is True:
-            print('Tuning: ' + str(tuning))
-            print('Classifier: Random Forest')
-            clf = RandomForestClassifier(n_estimators=200, n_jobs=n_cpu, random_state=63)
-            # train, train_labels = imbalanced_function(clf, train, train_labels)
             best_tuning, clf = tuning_rf_bayesian()
             print('Finished Tuning')
-        else:
-            print('Tuning: ' + str(tuning))
-            print('Classifier: Random Forest')
-            clf = RandomForestClassifier(n_estimators=200, n_jobs=n_cpu, random_state=63)
-            # train, train_labels = imbalanced_function(clf, train, train_labels)
     elif classifier == 2:
+        print('Tuning: ' + str(tuning))
+        print('Classifier: LightGBM')
+        clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
+        # train, train_labels = imbalanced_function(clf, train, train_labels)
         if tuning is True:
-            print('Tuning: ' + str(tuning))
-            print('Classifier: LightGBM')
-            clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
-            # train, train_labels = imbalanced_function(clf, train, train_labels)
             best_tuning, clf = tuning_lightgbm_bayesian()
             print('Finished Tuning')
-        else:
-            print('Tuning: ' + str(tuning))
-            print('Classifier: LightGBM')
-            clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
-            # train, train_labels = imbalanced_function(clf, train, train_labels)
     else:
         sys.exit('This classifier option does not exist - Try again')
 
@@ -646,12 +630,11 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
     train = pd.DataFrame(fs.transform(train), columns=feature_name)
     if os.path.exists(ftest) is True:
         test = pd.DataFrame(fs.transform(test), columns=feature_name)
-    else:
-        pass
+
     print('Best Feature Subset: ' + str(len(feature_name)))
     print('Reduction: ' + str(len(column_train)-len(feature_name)) + ' features')
-    fs_train = output + 'best_feature_train.csv'
-    fs_test = output + 'best_feature_test.csv'
+    fs_train = os.path.join(output, 'best_feature_train.csv')
+    fs_test = os.path.join(output, 'best_feature_test.csv')
     print('Saving dataset with selected feature subset - train: ' + fs_train)
     train.to_csv(fs_train, index=False)
     if os.path.exists(ftest) is True:
@@ -662,9 +645,9 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
     """Training - StratifiedKFold (cross-validation = 10)..."""
 
     print('Training: StratifiedKFold (cross-validation = 10)...')
-    train_output = output + 'training_kfold(10)_metrics.csv'
-    matrix_output = output + 'training_confusion_matrix.csv'
-    model_output = output + 'trained_model.sav'
+    train_output = os.path.join(output, 'training_kfold(10)_metrics.csv')
+    matrix_output = os.path.join(output, 'training_confusion_matrix.csv')
+    model_output = os.path.join(output, 'trained_model.sav')
     evaluate_model_cross(train, train_labels, clf, train_output, matrix_output)
     clf.fit(train, train_labels)
     joblib.dump(clf, model_output)
@@ -676,7 +659,7 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
     """Generating Feature Importance - Selected feature subset..."""
 
     print('Generating Feature Importance - Selected feature subset...')
-    importance_output = output + 'feature_importance.csv'
+    importance_output = os.path.join(output, 'feature_importance.csv')
     features_importance_ensembles(clf, feature_name, importance_output)
     print('Saving results in ' + importance_output + '...')
 
@@ -685,16 +668,16 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
     if os.path.exists(ftest) is True:
         print('Generating Performance Test...')
         preds = clf.predict(test)
-        pred_output = output + 'test_predictions.csv'
+        pred_output = os.path.join(output, 'test_predictions.csv')
         print('Saving prediction in ' + pred_output + '...')
         save_prediction(preds, test_nameseq, pred_output)
 
         """Generating Explainable Machine Learning plots from the test set..."""
 
         try:
-            plot_output = output + 'explanations'
+            plot_output = os.path.join(output, 'explanations')
             generated_plt = generate_all_plots(clf, test.values, test.columns, preds,
-                                               path=plot_output, n_samples=exp_n_samples)
+                                                path=plot_output, n_samples=exp_n_samples)
             build_interpretability_report(generated_plt, exp_n_samples, directory=output)
         except ValueError as e:
             print(e)
@@ -712,12 +695,12 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
             report = classification_report(test_labels, preds, output_dict=True)
             matrix_test = (pd.crosstab(test_labels, preds, rownames=["REAL"], colnames=["PREDITO"], margins=True))
 
-            metrics_output = output + 'metrics_test.csv'
+            metrics_output = os.path.join(output, 'metrics_test.csv')
             print('Saving Metrics - Test set: ' + metrics_output + '...')
             metr_report = pd.DataFrame(report).transpose()
             metr_report.to_csv(metrics_output)
 
-            matrix_output_test = output + 'test_confusion_matrix.csv'
+            matrix_output_test = os.path.join(output, 'test_confusion_matrix.csv')
             matrix_test.to_csv(matrix_output_test)
             print('Saving confusion matrix in ' + matrix_output_test + '...')
             print('Task completed - results generated in ' + output + '!')
@@ -731,8 +714,6 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
         print('Task completed - results generated in ' + output + '!')
         #  sys.stdout = tmp
         #  log_file.close()
-
-    return
 
 
 ##########################################################################
@@ -757,7 +738,7 @@ if __name__ == '__main__':
                         help='Normalization - Features (default = False)')
     parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
     parser.add_argument('-classifier', '--classifier', default=0,
-                        help='Classifier - 0: AdaBoost, 1: Random Forest '
+                        help='Classifier - 0: XGBoost, 1: Random Forest '
                              '2: LightGBM')
     parser.add_argument('-tuning', '--tuning_classifier', type=bool, default=False,
                         help='Tuning Classifier - True = Yes, False = No, default = False')
