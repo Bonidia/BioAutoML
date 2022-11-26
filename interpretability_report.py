@@ -4,6 +4,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 from itertools import zip_longest
 from os.path import join, basename, exists
 from sys import stdout
@@ -17,8 +18,8 @@ report_logger.addHandler(report_handler)
 
 REPORT_MAIN_TITLE_MULTICLASS = "Model Interpretability Report (Multiclass)"
 REPORT_SHAP_PREAMBLE = (
-	"All of interpretability are based in the SHAP method, in which it calculates what's the importance "
-	"level for each feature in the classification process. It uses shapley values, a game theory concept, "
+	"All of interpretability are based in the SHAP method, in which calculates what's the importance "
+	"level for each feature in the classification process. It uses Shapley Values, a Game Theory concept, "
 	"as a descriptive metric to create an hierarquical structure between the features."
 )
 REPORT_SUMMARY_TITLE = "Summary Plots"
@@ -58,7 +59,6 @@ Each line shows a feature, on the left side can see the sample value for this fe
 And can see the limite E[f(x)], values below this number belong one class and values above this same number belong the other class. 
 """
 
-
 make_bold = lambda s: f"<b>{s}</b>"
 make_font_size = lambda s, size: f"<font size={size}>{s}</font>"
 
@@ -91,13 +91,13 @@ class Report:
 		self.text_width = page_width - 2*lr_margin
 		
 
-	def create_paragraph_style(self, style_name, font_name, alignment):
+	def __get_image_preserving_ratio(self, path, width, **kwargs):
 		
-		"""Create a new text style into current report's style sheet"""
-		
-		self.styles.add(
-			ParagraphStyle(name=style_name, fontName=font_name, alignment=alignment)
-		)
+		"""Load and resize an image preserving aspect ratio"""
+
+		img = ImageReader(path)
+		w, h = img.getSize()
+		return Image(path, width=width, height=(width * (h / float(w))), **kwargs)
 
 
 	def insert_doc_header(self, title, font_size=16, logo_fig=None, pre_margin=1, pos_margin=18, bold=True):
@@ -119,7 +119,7 @@ class Report:
 		self.story.append(Table(
 			[
 				[Paragraph(fmt, self.styles['Center']), 
-			  	Image(logo_fig, width=0.15*self.text_width, height=10*inch, kind='proportional')]
+			  	self.__get_image_preserving_ratio(logo_fig, 0.15*self.text_width)]
 			],
 			style=TableStyle([('VALIGN', (0,0), (1,0), 'MIDDLE')]), 
 			colWidths=[0.8*self.text_width, 0.2*self.text_width]
@@ -160,6 +160,9 @@ class Report:
 		"""
 		pairwise = lambda iterable: list(zip_longest(*[iter(iterable)] * 2, fillvalue=None))
 
+		w, h = ImageReader(fig_paths[0]).getSize()
+		ratio = h / float(w)
+
 		for fig, fig2 in pairwise(fig_paths):
 			assert exists(fig), f"Figure in path {fig} does not exist."
 
@@ -170,12 +173,12 @@ class Report:
 									  f"and using default value (1). [pre_margin={pre_margin}]")
 
 			if not fig2:
-				self.story.append(Image(fig, width=0.5*self.text_width, height=10*inch, kind="proportional"))
+				self.story.append(Image(fig, width=0.5*self.text_width, height=0.5*self.text_width * ratio))
 			else:
 				assert exists(fig2), f"Figure in path {fig2} does not exist."
 				self.story.append(Table(
-					[[Image(fig, width=0.5*self.text_width, height=10*inch, kind="proportional"),\
-					  Image(fig2, width=0.5*self.text_width, height=10*inch, kind="proportional")]]
+					[[Image(fig, width=0.5*self.text_width, height=0.5*self.text_width * ratio),\
+					  Image(fig2, width=0.5*self.text_width, height=0.5*self.text_width * ratio)]]
 				))
 
 			if pos_margin > 0:
