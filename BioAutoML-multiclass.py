@@ -47,11 +47,11 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.pipeline import Pipeline
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
 from interpretability_report import Report, REPORT_MAIN_TITLE_MULTICLASS, REPORT_SHAP_PREAMBLE, \
-    REPORT_SHAP_SUMMARY_1, REPORT_SHAP_SUMMARY_2, REPORT_SHAP_WATERFALL, REPORT_SUMMARY_TITLE, \
-    REPORT_WATERFALL_TITLE
+    REPORT_SHAP_SUMMARY_1, REPORT_SHAP_SUMMARY_2, REPORT_SHAP_WATERFALL_1, REPORT_SUMMARY_TITLE, \
+    REPORT_WATERFALL_TITLE, REPORT_SHAP_WATERFALL_2
 
-PLOT_NAME_WATERFALL = "0"
-PLOT_NAME_SUMMARY = "1"
+PLOT_NAME_WATERFALL = 0
+PLOT_NAME_SUMMARY = 1
 
 def header(output_header):
 
@@ -516,7 +516,8 @@ def build_interpretability_report(generated_plt,  n_samples, report_name="interp
     report.insert_text_on_doc(REPORT_SHAP_SUMMARY_2, font_size=12, pos_margin=1)
 
     report.insert_text_on_doc(REPORT_WATERFALL_TITLE, font_size=14, style="Center", pre_margin=18, pos_margin=12, bold=True)
-    report.insert_text_on_doc(REPORT_SHAP_WATERFALL(n_samples), font_size=12)
+    report.insert_text_on_doc(REPORT_SHAP_WATERFALL_1(n_samples), font_size=12)
+    report.insert_text_on_doc(REPORT_SHAP_WATERFALL_2, font_size=12)
     report.insert_figure_on_doc(generated_plt[PLOT_NAME_WATERFALL])
 
     report.build()

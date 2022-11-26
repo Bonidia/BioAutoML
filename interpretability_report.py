@@ -18,7 +18,8 @@ report_logger.addHandler(report_handler)
 
 REPORT_MAIN_TITLE_MULTICLASS = "Model Interpretability Report (Multiclass)"
 REPORT_SHAP_PREAMBLE = (
-	"All of interpretability are based in the SHAP method, in which calculates what's the importance "
+	"This report sustains the idea of being able to interpret and explain how and why the chosen model is classifying "
+	"each entry as it is. All of Interpretability are based in the SHAP method, in which calculates what's the importance "
 	"level for each feature in the classification process. It uses Shapley Values, a Game Theory concept, "
 	"as a descriptive metric to create an hierarquical structure between the features."
 )
@@ -34,10 +35,16 @@ REPORT_SHAP_SUMMARY_2 = (
 	"negative SHAP values." 
 )
 REPORT_WATERFALL_TITLE = "Waterfall Plots"
-REPORT_SHAP_WATERFALL = lambda n_samples: (
-	"A Waterfall plot shows, for some entries, which of the features contributed more for it to be classified with "
+REPORT_SHAP_WATERFALL_1 = lambda n_samples: (
+	"A Waterfall plot shows, for some entries, how each of the features contributed for it to be classified with "
 	f"its classified class. In this case, {n_samples} samples for each class were chosen randomly to be analyzed."
 )
+REPORT_SHAP_WATERFALL_2 = (
+	"From a base expected value, E[f(x)], each feature contributes positively of negatively towards the entry's given "
+	"class. At the end, when all the contributions are summed with E[f(x)], we get the final value of f(x) which led "
+	"to the classification result."
+)
+
 
 REPORT_MAIN_TITLE_BINARY = "Model Interpretability Report (BioAutoML)"
 REPORT_SHAP_PREAMBLE_BINARY = "SHAP: For each sample the SHAP do calculate the feature importance for the classification decision."
