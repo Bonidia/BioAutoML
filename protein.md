@@ -50,3 +50,9 @@ $ python BioAutoML-feature-protein.py -fasta_train MathFeature/Case\ Studies/CS-
 ```
 
 **Note** This example is in the Directory: MathFeature. 
+
+**Running: In unknown sequences**
+
+```sh
+$ python BioAutoML-feature-protein.py -fasta_train MathFeature/Case\ Studies/CS-I/train_P.fasta MathFeature/Case\ Studies/CS-I/train_N.fasta -fasta_label_train positive negative -fasta_test new_sequences.fasta -fasta_label_test unknown -output experimental/protein
+```
