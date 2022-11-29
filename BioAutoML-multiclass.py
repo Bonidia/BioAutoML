@@ -468,9 +468,6 @@ def generate_all_plots(model, features, feature_names, targets, path='explanatio
     print("Training the explainer model...")
     explainer = shap.TreeExplainer(model)
     shap_values = np.array(explainer.shap_values(features))
-    print(f"shap_values.shape: {shap_values.shape}")
-    print(f"targets.shape: {targets.shape}")
-    print(f"features.shape: {features.shape}")
     print("Explainer trained successfully!")
 
     # SHAP seems to sort the classes before calculating the shapley values matrix for each class,
