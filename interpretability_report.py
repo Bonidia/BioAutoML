@@ -167,6 +167,7 @@ class Report:
 		"""
 		pairwise = lambda iterable: list(zip_longest(*[iter(iterable)] * 2, fillvalue=None))
 
+		assert len(fig_paths) > 0, "List of figures (fig_paths) is empty."
 		w, h = ImageReader(fig_paths[0]).getSize()
 		ratio = h / float(w)
 
