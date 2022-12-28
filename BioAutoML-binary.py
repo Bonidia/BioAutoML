@@ -504,7 +504,7 @@ def shap_waterf(explainer, model, X_test, X_label, path):
 		numbers = default_rng().choice(range(1, subset.shape[0]), size=(2), replace=False)
         
 		for j in numbers:
-			waterfall_name = classes[i] + 'sample_' +str(j)
+			waterfall_name = str(classes[i]) + 'sample_' +str(j)
 			local_name = os.path.join(path, f"{waterfall_name}.png")
 			plt.title(waterfall_name, fontsize=16)
 			sp = shap.plots.waterfall(shap_values[j], show=False)
@@ -538,6 +538,7 @@ def interp_shap(model, X_test, X_label,output,path='explanations'):
 	"""
         To do all types of graphs for interpretability by shap values.
 	"""
+	path = os.path.join(output,path)
 	generated_plt = {}
 	explainer = shap.TreeExplainer(model,feature_perturbation="tree_path_dependent")
 	shap_values = type_model(explainer, model, X_test)
@@ -749,7 +750,7 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	"""Generating Interpretability Summary """
     
 	try:    
-		generated_plt = interp_shap(clf, test, test_labels,output) 
+		generated_plt = interp_shap(clf, train, train_labels,output) 
 		build_interpretability_report(generated_plt=generated_plt, directory=output)
 	except ValueError as e:
 		print(e)
