@@ -24,6 +24,8 @@
 
 ## Update news!!!
 
+**New Version - Protein:** BioAutoML + iFeature[[Ref](https://github.com/Superzchen/iFeature)]- Access on [[https://bonidia.github.io/BioAutoML/](https://bonidia.github.io/BioAutoML/)]
+
 **New Version - Protein:** Access on [[https://bonidia.github.io/BioAutoML/](https://bonidia.github.io/BioAutoML/)]
 
 **Published Paper:** Access on [[https://doi.org/10.1093/bib/bbac218](https://doi.org/10.1093/bib/bbac218)]
