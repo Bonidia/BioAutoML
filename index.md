@@ -52,6 +52,7 @@ Recent technological advances allowed an exponential expansion of biological seq
 - [BioAutoML - Automated Feature Engineering and Metalearning - DNA/RNA](bio.md)
 - [BioAutoML - Automated Feature Engineering and Metalearning - With Numerical Mapping - DNA/RNA](bio-mapping.md)
 - [BioAutoML - Automated Feature Engineering and Metalearning - Protein](protein.md)
+- [BioAutoML - Automated Feature Engineering and Metalearning - Protein - BioAutoML+iFeature](protein-v2.md)
 - [BioAutoML - Metalearning - Binary Problems - Using features from other packages](binary.md)
 - [BioAutoML - Metalearning - Multiclass Problems - Using features from other packages](multi.md)
 
