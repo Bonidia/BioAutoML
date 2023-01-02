@@ -17,7 +17,7 @@
 
 <h1 align="center"></h1>
 
-## BioAutoML - Automated Feature Engineering and Metalearning - End-to-end Machine Learning Workflow - Protein
+## BioAutoML - Automated Feature Engineering and Metalearning - End-to-end Machine Learning Workflow - Protein - BioAutoML + iFeature
 
 To use this model, follow the example below:
 
