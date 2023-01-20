@@ -760,7 +760,7 @@ class BaseDescriptor(object):
 
         df['label'] = label
 
-        df.to_csv(filename, sep = delimiter)
+        df.to_csv(filename, sep = delimiter, mode = 'a', index = False)
 
 
 def load_scale(scalename):

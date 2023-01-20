@@ -958,7 +958,7 @@ class PeptideDescriptor(BaseDescriptor):
 
 if __name__ == '__main__':
     # Testing
-    # python other-methods/modlAMP-modified/descriptors.py --option peptide --label anticancer --input MathFeature/Case\ Studies/CS-V/anticancer.fasta --output peptide.tsv
+    # python other-methods/modlAMP-modified/descriptors.py --option peptide --label anticancer --input MathFeature/Case\ Studies/CS-V/anticancer.fasta --output peptide.csv
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-option', '--option', help='global or peptide descriptor')
@@ -980,10 +980,10 @@ if __name__ == '__main__':
         sys.exit()
 
     desc.calculate_all()
-    print(desc.featurenames)
-    print(desc.descriptor)
-    print(desc.descriptor.shape)
+    # print(desc.featurenames)
+    # print(desc.descriptor)
+    # print(desc.descriptor.shape)
 
-    desc.save_descriptor(label, output, delimiter = '\t')
+    desc.save_descriptor(label, output, delimiter = ',')
 
     
