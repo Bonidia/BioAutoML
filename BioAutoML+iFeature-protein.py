@@ -22,6 +22,7 @@ from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import f1_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
+from functools import reduce
 
 # Testing
 # python BioAutoML-feature.py
@@ -40,14 +41,14 @@ def objective_rf(space):
 
 	"""Automated Feature Engineering - Objective Function - Bayesian Optimization"""
 
-	position = int((len(df_x.columns) - 5018) / 2)
+	position = int((len(df_x.columns) - 5044) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
 				   'ComplexNetworks': list(range(20, 98)), 'kGap_di': list(range(98, 498)),
 				   'AAC': list(range(498, 518)),
 				   'DPC': list(range(518, 918)),
-				   'CKSAAP': list(range(918, 3318)),
+				   'CKSAAP': list(range(918, 3318)), 
 			 	   'DDE': list(range(3318, 3718)),
 			 	   'GAAC': list(range(3718, 3723)),
 			 	   'CKSAAGP': list(range(3723, 3873)),
@@ -57,11 +58,13 @@ def objective_rf(space):
 			 	   'CTDT': list(range(4062, 4101)),
 			 	   'CTDD': list(range(4101, 4296)),
 			 	   'CTriad': list(range(4296, 4639)),
-			 	   'KSCTriad': list(range(4639, 4982)),
-				   'Fourier_Integer': list(range(4982, 5001)),
-				   'Fourier_EIIP': list(range(5001, 5020)),
-				   'EIIP': list(range(5020, (5020 + position))),
-				   'AAAF': list(range((5020 + position), len(df_x.columns)))}
+			 	   'KSCTriad': list(range(4639, 4982)), 
+				   'Global': list(range(4982, 4992)),
+				   'Peptide': list(range(4992, 5008)),
+				   'Fourier_Integer': list(range(5008, 5027)),
+				   'Fourier_EIIP': list(range(5027, 5046)),
+				   'EIIP': list(range(5046, (5046 + position))),
+				   'AAAF': list(range((5046 + position), len(df_x.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		if int(space[descriptor]) == 1:
@@ -139,6 +142,8 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 'CTDD': [0, 1],
 			 'CTriad': [0, 1],
 			 'KSCTriad': [0, 1],
+			 'Global': [0, 1],
+			 'Peptide': [0, 1],
 			 'Fourier_Integer': [0, 1],
 			 'Fourier_EIIP': [0, 1], 'EIIP': [0, 1],
 			 'AAAF': [0, 1],
@@ -163,6 +168,8 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 'CTDD': hp.choice('CTDD', [0, 1]),
 			 'CTriad': hp.choice('CTriad', [0, 1]),
 			 'KSCTriad': hp.choice('KSCTriad', [0, 1]),
+			 'Global': hp.choice('Global', [0, 1]),
+			 'Peptide': hp.choice('Peptide', [0, 1]),
 			 'Fourier_Integer': hp.choice('Fourier_Integer', [0, 1]),
 			 'Fourier_EIIP': hp.choice('Fourier_EIIP', [0, 1]),
 			 'EIIP': hp.choice('EIIP', [0, 1]),
@@ -178,7 +185,7 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 
 	# print(space)
 
-	position = int((len(df_x.columns) - 5018) / 2)
+	position = int((len(df_x.columns) - 5044) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
@@ -196,10 +203,12 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 	   'CTDD': list(range(4101, 4296)),
 			 	   'CTriad': list(range(4296, 4639)),
 			 	   'KSCTriad': list(range(4639, 4981)),
-				   'Fourier_Integer': list(range(4981, 5000)),
-				   'Fourier_EIIP': list(range(5000, 5019)),
-				   'EIIP': list(range(5019, (5019 + position))),
-				   'AAAF': list(range((5019 + position), len(df_x.columns)))}
+				   'Global': list(range(4982, 4992)),
+				   'Peptide': list(range(4992, 5008)),
+				   'Fourier_Integer': list(range(5008, 5027)),
+				   'Fourier_EIIP': list(range(5027, 5046)),
+				   'EIIP': list(range(5046, (5046 + position))),
+				   'AAAF': list(range((5046 + position), len(df_x.columns)))}
 
 	for descriptor, ind in descriptors.items():
 		result = param[descriptor][best_tuning[descriptor]]
@@ -347,7 +356,21 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
-	if 10 in features:
+			if 10 in features:
+				dataset = path + '/Global.csv'
+				subprocess.run(['python', 'other-methods/modlAMP-modified/descriptors.py', '-option',
+								'global', '-label', labels[i][j], '-input', preprocessed_fasta, '-output', dataset], 
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
+	
+			if 11 in features:
+				dataset = path + '/Peptide.csv'
+				subprocess.run(['python', 'other-methods/modlAMP-modified/descriptors.py', '-option',
+								'peptide', '-label', labels[i][j], '-input', preprocessed_fasta, '-output', dataset], 
+								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				datasets.append(dataset)
+
+	if 12 in features:
 		dataset = path + '/Fourier_Integer.csv'
 		if fasta_test:
 			labels_list = ftrain_labels + ftest_labels
@@ -372,7 +395,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		df.to_csv(dataset, index=False)
 		datasets.append(dataset)
 
-	if 11 in features:
+	if 13 in features:
 		dataset = path + '/Fourier_EIIP.csv'
 		if fasta_test:
 			labels_list = ftrain_labels + ftest_labels
@@ -397,7 +420,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		df.to_csv(dataset, index=False)
 		datasets.append(dataset)
 
-	if 12 in features:
+	if 14 in features:
 		dataset = path + '/EIIP.csv'
 		if fasta_test:
 			labels_list = ftrain_labels + ftest_labels
@@ -422,7 +445,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		df.to_csv(dataset, index=False)
 		datasets.append(dataset)
 
-	if 13 in features:
+	if 15 in features:
 		dataset = path + '/AAAF.csv'
 		if fasta_test:
 			labels_list = ftrain_labels + ftest_labels
@@ -451,7 +474,9 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	if datasets:
 		datasets = list(dict.fromkeys(datasets))
-		dataframes = pd.concat([pd.read_csv(f) for f in datasets], axis=1)
+		dataframes = reduce(lambda left, right: pd.merge(left, right, on = ['nameseq', 'label'], 
+				how = 'inner'), [pd.read_csv(f) for f in datasets])
+		#dataframes = pd.concat([pd.read_csv(f) for f in datasets], axis=1)
 		dataframes = dataframes.loc[:, ~dataframes.columns.duplicated()]
 		dataframes = dataframes[~dataframes.nameseq.str.contains("nameseq")]
 
@@ -535,7 +560,7 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 
-	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
 	fnameseqtest, ftrain, ftrain_labels, \
 		ftest, ftest_labels = feature_extraction(fasta_train, fasta_label_train,

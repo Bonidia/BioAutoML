@@ -21,7 +21,6 @@ from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import f1_score
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
-from functools import reduce
 
 # Testing
 # python BioAutoML-feature.py
@@ -294,28 +293,15 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 								'-t', 'DPC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
-			# if 9 in features:
-			# 	dataset = path + '/TPC.csv'
-			# 	subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
-			# 					preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
-			# 					'-t', 'TPC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-			# 	datasets.append(dataset)
 
 			if 9 in features:
-				dataset = path + '/Global.csv'
-				subprocess.run(['python', 'other-methods/modlAMP-modified/descriptors.py', '-option',
-								'global', '-label', labels[i][j], '-input', preprocessed_fasta, '-output', dataset], 
-								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-				datasets.append(dataset)
-	
-			if 10 in features:
-				dataset = path + '/Peptide.csv'
-				subprocess.run(['python', 'other-methods/modlAMP-modified/descriptors.py', '-option',
-								'peptide', '-label', labels[i][j], '-input', preprocessed_fasta, '-output', dataset], 
-								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+				dataset = path + '/TPC.csv'
+				subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
+								preprocessed_fasta, '-o', dataset, '-l', labels[i][j],
+								'-t', 'TPC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 				datasets.append(dataset)
 
-	if 11 in features:
+	if 10 in features:
 		dataset = path + '/Fourier_Integer.csv'
 		labels_list = ftrain_labels + ftest_labels
 		text_input = ''
@@ -337,7 +323,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		df.to_csv(dataset, index=False)
 		datasets.append(dataset)
 
-	if 12 in features:
+	if 11 in features:
 		dataset = path + '/Fourier_EIIP.csv'
 		labels_list = ftrain_labels + ftest_labels
 		text_input = ''
@@ -359,7 +345,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		df.to_csv(dataset, index=False)
 		datasets.append(dataset)
 
-	if 13 in features:
+	if 12 in features:
 		dataset = path + '/EIIP.csv'
 		labels_list = ftrain_labels + ftest_labels
 		text_input = ''
@@ -381,7 +367,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 		df.to_csv(dataset, index=False)
 		datasets.append(dataset)
 
-	if 14 in features:
+	if 13 in features:
 		dataset = path + '/AAAF.csv'
 		labels_list = ftrain_labels + ftest_labels
 		text_input = ''
@@ -407,12 +393,9 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	if datasets:
 		datasets = list(dict.fromkeys(datasets))
-		dataframes = reduce(lambda left, right: pd.merge(left, right, on = ['nameseq', 'label'], 
-						how = 'inner'), [pd.read_csv(f) for f in datasets])
-		#dataframes = pd.concat([pd.read_csv(f) for f in datasets], axis=1)
+		dataframes = pd.concat([pd.read_csv(f) for f in datasets], axis=1)
 		dataframes = dataframes.loc[:, ~dataframes.columns.duplicated()]
 		dataframes = dataframes[~dataframes.nameseq.str.contains("nameseq")]
-		dataframes.to_csv('dataset.csv', index=False, header=True)
 
 	X_train = dataframes.iloc[:train_size, :]
 	X_train.pop('nameseq')
@@ -493,8 +476,7 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 
-	features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-	#features = [10, 14]
+	features = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13]
 
 	fnameseqtest, ftrain, ftrain_labels, \
 		ftest, ftest_labels = feature_extraction(fasta_train, fasta_label_train,
