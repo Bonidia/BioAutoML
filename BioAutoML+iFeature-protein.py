@@ -474,9 +474,7 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 
 	if datasets:
 		datasets = list(dict.fromkeys(datasets))
-		dataframes = reduce(lambda left, right: pd.merge(left, right, on = ['nameseq', 'label'], 
-				how = 'inner'), [pd.read_csv(f) for f in datasets])
-		#dataframes = pd.concat([pd.read_csv(f) for f in datasets], axis=1)
+		dataframes = pd.concat([pd.read_csv(f) for f in datasets], axis=1)
 		dataframes = dataframes.loc[:, ~dataframes.columns.duplicated()]
 		dataframes = dataframes[~dataframes.nameseq.str.contains("nameseq")]
 
