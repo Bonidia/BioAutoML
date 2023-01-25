@@ -41,7 +41,7 @@ def objective_rf(space):
 
 	"""Automated Feature Engineering - Objective Function - Bayesian Optimization"""
 
-	position = int((len(df_x.columns) - 5044) / 2)
+	position = int((len(df_x.columns) - 5046) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
@@ -64,7 +64,7 @@ def objective_rf(space):
 				   'Fourier_Integer': list(range(5008, 5027)),
 				   'Fourier_EIIP': list(range(5027, 5046)),
 				   'EIIP': list(range(5046, (5046 + position))),
-				   'AAAF': list(range((5046 + position), len(df_x.columns)))}
+				   'AAAF': list(range((5046 + position), len(df_x.columns)))} 
 
 	for descriptor, ind in descriptors.items():
 		if int(space[descriptor]) == 1:
@@ -185,14 +185,14 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 
 	# print(space)
 
-	position = int((len(df_x.columns) - 5044) / 2)
+	position = int((len(df_x.columns) - 5046) / 2)
 	index = list()
 	descriptors = {'Shannon': list(range(0, 5)), 'Tsallis_23': list(range(5, 10)),
 				   'Tsallis_30': list(range(10, 15)), 'Tsallis_40': list(range(15, 20)),
 				   'ComplexNetworks': list(range(20, 98)), 'kGap_di': list(range(98, 498)),
 				   'AAC': list(range(498, 518)),
 				   'DPC': list(range(518, 918)),
-				   'CKSAAP': list(range(918, 3318)),
+				   'CKSAAP': list(range(918, 3318)), 
 			 	   'DDE': list(range(3318, 3718)),
 			 	   'GAAC': list(range(3718, 3723)),
 			 	   'CKSAAGP': list(range(3723, 3873)),
@@ -202,13 +202,13 @@ def feature_engineering(estimations, train, train_labels, test, foutput):
 			 	   'CTDT': list(range(4062, 4101)),
 			 	   'CTDD': list(range(4101, 4296)),
 			 	   'CTriad': list(range(4296, 4639)),
-			 	   'KSCTriad': list(range(4639, 4981)),
+			 	   'KSCTriad': list(range(4639, 4982)), 
 				   'Global': list(range(4982, 4992)),
 				   'Peptide': list(range(4992, 5008)),
 				   'Fourier_Integer': list(range(5008, 5027)),
 				   'Fourier_EIIP': list(range(5027, 5046)),
 				   'EIIP': list(range(5046, (5046 + position))),
-				   'AAAF': list(range((5046 + position), len(df_x.columns)))}
+				   'AAAF': list(range((5046 + position), len(df_x.columns)))} 
 
 	for descriptor, ind in descriptors.items():
 		result = param[descriptor][best_tuning[descriptor]]

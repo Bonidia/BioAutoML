@@ -355,10 +355,10 @@ class GlobalDescriptor(BaseDescriptor):
             desc = [d - 0.98 for d in desc]
         if append:
             self.descriptor = np.hstack((self.descriptor, np.array(desc)))
-            self.featurenames.append('MW')
+            self.featurenames.append('MW_Global')
         else:
             self.descriptor = np.array(desc)
-            self.featurenames = ['MW']
+            self.featurenames = ['MW_Global']
 
     def calculate_charge(self, ph=7.0, amide=False, append=False):
         """Method to overall charge of every sequence in the attribute :py:attr:`sequences`.
