@@ -468,21 +468,26 @@ def save_prediction(prediction, nameseqs, pred_output):
 			file.write('\n')
 	return
 
-def type_model(explainer, model, data):
+def type_model(explainer, model, data, labels):
 	"""
         Check the type of exit and modify the "shap" structure as is necessary in the next function. 
 	"""
+
+
 	shap_values = explainer(data)
-    
+	xgbtype = "<class 'xgboost.sklearn.XGBClassifier'>"
 	cattype  = "<class 'catboost.core.CatBoostClassifier'>"
 	lgbmtype = "<class 'lightgbm.sklearn.LGBMClassifier'>"
 	randtype = "<class 'sklearn.ensemble._forest.RandomForestClassifier'>"
-	assert lgbmtype == str(type(model)) or randtype == str(type(model)) or cattype == str(type(model)),\
-	"Error: Model type don't expected "
+	assert lgbmtype == str(type(model)) or randtype == str(type(model)) or xgbtype == str(type(model))\
+        or cattype == str(type(model)), "Error: Model type don't expected "
     
 	if lgbmtype == str(type(model) ) or randtype == str(type(model)):
 		shap_values = shap_values[:, :, 0]
-	return shap_values
+	if xgbtype == str(type(model)):
+                labels = le.fit_transform(labels)
+		
+	return shap_values, labels
 
 def shap_waterf(explainer, model, X_test, X_label, path):
 	"""
@@ -499,12 +504,13 @@ def shap_waterf(explainer, model, X_test, X_label, path):
 	for i in range(2):
 		# made a subset with only one class
 		subset = X_test[X_label.label==classes[i]]
-		shap_values = type_model(explainer, model, subset)
+		shap_values, classes = type_model(explainer, model, subset, classes)
+		print(classes)
         # choose two samples from a given class
 		numbers = default_rng().choice(range(1, subset.shape[0]), size=(2), replace=False)
         
 		for j in numbers:
-			waterfall_name = str(classes[i]) + 'sample_' +str(j)
+			waterfall_name = 'class_' + str(le.inverse_transform(classes[i])) + '_sample_' +str(j)
 			local_name = os.path.join(path, f"{waterfall_name}.png")
 			plt.title(waterfall_name, fontsize=16)
 			sp = shap.plots.waterfall(shap_values[j], show=False)
@@ -541,7 +547,8 @@ def interp_shap(model, X_test, X_label,output,path='explanations'):
 	path = os.path.join(output,path)
 	generated_plt = {}
 	explainer = shap.TreeExplainer(model,feature_perturbation="tree_path_dependent")
-	shap_values = type_model(explainer, model, X_test)
+	
+	shap_values, X_label = type_model(explainer, model, X_test, X_label)
 
 	if not os.path.exists(path):
 		print(f"Creating explanations directory: {path}...")
@@ -576,7 +583,7 @@ def build_interpretability_report(generated_plt=[], report_name="interpretabilit
 
 def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tuning, output):
 
-	global clf, train, train_labels
+	global clf, train, train_labels, le
 
 	if not os.path.exists(output):
 		os.mkdir(output)
@@ -690,19 +697,22 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			if imbalance_data is True:
 				train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 3:
-		if tuning is True:
-			print('Tuning: ' + str(tuning))
-			print('Classifier: XGBClassifier')
-			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
-			if imbalance_data is True:
-				train, train_labels = imbalanced_function(clf, train, train_labels)
-			print('Tuning not yet available for XGBClassifier.')
-		else:
-			print('Tuning: ' + str(tuning))
-			print('Classifier: XGBClassifier')
-			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
-			if imbalance_data is True:
-				train, train_labels = imbalanced_function(clf, train, train_labels)
+                le = LabelEncoder()
+                train_labels = le.fit_transform(train_labels)
+                test_labels = le.fit_transform(test_labels)
+                if tuning is True:
+                        print('Tuning: ' + str(tuning))
+                        print('Classifier: XGBClassifier')
+                        clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
+                        if imbalance_data is True:
+                                train, train_labels = imbalanced_function(clf, train, train_labels)
+                        print('Tuning not yet available for XGBClassifier.')
+                else:
+                        print('Tuning: ' + str(tuning))
+                        print('Classifier: XGBClassifier')
+                        clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
+                        if imbalance_data is True:
+                                train, train_labels = imbalanced_function(clf, train, train_labels)
 	else:
 		sys.exit('This classifier option does not exist - Try again')
 
@@ -771,6 +781,7 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	print('Saving results in ' + importance_output + '...')
 
 	"""Testing model..."""
+	#test_labels = le.fit_transform(test_labels)
 
 	if os.path.exists(ftest) is True:
 		print('Generating Performance Test...')
