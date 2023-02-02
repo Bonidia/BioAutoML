@@ -505,12 +505,12 @@ def shap_waterf(explainer, model, X_test, X_label, path):
 		# made a subset with only one class
 		subset = X_test[X_label.label==classes[i]]
 		shap_values, classes = type_model(explainer, model, subset, classes)
-		print(classes)
+
         # choose two samples from a given class
 		numbers = default_rng().choice(range(1, subset.shape[0]), size=(2), replace=False)
         
 		for j in numbers:
-			waterfall_name = 'class_' + str(le.inverse_transform(classes[i])) + '_sample_' +str(j)
+			waterfall_name = 'class_' + str(classes[i]) + '_sample_' +str(j)
 			local_name = os.path.join(path, f"{waterfall_name}.png")
 			plt.title(waterfall_name, fontsize=16)
 			sp = shap.plots.waterfall(shap_values[j], show=False)
