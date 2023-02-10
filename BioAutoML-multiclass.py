@@ -16,7 +16,6 @@ import shap
 import xgboost as xgb
 # import shutil
 from catboost import CatBoostClassifier
-from orderedset import OrderedSet
 # from tpot import TPOTClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
@@ -33,6 +32,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
 # from sklearn.preprocessing import MinMaxScaler
 # from sklearn.model_selection import KFold
 # from sklearn.model_selection import train_test_split
@@ -396,19 +396,18 @@ def imbalanced_function(clf, train, train_labels):
 def save_prediction(prediction, nameseqs, pred_output):
 
     """Saving prediction - test set"""
+    
+    map(str, prediction)
 
-    file = open(pred_output, 'a')
-
-    if os.path.exists(nameseq_test) is True:
-        for i in range(len(prediction)):
-            file.write('%s,' % str(nameseqs[i]))
-            file.write('%s' % str(prediction[i]))
-            file.write('\n')
-    else:
-        for i in range(len(prediction)):
-            file.write('%s' % str(prediction[i]))
-            file.write('\n')
-    return
+	# From where does "nameseq_test" come from????
+    with open(pred_output, 'a') as f:
+        if os.path.exists(nameseq_test) is True:
+            map(str, nameseqs)
+            for seq, pred in zip(nameseqs, prediction):
+                f.write(f"{seq},{pred}\n") 
+        else:
+            for pred in prediction:
+                f.write(f"{pred}\n") 
 
 
 def randomize_samples(targets, _class, n_samples=1):
@@ -459,7 +458,7 @@ def generate_summary_plot(class_shap_values, class_name, data, feature_names, pa
     return local_name
 
 
-def generate_all_plots(model, train, test, test_targets, feature_names, path='explanations', n_samples=3):
+def generate_all_plots(model, train, test, preds, feature_names, path='explanations', n_samples=3):
 
     """Used to generate each of the plots used to explain the model's decision"""
 
@@ -470,7 +469,7 @@ def generate_all_plots(model, train, test, test_targets, feature_names, path='ex
     shap_values = np.array(explainer.shap_values(test))
     print("Explainer trained successfully!")
 
-    classes = sorted(set(test_targets))
+    classes = sorted(set(preds))
     if len(classes) <= 2:
         raise ValueError(
             (f"{os.path.basename(__file__)} shouldn't be used to handle binary classification problems. To generate "
@@ -496,7 +495,7 @@ def generate_all_plots(model, train, test, test_targets, feature_names, path='ex
             generate_summary_plot(shap_values[i], cl, test, feature_names, path)
         )
 
-        random_samples = randomize_samples(test_targets, cl, n_samples=n_samples)
+        random_samples = randomize_samples(preds, cl, n_samples=n_samples)
         for j, sample in enumerate(random_samples):
             generated_plt[WATERFALL].append(
                 generate_waterfall_plot(j+1, shap_values[i][sample], cl, test[sample], 
@@ -563,6 +562,11 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 
     if os.path.exists(ftest_labels) is True:
         print('Number of features (test): ' + str(len(column_test)))
+
+    """Preprocessing:  Label Encoding"""
+
+    lb_encoder = LabelEncoder()
+    train_labels = lb_encoder.fit_transform(train_labels)
 
     """Preprocessing:  Missing Values"""
 
@@ -672,7 +676,8 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 
     if os.path.exists(ftest) is True:
         print('Generating Performance Test...')
-        preds = clf.predict(test)
+        preds = lb_encoder.inverse_transform(clf.predict(test))
+
         pred_output = os.path.join(output, 'test_predictions.csv')
         print('Saving prediction in ' + pred_output + '...')
         save_prediction(preds, test_nameseq, pred_output)
@@ -681,8 +686,8 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 
         try:
             plot_output = os.path.join(output, 'explanations')
-            generated_plt = generate_all_plots(clf, train.values, test.values, preds, test.columns,
-                                               path=plot_output, n_samples=exp_n_samples)
+            generated_plt = generate_all_plots(clf, train.values, test.values, preds,
+                                               test.columns, path=plot_output, n_samples=exp_n_samples)
             build_interpretability_report(generated_plt, exp_n_samples, directory=output)
         except ValueError as e:
             print(e)
@@ -698,7 +703,8 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
         if os.path.exists(ftest_labels) is True:
             print('Generating Metrics - Test set...')
             report = classification_report(test_labels, preds, output_dict=True)
-            matrix_test = (pd.crosstab(test_labels, preds, rownames=["REAL"], colnames=["PREDITO"], margins=True))
+            matrix_test = (pd.crosstab(test_labels, preds, rownames=["REAL"],
+                           colnames=["PREDITO"], margins=True))
 
             metrics_output = os.path.join(output, 'metrics_test.csv')
             print('Saving Metrics - Test set: ' + metrics_output + '...')

@@ -138,4 +138,3 @@ dependencies:
   - xz=5.2.5=h516909a_1
   - zlib=1.2.11=h36c2ea0_1013
   - zstd=1.4.9=haebb681_0
-prefix: /home/azaria/miniconda3/envs/bioautoml
