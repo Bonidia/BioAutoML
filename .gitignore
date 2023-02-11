@@ -2,6 +2,5 @@
 experimental/
 .idea/
 feat_extraction
-example_results/
 tmp/
 tests/
