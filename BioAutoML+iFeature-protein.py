@@ -104,6 +104,8 @@ def objective_rf(space):
 							 scoring=score,
 							 n_jobs=n_cpu).mean()
 
+	# print(metric)
+
 	return {'loss': -metric, 'status': STATUS_OK}
 
 
@@ -357,18 +359,24 @@ def feature_extraction(ftrain, ftrain_labels, ftest, ftest_labels, features, fou
 				datasets.append(dataset)
 
 			if 10 in features:
-				dataset = path + '/Global.csv'
-				subprocess.run(['python', 'other-methods/modlAMP-modified/descriptors.py', '-option',
+				try:
+					dataset = path + '/Global.csv'
+					subprocess.run(['python', 'other-methods/modlAMP-modified/descriptors.py', '-option',
 								'global', '-label', labels[i][j], '-input', preprocessed_fasta, '-output', dataset], 
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-				datasets.append(dataset)
-	
+					datasets.append(dataset)
+				except:
+					pass
+
 			if 11 in features:
-				dataset = path + '/Peptide.csv'
-				subprocess.run(['python', 'other-methods/modlAMP-modified/descriptors.py', '-option',
+				try:
+					dataset = path + '/Peptide.csv'
+					subprocess.run(['python', 'other-methods/modlAMP-modified/descriptors.py', '-option',
 								'peptide', '-label', labels[i][j], '-input', preprocessed_fasta, '-output', dataset], 
 								stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-				datasets.append(dataset)
+					datasets.append(dataset)
+				except:
+					pass
 
 	if 12 in features:
 		dataset = path + '/Fourier_Integer.csv'

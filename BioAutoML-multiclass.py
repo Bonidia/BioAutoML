@@ -11,7 +11,7 @@ import time
 import lightgbm as lgb
 import joblib
 # import shutil
-#  import xgboost as xgb
+import xgboost as xgb
 # from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
 from sklearn.metrics import classification_report
@@ -511,6 +511,20 @@ def multiclass_pipeline(test, test_labels, test_nameseq, norm, classifier, tunin
 			print('Classifier: LightGBM')
 			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 			# train, train_labels = imbalanced_function(clf, train, train_labels)
+	elif classifier == 3:
+		if tuning is True:
+			print('Tuning: ' + str(tuning))
+			print('Classifier: XGBClassifier')
+			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
+			if imbalance_data is True:
+				train, train_labels = imbalanced_function(clf, train, train_labels)
+			print('Tuning not yet available for XGBClassifier.')
+		else:
+			print('Tuning: ' + str(tuning))
+			print('Classifier: XGBClassifier')
+			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
+			if imbalance_data is True:
+				train, train_labels = imbalanced_function(clf, train, train_labels)
 	else:
 		sys.exit('This classifier option does not exist - Try again')
 
@@ -619,7 +633,7 @@ if __name__ == '__main__':
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
 	parser.add_argument('-classifier', '--classifier', default=0,
 						help='Classifier - 0: AdaBoost, 1: Random Forest '
-							 '2: LightGBM')
+							 '2: LightGBM, 3: XGBoost')
 	parser.add_argument('-tuning', '--tuning_classifier', type=bool, default=False,
 						help='Tuning Classifier - True = Yes, False = No, default = False')
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
