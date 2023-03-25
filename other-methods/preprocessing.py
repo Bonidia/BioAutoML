@@ -13,7 +13,7 @@ def preprocessing(finput,foutput):
     file = open(foutput, 'a')
     for seq_record in SeqIO.parse(finput, "fasta"):
         name_seq = seq_record.name
-        seq = seq_record.seq
+        seq = seq_record.seq.upper()
         if re.search(alphabet, str(seq)) is not None:
             print(name_seq)
             print("Removed Sequence")
