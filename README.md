@@ -63,8 +63,7 @@ Recent technological advances allowed an exponential expansion of biological seq
 
 * Robson Parmezan Bonidia, Anderson Paulo Avila Santos, Breno Lívio Silva de Almeida, Peter F. Stadler, Ulisses Nunes da Rocha, Danilo Sipoli Sanches, and André Carlos Ponce de Leon Ferreira de Carvalho.
 
-* **Correspondence:** rpbonidia@gmail.com or bonidia@usp.br
-
+* **Correspondence:** bonidia@usp.br, andre@icmc.usp.br, ulisses.rocha@ufz.de
 
 ## Publication
 
