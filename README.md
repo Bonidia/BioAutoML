@@ -37,9 +37,9 @@
 
 ⭐ Finalist Project (Top 15 of 82), Falling Walls Lab Brazil 2022, DWIH São Paulo, Falling Walls Foundation, DAAD The German Center for Science and Innovation [[Link](https://www.youtube.com/watch?v=H5C_UIgVeQM)].
 
-⭐ Helmholtz Visiting Researcher Grant/Award - Helmholtz Information & Data Science Academy (HIDA), 2023. Project Title: BioAutoML-Fast: End-to-End Multi-Threaded Machine Learning Package for Life Sciences [[Link]([https://www.youtube.com/watch?v=H5C_UIgVeQM](https://bonidia.github.io/website/Certificate%20HVRG_Bonidia-1.pdf)].
+⭐ Helmholtz Visiting Researcher Grant/Award - Helmholtz Information & Data Science Academy (HIDA), 2023. Project Title: BioAutoML-Fast: End-to-End Multi-Threaded Machine Learning Package for Life Sciences [[Link](https://bonidia.github.io/website/Certificate%20HVRG_Bonidia-1.pdf)].
 
-⭐ FEMS Research & Training Grant/Award - Federation of European Microbiological Societies (FEMS), 2023 (€: 5.000,00) [[Link]([https://www.youtube.com/watch?v=H5C_UIgVeQM](https://ibbsonline.org/wp-content/uploads/2023/10/IBBS-NL_Sep-2023-Issue.pdf)].
+⭐ FEMS Research & Training Grant/Award - Federation of European Microbiological Societies (FEMS), 2023 (€: 5.000,00) [[Link](https://ibbsonline.org/wp-content/uploads/2023/10/IBBS-NL_Sep-2023-Issue.pdf)].
 
 ## Abstract
 
