@@ -24,6 +24,8 @@
 
 ## Update news!!!
 
+**New Website: [[https://bonidia.github.io/BioAutoML-WP/](https://bonidia.github.io/BioAutoML-WP/)]** 
+
 **New Version - Protein:** BioAutoML + iFeature[[Ref](https://github.com/Superzchen/iFeature)]- Access on [[https://bonidia.github.io/BioAutoML/](https://bonidia.github.io/BioAutoML/)]
 
 **New Version - Protein:** Access on [[https://bonidia.github.io/BioAutoML/](https://bonidia.github.io/BioAutoML/)]
@@ -40,6 +42,12 @@
 ⭐ Helmholtz Visiting Researcher Grant/Award - Helmholtz Information & Data Science Academy (HIDA), 2023. Project Title: BioAutoML-Fast: End-to-End Multi-Threaded Machine Learning Package for Life Sciences [[Link](https://bonidia.github.io/website/Certificate%20HVRG_Bonidia-1.pdf)].
 
 ⭐ FEMS Research & Training Grant/Award - Federation of European Microbiological Societies (FEMS), 2023 (€: 5.000,00) [[Link](https://ibbsonline.org/wp-content/uploads/2023/10/IBBS-NL_Sep-2023-Issue.pdf)].
+
+⭐ BioAutoML - Top 10 Finalist - Santander X Brazil Award - Selected among the top 10 university projects (from over 200 entries) in Brazil in the national innovation competition promoted by Banco Santander.
+
+⭐ BioAutoML received an honorable mention from the Young Bioinformatics Award 2024, being chosen among the best theses in Bioinformatics and Computational Biology in Brazil, 2024.
+
+⭐ BioAutoML received third place in the ARTUR ZIVIANI THESIS AWARD (SBCAS), being chosen among the best theses in computing applied to health in Brazil, 2024.
 
 ## Abstract
 
