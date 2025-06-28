@@ -446,7 +446,7 @@ if __name__ == '__main__':
 						help='fasta format file, e.g., fasta/positive_protein_test.fasta negative_protein_test.fasta')
 	parser.add_argument('-fasta_label_test', '--fasta_label_test', nargs='+',
 						help='labels for fasta files, e.g., positive negative')
-	parser.add_argument('-estimations', '--estimations', default=70, help='number of estimations - BioAutoML - default = 50')
+	parser.add_argument('-estimations', '--estimations', default=50, help='number of estimations - BioAutoML - default = 50')
 	parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
 
@@ -493,13 +493,13 @@ if __name__ == '__main__':
 						 '-train_label', ftrain_labels, '-test', path_test,
 						 '-test_label', ftest_labels, '-test_nameseq',
 						 fnameseqtest, '-nf', 'True', '-classifier', str(classifier),
-						 '-n_cpu', str(n_cpu), '-output', foutput])
+						 '-estimations', str(estimations), '-n_cpu', str(n_cpu), '-output', foutput])
 	else:
 		subprocess.run(['python', 'BioAutoML-binary.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test, '-test_label',
 						 ftest_labels, '-test_nameseq', fnameseqtest,
-						 '-nf', 'True', '-fs', str(1), '-classifier', str(classifier), '-n_cpu', str(n_cpu),
-						 '-output', foutput])
+						 '-nf', 'True', '-fs', str(1), '-classifier', str(classifier), 
+						 '-estimations', str(estimations), '-n_cpu', str(n_cpu), '-output', foutput])
 
 ##########################################################################
 ##########################################################################

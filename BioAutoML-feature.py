@@ -424,13 +424,13 @@ if __name__ == '__main__':
 						 '-train_label', ftrain_labels, '-test', path_test,
 						 '-test_label', ftest_labels, '-test_nameseq',
 						 fnameseqtest, '-nf', 'True', '-classifier', str(classifier),
-						 '-n_cpu', str(n_cpu), '-output', foutput])
+						 '-estimations', str(estimations), '-n_cpu', str(n_cpu), '-output', foutput])
 	else:
 		subprocess.run(['python', 'BioAutoML-binary.py', '-train', path_train,
 						 '-train_label', ftrain_labels, '-test', path_test, '-test_label',
 						 ftest_labels, '-test_nameseq', fnameseqtest,
-						 '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
-						 '-output', foutput])
+						 '-nf', 'True', '-classifier', str(classifier), 
+						 '-estimations', str(estimations), '-n_cpu', str(n_cpu), '-output', foutput])
 
 ##########################################################################
 ##########################################################################

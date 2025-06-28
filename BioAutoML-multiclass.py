@@ -132,7 +132,7 @@ def tuning_rf_bayesian():
 	best_tuning = fmin(fn=objective_rf,
 				space=space,
 				algo=tpe.suggest,
-				max_evals=100,
+				max_evals=estimations,
 				trials=trials)
 
 	best_rf = RandomForestClassifier(n_estimators=int(best_tuning['n_estimators']),
@@ -186,7 +186,7 @@ def tuning_catboost_bayesian():
 	best_tuning = fmin(fn=objective_cb,
 					   space=space,
 					   algo=tpe.suggest,
-					   max_evals=100,
+					   max_evals=estimations,
 					   trials=trials)
 
 	best_cb = CatBoostClassifier(n_estimators=int(best_tuning['n_estimators']),
@@ -233,7 +233,7 @@ def tuning_lightgbm_bayesian():
 	best_tuning = fmin(fn=objective_lightgbm,
 					   space=space,
 					   algo=tpe.suggest,
-					   max_evals=100,
+					   max_evals=estimations,
 					   trials=trials)
 
 	best_cb = lgb.LGBMClassifier(n_estimators=int(best_tuning['n_estimators']),
@@ -281,7 +281,7 @@ def feature_importance_fs_bayesian(model, train, train_labels):
 	best_threshold = fmin(fn=objective_feature_selection,
 					   space=space,
 					   algo=tpe.suggest,
-					   max_evals=50,
+					   max_evals=estimations,
 					   trials=trials)
 
 	return best_threshold['threshold']
@@ -634,6 +634,7 @@ if __name__ == '__main__':
 	parser.add_argument('-classifier', '--classifier', default=0,
 						help='Classifier - 0: AdaBoost, 1: Random Forest '
 							 '2: LightGBM, 3: XGBoost')
+	parser.add_argument('-estimations', '--estimations', default=50, help='number of estimations - BioAutoML - default = 50')
 	parser.add_argument('-tuning', '--tuning_classifier', type=bool, default=False,
 						help='Tuning Classifier - True = Yes, False = No, default = False')
 	parser.add_argument('-output', '--output', help='results directory, e.g., result/')
@@ -644,6 +645,7 @@ if __name__ == '__main__':
 	ftest_labels = str(args.test_label)
 	nameseq_test = str(args.test_nameseq)
 	norm = args.normalization
+	estimations = int(args.estimations)
 	n_cpu = int(args.n_cpu)
 	classifier = int(args.classifier)
 	tuning = args.tuning_classifier

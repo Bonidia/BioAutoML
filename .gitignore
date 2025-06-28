@@ -2,3 +2,4 @@
 experimental/
 .idea/
 feat_extraction
+.venv
